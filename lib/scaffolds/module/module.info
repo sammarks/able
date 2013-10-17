@@ -1,0 +1,5 @@
+name = "[MODULE.NAME]"
+description = "[MODULE.DESCRIPTION]"
+core = 7.x
+package = "[MODULE.PACKAGE]"
+version = dev

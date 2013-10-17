@@ -1,0 +1,168 @@
+<?php
+
+use AbleCore\Modules\MenuManager;
+use AbleCore\Modules\BlockManager;
+use AbleCore\Modules\ThemeManager;
+
+/**
+ * Welcome to Able Core!
+ *
+ * This scaffold module was created by the Able Core CLI and serves as
+ * an aid for introducing the Able Core module helpers. The code in this
+ * file serves as an example for what is possible using the module
+ * helpers.
+ *
+ * If this isn't your first fling, you're probably better off using
+ * the empty scaffold (able scaffold:module --empty).
+ *
+ * If you're using this scaffold module in a production website, be sure
+ * that you delete all the example code and comments as it's very messy
+ * to have them in all of our production websites. Clean code is happy
+ * code :)
+ *
+ * For more information about how each of these classes work, refer to
+ * the comments within their functions or take a look at the documentation
+ * setup at http://ablecore.ae-lin-dev-1.ableengine.com/
+ *
+ * If you have any questions, feel free to email Sam (smarks@ableengine.com),
+ * or ask questions in the office.
+ *
+ * If you have a new feature that you'd like to add to the core, clone the
+ * repository to your computer and add it! However, be sure to read through
+ * the contributing notes before doing so (they can be found at the link
+ * mentioned above).
+ *
+ * Enjoy!
+ */
+
+/**
+ * About this File
+ *
+ * This file should only contain hook_menu(), hook_theme() and hook_block().
+ * Any other utility functions should be included at the top of this file
+ * (using require_once). These files should be inside a "helpers" folder
+ * and should end in ".inc.php"
+ *
+ * These files should have hyphens in their name. As a convention, all
+ * filenames should have hyphens and not underscores.
+ *
+ * An example of this is below:
+ */
+require_once "helpers/some-hook.inc.php";
+
+function MODULE_menu()
+{
+	/**
+	 * This is your hook_menu() function. Basically, this tells Drupal which
+	 * URLs go to which functions in your module. hook_menu() is extremely
+	 * flexible. Here are a few reasons why:
+	 *
+	 *  - Separates logic and display into two separate files.
+	 *  - Allows callback functions to be introduced for the following
+	 *    purposes:
+	 *     - Setting the title of the page (title callback)
+	 *     - Getting the content of the page (page callback)
+	 *     - Checking permissions on the page (access callback)
+	 *
+	 * If you're curious about what hook_menu() has to offer, Google for something
+	 * like "drupal hook_menu()" and click on the Drupal API result.
+	 *
+	 * Normally, hook_menu() accepts an array of configuration values.
+	 * Unfortunately, if the module is large, this array can get quite messy.
+	 * That's where MenuManager comes in! The primary goal of MenuManager is
+	 * to make code for the hook_menu() function cleaner and easier to read.
+	 * It does this by attempting to put every declaration on one line instead
+	 * of three.
+	 *
+	 * Let's look at some examples!
+	 */
+
+	/**
+	 * First, we have to start with a return statement. "Starting with a return
+	 * statement?" you ask. Why, of course! We put the return statement at the
+	 * top of the function because the entire function is a chain of calls to
+	 * the MenuManager class. It's pretty, trust me.
+	 */
+	return MenuManager::init()
+
+		/**
+		 * This is the simplest way for declaring a menu item. The define function
+		 * accepts three arguments (in its simplest form):
+		 *
+		 *  - path - This is the path for the menu item. Placeholders of any type
+		 *    are denoted with %. You can put placeholders in any part of the
+		 *    path you want.
+		 *  - callback - This argument is a string in the format of file@function.
+		 *    In this example, when viewing this page Drupal will look for
+		 *    an action_testing function inside callbacks/file.php. Any arguments
+		 *    mentioned in the path will be passed as arguments to the callback.
+		 *    For example, if we have the path test/%/path/%, two arguments will
+		 *    be passed to the callback. They are passed in the order that they
+		 *    appear in the path.
+		 *  - title - This is simply the title of the page. If you're using something
+		 *    fancy like "title callback", this value is ignored.
+		 */
+		->define('test/path/%', 'file@testing', 'Test Path')
+
+		/**
+		 * Let's go even further! Let's say you want to have a function called to
+		 * determine the title of a page. Simple.
+		 *
+		 * The fourth argument of the define() function is an array of extra
+		 * configuration values. These values are merged into the main configuration
+		 * before returning the array to send to Drupal.
+		 *
+		 * Let's say you have the path hello/world, and you want the title of
+		 * that path to be the current unix timestamp. Here's how you would do it:
+		 */
+		->define('hello/world', 'file@date', 'Test Path', array(
+			'title callback' => 'action_date_title'
+		))
+
+		/**
+		 * Let's talk about a few conventions that are in place here.
+		 *
+		 *  - Filenames have hyphens only - Do not put underscores in the filename.
+		 *    This is for consistency.
+		 *  - Actions have underscores only - Since the action is prefixed with action_,
+		 *    make sure your action only has an underscore. For example "test-file@test_action"
+		 *    is correct while "test_file@test-action" is not.
+		 *  - When creating a callback function for a title, only add "title callback"
+		 *    to the extra configuration array. "title arguments" is required by Drupal, but is
+		 *    automatically set to the same arguments passed to the main page callback.
+		 *     - If you wish to override the arguments, simply create a "title arguments"
+		 *       key in the extra configuration array.
+		 */
+
+		/**
+		 * Now let's say you want to pass some default arguments to the callback.
+		 *
+		 * Let's say we have the path test/path2 and want to pass an argument of the
+		 * value "world."
+		 *
+		 * This is where the fifth argument for the define() function comes in! The fifth
+		 * argument is an array of default arguments to pass to the function. Anything
+		 * added to this array is added after the arguments generated by the path. In this
+		 * example, we don't have any arguments generated by the path.
+		 */
+		->define('test/path2', 'file@test_path_2', 'Test Path 2', array(), array(
+			'world'
+		))
+
+		->fin();
+}
+
+function MODULE_theme()
+{
+	return ThemeManager::init()
+		->define('test_theme', 'testing.theme')
+		->define('block_test-block', 'testing.test_block')
+		->fin();
+}
+
+function MODULE_block_info()
+{
+	return BlockManager::init()
+		->define('test_block', 'Test Block')
+		->fin();
+}
