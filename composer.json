@@ -1,0 +1,10 @@
+{
+  "require": {
+    "symfony/console": "*",
+    "sebastian/diff": "1.0.*@dev",
+    "dg/twitter-php": "dev-master"
+  },
+  "autoload": {
+    "psr-0": {"Able": "src/"}
+  }
+}

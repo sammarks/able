@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require_once('vendor/autoload.php');
+
+define('SCRIPTS_ROOT', __DIR__);
+define('LIBS_ROOT', SCRIPTS_ROOT . '/lib');
+
+use Symfony\Component\Console\Application;
+
+$application = new Application('Able', '0.1a');
+
+$application->add(new Able\CommandSets\Sites\NewCommand());
+$application->add(new Able\CommandSets\Sites\DeleteCommand());
+$application->add(new Able\CommandSets\Sites\SetupRepoCommand());
+$application->add(new Able\CommandSets\Sites\DeployCommand());
+
+$application->add(new Able\CommandSets\Libs\UpdateCommand());
+
+$application->add(new Able\CommandSets\Core\UpdateCommand());
+
+$application->run();

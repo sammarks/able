@@ -1,0 +1,16 @@
+name = PROFILENAME Profile
+description = Able Engine profile for PROFILENAME
+core = 7.x
+dependencies[] = block
+dependencies[] = contextual
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = taxonomy
+dependencies[] = dblog
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = rdf
