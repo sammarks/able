@@ -40,8 +40,8 @@ use AbleCore\Modules\ThemeManager;
  *
  * This file should only contain hook_menu(), hook_theme() and hook_block().
  * Any other utility functions should be included at the top of this file
- * (using require_once). These files should be inside a "helpers" folder
- * and should end in ".inc.php"
+ * (using require_once). By convention, these files should be inside a
+ * "helpers" folder and should end in ".inc.php"
  *
  * These files should have hyphens in their name. As a convention, all
  * filenames should have hyphens and not underscores.
@@ -154,7 +154,31 @@ function MODULE_menu()
 
 function MODULE_theme()
 {
+	/**
+	 * This is your hook_theme() function. This function tells Drupal core
+	 * what theme hooks to register. Theme hooks contain all the HTML
+	 * for a specific component. Typically, theme hooks are called using
+	 * Drupal's theme() function with an array of variables to pass to the
+	 * theme hook.
+	 *
+	 * Normally, theme hooks are defined in a massive array with all the
+	 * configuration options. That's why the ThemeManager class was created.
+	 * It's a solution, much like the MenuManager that lets us define theme
+	 * hooks in one line instead of 5.
+	 *
+	 * There are two basic components to defining a theme: the key and the
+	 * path to the template. Let's look at an example:
+	 */
+
+	/**
+	 * First, you have to initialize the ThemeManager with the same return
+	 * style as with the MenuManager.
+	 */
 	return ThemeManager::init()
+
+		/**
+		 * Here's our basic define() call again.
+		 */
 		->define('test_theme', 'testing.theme')
 		->define('block_test-block', 'testing.test_block')
 		->fin();
