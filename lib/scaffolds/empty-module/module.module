@@ -1,0 +1,47 @@
+<?php
+
+use AbleCore\Modules\MenuManager;
+use AbleCore\Modules\BlockManager;
+use AbleCore\Modules\ThemeManager;
+
+/**
+ * Implements hook_menu()
+ *
+ * @return array
+ */
+function MODULE_menu()
+{
+	return MenuManager::init()
+
+		// TODO: Add some menu definitions.
+
+		->fin();
+}
+
+/**
+ * Implements hook_theme()
+ *
+ * @return array
+ */
+function MODULE_theme()
+{
+	return ThemeManager::init()
+
+		// TODO: Add some theme hook definitions.
+
+		->fin();
+}
+
+/**
+ * Implements hook_block_info()
+ *
+ * @return array
+ */
+function MODULE_block_info()
+{
+	return BlockManager::init()
+
+		// TODO: Add some block definitions.
+
+		->fin();
+}

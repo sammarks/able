@@ -177,16 +177,139 @@ function MODULE_theme()
 	return ThemeManager::init()
 
 		/**
-		 * Here's our basic define() call again.
+		 * Here's our basic define() call again. The arguments to pass are
+		 * pretty self-explanatory:
+		 *
+		 *  - key - This is how the theme is identified. If you set the key
+		 *    to be 'test_theme', when calling theme(), you'll do it like this:
+		 *    theme('test_theme', array());
+		 *  - path - This is the path to the template file for the theme hook.
+		 *    Able Core prefixes all themes with themes/ and uses a . as a directory
+		 *    separator. Therefore, if you do something like 'testing.theme',
+		 *    Able Core will look in <module root>/themes/testing/theme.tpl.php
+		 *    for the HTML to render.
 		 */
 		->define('test_theme', 'testing.theme')
-		->define('block_test-block', 'testing.test_block')
+
+		/**
+		 * Here's another example. This one employs some conventions used by
+		 * the block manager.
+		 *
+		 * Let's use the block below as an example. It's called 'test_block'.
+		 * When the automation functions look for a theme hook to render the
+		 * contents of the block, they look for a theme that follows this
+		 * pattern:
+		 *
+		 *  block.[block_name]
+		 *
+		 * Therefore, because our block is called 'test_block', it'll look
+		 * for the following theme hook when rendering the block:
+		 *
+		 *  block.test_block
+		 *
+		 * Then, the 'block.test_block' theme hook looks for the HTML in the
+		 * themes/testing/test-block.tpl.php file.
+		 */
+		->define('block.test_block', 'testing.test-block')
+
+		/**
+		 * Finally, call the fin() function when you're finished defining your
+		 * theme hooks.
+		 */
 		->fin();
+
+	/**
+	 * One last thing...
+	 *
+	 * The ac_global module associates preprocess functions with each theme.
+	 * Here's a fun tidbit about Drupal theme hooks! Have you worked with
+	 * THEME_preprocess_page, THEME_preprocess_html or THEME_preprocess_node?
+	 * Of course you have! page, html and node are actually names of theme
+	 * hooks. The official definition of HOOK_preprocess is the following:
+	 *
+	 *  HOOK_preprocess_THEME_HOOK
+	 *
+	 * HOOK being the name of the module and THEME_HOOK being the key for
+	 * the theme hook defined with ThemeManager.
+	 *
+	 * Normally, all of these preprocess functions go in one file, but Able
+	 * Core has a better way! Why put all of these preprocess functions in one
+	 * file when we can separate them out and make sure each file only has one
+	 * purpose?
+	 *
+	 * Let's start with a simple example.
+	 *
+	 * You have a theme hook with the name 'test_theme_hook.' Able Core will look
+	 * for the function 'MODULE_preprocess_test_theme_hook' in the file
+	 * '<module root>/preprocessors/test-theme-hook.php'. If it can't find the file
+	 * or the function, it won't do anything. If it finds the function and the file,
+	 * it will call the function passing a $variables array as the first argument.
+	 * If you want to pass variables to your theme hook, add them as keys to the
+	 * $variables array (it's passed by reference).
+	 *
+	 * If you're confused, fear not! There's an example in this scaffold module
+	 * with 'test_block' below.
+	 *
+	 * Let's look at a more complicated example.
+	 *
+	 * What if you want to nest your block logic into several different folders?
+	 * What if you have several blocks having to do with the homepage, and several
+	 * others having to do with another page? Don't fret! Able Core has a solution.
+	 *
+	 * You have a block called 'homepage.slideshow_area' to generate content for
+	 * the homepage slideshow. In order for this block to work, you'd have the
+	 * following theme declaration:
+	 *
+	 *  ->define('block.homepage.slideshow_area', 'path.to.slideshow-area')
+	 *
+	 * The preprocess hook for your theme would be in the following file:
+	 *
+	 *  <module root>/preprocessors/block/homepage/slideshow-area.php
+	 *
+	 * and have the following functions:
+	 *
+	 *  MODULE_preprocess_block_homepage_slideshow_area(&$variables) {}
+	 *
+	 * That's as complicated as it gets!
+	 */
 }
 
 function MODULE_block_info()
 {
+	/**
+	 * And now we have the block manager...
+	 *
+	 * The block manager works very much like the theme and menu managers.
+	 * It's simply a shortcut for defining new blocks.
+	 *
+	 * We begin with the return statement, as usual.
+	 */
 	return BlockManager::init()
+
+		/**
+		 * And then we define a block with the define() function. Here's the
+		 * argument order:
+		 *
+		 *  - key - The machine name for the block. Take a look at the "One
+		 *    Last Thing..." section above for a more advanced example of
+		 *    what you can use here.
+		 *  - name - This is the human name of the block. This is displayed
+		 *    in the Drupal administration interface.
+		 *  - extra_config - Much like the menu manager, the final argument
+		 *    is an array of extra configuration options. Take a look at
+		 *    hook_block_info() in the Drupal API for a glimpse at what else
+		 *    you can put here!
+		 */
 		->define('test_block', 'Test Block')
+
+		/**
+		 * As usual, call the fin() function once you're done defining
+		 * your module's blocks.
+		 */
 		->fin();
+
+	/**
+	 * Don't forget to read the "One Last Thing..." section above for a more
+	 * advanced example!
+	 */
 }
