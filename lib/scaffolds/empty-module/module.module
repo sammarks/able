@@ -1,6 +1,6 @@
 <?php
 
-use AbleCore\Modules\MenuManager;
+use AbleCore\Modules\PathManager;
 use AbleCore\Modules\BlockManager;
 use AbleCore\Modules\ThemeManager;
 
@@ -11,7 +11,7 @@ use AbleCore\Modules\ThemeManager;
  */
 function MODULE_menu()
 {
-	return MenuManager::init()
+	return PathManager::init()
 
 		// TODO: Add some menu definitions.
 

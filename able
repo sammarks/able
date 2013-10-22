@@ -19,4 +19,7 @@ $application->add(new Able\CommandSets\Libs\UpdateCommand());
 
 $application->add(new Able\CommandSets\Core\UpdateCommand());
 
+$application->add(new Able\CommandSets\Generate\EmptyModuleCommand());
+$application->add(new Able\Commandsets\Generate\ModuleCommand());
+
 $application->run();

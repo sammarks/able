@@ -63,7 +63,7 @@ class DeployCommand extends BaseCommand
 			$site_path = $input->getArgument('directory');
 		}
 
-		if (!$this->is_drupal_dir($site_path)) {
+		if (!$this->isDrupalDir($site_path)) {
 			$this->error('The specified directory is not a Drupal directory. The script will now exit.', true);
 		}
 

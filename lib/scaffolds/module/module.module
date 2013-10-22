@@ -1,6 +1,6 @@
 <?php
 
-use AbleCore\Modules\MenuManager;
+use AbleCore\Modules\PathManager;
 use AbleCore\Modules\BlockManager;
 use AbleCore\Modules\ThemeManager;
 
@@ -69,7 +69,7 @@ function MODULE_menu()
 	 *
 	 * Normally, hook_menu() accepts an array of configuration values.
 	 * Unfortunately, if the module is large, this array can get quite messy.
-	 * That's where MenuManager comes in! The primary goal of MenuManager is
+	 * That's where PathManager comes in! The primary goal of PathManager is
 	 * to make code for the hook_menu() function cleaner and easier to read.
 	 * It does this by attempting to put every declaration on one line instead
 	 * of three.
@@ -81,9 +81,9 @@ function MODULE_menu()
 	 * First, we have to start with a return statement. "Starting with a return
 	 * statement?" you ask. Why, of course! We put the return statement at the
 	 * top of the function because the entire function is a chain of calls to
-	 * the MenuManager class. It's pretty, trust me.
+	 * the PathManager class. It's pretty, trust me.
 	 */
-	return MenuManager::init()
+	return PathManager::init()
 
 		/**
 		 * This is the simplest way for declaring a menu item. The define function
@@ -163,7 +163,7 @@ function MODULE_theme()
 	 *
 	 * Normally, theme hooks are defined in a massive array with all the
 	 * configuration options. That's why the ThemeManager class was created.
-	 * It's a solution, much like the MenuManager that lets us define theme
+	 * It's a solution, much like the PathManager that lets us define theme
 	 * hooks in one line instead of 5.
 	 *
 	 * There are two basic components to defining a theme: the key and the
@@ -172,7 +172,7 @@ function MODULE_theme()
 
 	/**
 	 * First, you have to initialize the ThemeManager with the same return
-	 * style as with the MenuManager.
+	 * style as with the PathManager.
 	 */
 	return ThemeManager::init()
 
