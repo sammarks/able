@@ -3,10 +3,11 @@
 namespace Able\CommandSets\Generate;
 
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Able\Commandsets\BaseCommand;
+use Able\Helpers\ScaffoldManager;
 
 class EmptyModuleCommand extends BaseCommand
 {
@@ -32,16 +33,105 @@ class EmptyModuleCommand extends BaseCommand
 			->addArgument('package',
 				InputArgument::OPTIONAL,
 				'The package of the module.',
-				null);
+				null)
+			->addOption('profile',
+				'p',
+				InputOption::VALUE_REQUIRED,
+				"The profile to use.",
+				"")
+			->addOption('directory',
+				'd',
+				InputOption::VALUE_REQUIRED,
+				"The directory to create the scaffold in. Defaults to inside the current profile.",
+				"[profile]");
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output, $scaffold = 'empty-module')
 	{
 		parent::execute($input, $output);
 
-		// Prepare the module information.
+		// Prepare the module replacements.
+		$this->log('Preparing');
+		$this->prepareModuleReplacements($input);
 
-		// TODO: Implement logic.
+		// Load the existing scaffold.
+		$this->log('Loading the Scaffold', 'white', self::DEBUG_VERBOSE);
+		$scaffold = new ScaffoldManager($scaffold);
+
+		// Perform the replacements.
+		$this->log('Performing Replacements', 'white', self::DEBUG_VERBOSE);
+		$scaffold->performReplacements($this->moduleReplacements);
+
+		// Get the path.
+		$this->log('Writing to the Filesystem');
+		$path = $this->getPath($input);
+		$module_path = $this->createModuleDirectory($path, $input);
+
+		// Save the result to the filesystem.
+		$scaffold->write($module_path);
+
+		$this->log('Complete!', 'green');
+	}
+
+	protected function createModuleDirectory($path, InputInterface $input)
+	{
+		// Cancel if they specified a directory.
+		if ($input->getOption('directory'))
+			return realpath($input->getOption('directory'));
+
+		// Create the modules directory if it doesn't exist.
+		if (!is_dir($path . DIRECTORY_SEPARATOR . 'modules')) {
+			if (!mkdir($path . DIRECTORY_SEPARATOR . 'modules')) {
+				throw new \Exception("There was an error creating the module directory in '{$path}'");
+			} else {
+				return $path . DIRECTORY_SEPARATOR . 'modules';
+			}
+		} else {
+			return $path . DIRECTORY_SEPARATOR . 'modules';
+		}
+	}
+
+	/**
+	 * Gets the path for where the scaffold should be placed based on the
+	 * current input.
+	 *
+	 * @param InputInterface $input The input.
+	 *
+	 * @return mixed|string The path.
+	 * @throws \Exception
+	 */
+	protected function getPath(InputInterface $input)
+	{
+		// Check to see if the option exists.
+		$dir = $input->getOption('directory');
+		if ($dir != '[profile]' && $dir) {
+			$dir = realpath($dir);
+			if (!is_dir($dir)) {
+				throw new \Exception("The directory '{$dir}' does not exist.");
+			} else {
+				return $dir;
+			}
+		}
+
+		// Try to find the profile.
+		$drupal_dir = $this->findDrupalDirectory();
+		$profile = $this->findProfile($input);
+		if (!$profile || $profile == '[multiple]') {
+
+			while(true) {
+				// Prompt the user for the profile.
+				$profile = $this->prompt('What is the name of the profile you would like to use?', true);
+
+				if (is_dir($drupal_dir . DIRECTORY_SEPARATOR . 'profiles' . DIRECTORY_SEPARATOR . $profile)) {
+					break;
+				} else {
+					$this->error('That profile does not exist.');
+				}
+			}
+
+		}
+
+		return $drupal_dir . DIRECTORY_SEPARATOR . 'profiles' . DIRECTORY_SEPARATOR . $profile;
 	}
 
 	/**
@@ -64,8 +154,8 @@ class EmptyModuleCommand extends BaseCommand
 		if ($machine_name == null) {
 
 			// Generate a name based on the profile.
-			$profile = $this->findProfile();
-			if (!$profile) {
+			$profile = $this->findProfile($input);
+			if (!$profile || $profile == '[multiple]') {
 				$profile = $this->prompt('Able failed to find the profile installed. What is the name of your Drupal '
 					. 'profile?', true);
 			}
@@ -135,8 +225,19 @@ class EmptyModuleCommand extends BaseCommand
 		return true;
 	}
 
-	protected function findProfile()
+	protected function findProfile(InputInterface $input)
 	{
+		// Check to see if the profile was provided.
+		if ($input->getOption('profile')) {
+			$profile = realpath($input->getOption('profile'));
+			if (is_dir($profile)) {
+				$segments = explode(DIRECTORY_SEPARATOR, $profile);
+				return $segments[count($segments) - 1];
+			} else {
+				$this->error('The profile specified does not exist. Continuing to auto-find profile.');
+			}
+		}
+
 		$drupalDir = $this->findDrupalDirectory();
 		if (!$drupalDir || !is_dir($drupalDir)) {
 			return '';
