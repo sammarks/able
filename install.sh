@@ -18,7 +18,7 @@ curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 
 echo " - Downloading Able"
-sudo git clone https://ableengine.git.beanstalkapp.com/ablecore-drupal-cli.git /usr/local/able --quiet
+sudo git clone https://ableengine:%40bl33ng1n3@ableengine.git.beanstalkapp.com/ablecore-drupal-cli.git /usr/local/able --quiet
 
 echo " - Setting up Able"
 # Install Composer dependencies
