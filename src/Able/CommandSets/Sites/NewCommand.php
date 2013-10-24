@@ -154,6 +154,10 @@ class NewCommand extends BaseCommand
 		);
 		file_put_contents("{$site_path}/profiles/{$profile_name}/{$profile_name}.install", $profile_install);
 
+		// Copy the makefile.
+		$makefile = file_get_contents(LIBS_ROOT . '/profile/drupal-org.make');
+		file_put_contents("{$site_path}/profiles/{$profile_name}/drupal-org.make", $makefile);
+
 		$this->exec("mkdir {$site_path}/profiles/{$profile_name}/modules");
 		$this->exec("mkdir {$site_path}/profiles/{$profile_name}/themes");
 		$this->exec("mkdir {$site_path}/profiles/{$profile_name}/libraries");
