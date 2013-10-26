@@ -101,6 +101,11 @@ class ScaffoldManager {
 			throw new \Exception("The path ('{$path}') doesn't exist.");
 		}
 
+		// Check to see if the path already has some files in it.
+		if (count(scandir($path)) > 0) {
+			throw new \Exception("The path ('{$path}') already has some files in it.");
+		}
+
 		// Write recursively to the filesystem at the specified path.
 		$this->writeItem($path, $this->files);
 	}
