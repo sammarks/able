@@ -12,6 +12,8 @@ use Able\Helpers\ScaffoldManager;
 class EmptyModuleCommand extends BaseCommand
 {
 	protected $moduleReplacements = array();
+	protected $profilePath = '';
+	protected $profileName = '';
 
 	protected function configure()
 	{
@@ -76,7 +78,7 @@ class EmptyModuleCommand extends BaseCommand
 	protected function createModuleDirectory($path, InputInterface $input)
 	{
 		// Cancel if they specified a directory.
-		if ($input->getOption('directory'))
+		if ($input->getOption('directory') && $input->getOption('directory') != '[profile]')
 			return realpath($input->getOption('directory'));
 
 		// Create the modules directory if it doesn't exist.
@@ -131,7 +133,8 @@ class EmptyModuleCommand extends BaseCommand
 
 		}
 
-		return $drupal_dir . DIRECTORY_SEPARATOR . 'profiles' . DIRECTORY_SEPARATOR . $profile;
+		$this->profilePath = $drupal_dir . DIRECTORY_SEPARATOR . 'profiles' . DIRECTORY_SEPARATOR . $profile;
+		return $this->profilePath;
 	}
 
 	/**
@@ -220,13 +223,19 @@ class EmptyModuleCommand extends BaseCommand
 	 */
 	protected function verifyMachineName($machine_name)
 	{
-		if (strpos($machine_name, array(' ', '-', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '<', '>', '?', '.',
-			',', '[', ']', '{', '}', '=', '+', '`', '~'))) return false;
+		$invalid = array(' ', '-', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '<', '>', '?', '.',
+			',', '[', ']', '{', '}', '=', '+', '`', '~');
+		foreach ($invalid as $item) {
+			if (strpos($machine_name, $item) !== false) return false;
+		}
 		return true;
 	}
 
 	protected function findProfile(InputInterface $input)
 	{
+		// Check to see if we already found the profile.
+		if ($this->profileName) return $this->profileName;
+
 		// Check to see if the profile was provided.
 		if ($input->getOption('profile')) {
 			$profile = realpath($input->getOption('profile'));
@@ -271,7 +280,8 @@ class EmptyModuleCommand extends BaseCommand
 			$path = $profilesDir . DIRECTORY_SEPARATOR . $profile;
 			if (!is_dir($path)) continue;
 
-			if ($profile != 'minimal' && $profile  != 'standard' && $profile != 'testing')
+			if ($profile != 'minimal' && $profile  != 'standard' && $profile != 'testing' &&
+				$profile != '.' && $profile != '..')
 				$oddMenOut[] = $profile;
 
 		}
@@ -283,6 +293,7 @@ class EmptyModuleCommand extends BaseCommand
 		if (count($oddMenOut) <= 0)
 			return '';
 
+		$this->profileName = $oddMenOut[0];
 		return $oddMenOut[0];
 	}
 }

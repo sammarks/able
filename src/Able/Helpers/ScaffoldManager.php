@@ -154,6 +154,7 @@ class ScaffoldManager {
 
 		$result = array();
 		foreach (scandir($directory) as $item) {
+			if ($item == '.' || $item == '..') continue;
 			$path = $directory . DIRECTORY_SEPARATOR . $item;
 			if (is_dir($path)) {
 				$result[$item] = $this->readDirectory($path);
