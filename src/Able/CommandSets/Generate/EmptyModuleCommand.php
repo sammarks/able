@@ -78,11 +78,12 @@ class EmptyModuleCommand extends BaseCommand
 
 	protected function createModuleDirectory($path, InputInterface $input)
 	{
-		// Cancel if they specified a directory.
-		if ($input->getOption('directory') && $input->getOption('directory') != '[profile]')
-			return realpath($input->getOption('directory'));
-
 		$module_path = $path . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->moduleMachineName;
+
+		// Cancel if they specified a directory.
+		if ($input->getOption('directory') && $input->getOption('directory') != '[profile]') {
+			$module_path = realpath($input->getOption('directory'));
+		}
 
 		// Create the modules directory if it doesn't exist.
 		if (!is_dir($module_path)) {
