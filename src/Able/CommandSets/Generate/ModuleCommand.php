@@ -9,6 +9,8 @@ class ModuleCommand extends EmptyModuleCommand
 {
 	protected function configure()
 	{
+		parent::configure();
+
 		$this
 			->setName('generate:startermodule')
 			->setDescription('Generates a new starter module');
