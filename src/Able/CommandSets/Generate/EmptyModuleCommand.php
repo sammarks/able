@@ -14,6 +14,7 @@ class EmptyModuleCommand extends BaseCommand
 	protected $moduleReplacements = array();
 	protected $profilePath = '';
 	protected $profileName = '';
+	protected $moduleMachineName = '';
 
 	protected function configure()
 	{
@@ -81,15 +82,17 @@ class EmptyModuleCommand extends BaseCommand
 		if ($input->getOption('directory') && $input->getOption('directory') != '[profile]')
 			return realpath($input->getOption('directory'));
 
+		$module_path = $path . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->moduleMachineName;
+
 		// Create the modules directory if it doesn't exist.
-		if (!is_dir($path . DIRECTORY_SEPARATOR . 'modules')) {
-			if (!mkdir($path . DIRECTORY_SEPARATOR . 'modules')) {
-				throw new \Exception("There was an error creating the module directory in '{$path}'");
+		if (!is_dir($module_path)) {
+			if (!mkdir($module_path, 0777, true)) {
+				throw new \Exception("There was an error creating the module directory in '{$module_path}'");
 			} else {
-				return $path . DIRECTORY_SEPARATOR . 'modules';
+				return $module_path;
 			}
 		} else {
-			return $path . DIRECTORY_SEPARATOR . 'modules';
+			return $module_path;
 		}
 	}
 
@@ -197,6 +200,8 @@ class EmptyModuleCommand extends BaseCommand
 			$package = $this->prompt('What would you like the package for your module to be (typically, this is the ' .
 				'name of the site you\'re working on)?', true);
 		}
+
+		$this->moduleMachineName = $machine_name;
 
 		$this->moduleReplacements = array(
 			'files' => array(
