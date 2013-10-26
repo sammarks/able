@@ -46,6 +46,10 @@ class UpdateCommand extends BaseCommand
 				$this->exec('cd ' . SCRIPTS_ROOT . ' && composer update');
 			}
 		}
+
+		// Update permissions on the able executable.
+		$this->exec('chmod a+x ' . SCRIPTS_ROOT . '/able');
+
 		$this->log('Complete!', 'green');
 
 	}
