@@ -78,9 +78,9 @@ class ScaffoldManager {
 
 		foreach ($array as $key => $value) {
 			if (is_array($value)) {
-				$array[$key] = $this->replaceValues($value, $search, $replacement);
+				$new_array[$key] = $this->replaceValues($value, $search, $replacement);
 			} else {
-				$array[$key] = str_replace($search, $replacement, $value);
+				$new_array[$key] = str_replace($search, $replacement, $value);
 			}
 		}
 
