@@ -293,6 +293,7 @@ class BaseCommand extends Command
 		while (!$this->isDrupalDir($directory)) {
 			$segments = explode(DIRECTORY_SEPARATOR, $directory);
 			if (is_array($segments) && count($segments) > 0) {
+				array_pop($segments);
 				$directory = DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments);
 			} else {
 				return '';

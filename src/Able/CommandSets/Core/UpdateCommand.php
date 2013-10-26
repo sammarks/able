@@ -27,11 +27,8 @@ class UpdateCommand extends BaseCommand
 		parent::execute($input, $output);
 
 		$this->log('Updating scripts core', 'white');
-		$output = $this->exec('cd ' . SCRIPTS_ROOT . ' && git pull', false, false, true);
-		if ($output == false) {
-			$this->exec('cd ' . SCRIPTS_ROOT . ' && git stash', false);
-			$output = $this->exec('cd ' . SCRIPTS_ROOT . ' && git pull', true, false, true);
-		}
+		$this->exec('cd ' . SCRIPTS_ROOT . ' && git stash', false);
+		$output = $this->exec('cd ' . SCRIPTS_ROOT . ' && git pull', true, false, true);
 		$composer_updated = false;
 		foreach ($output as $line) {
 			if (strpos($line, 'composer.json') !== false) {
