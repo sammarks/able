@@ -1,6 +1,6 @@
 {
 	"require": {
-		"symfony/console": "*",
+		"symfony/console": "*"
 	},
 	"autoload": {
 		"psr-0": {
