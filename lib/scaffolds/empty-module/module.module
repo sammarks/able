@@ -5,6 +5,11 @@ use AbleCore\Modules\BlockManager;
 use AbleCore\Modules\ThemeManager;
 
 /**
+ * Implements hook_ablecore()
+ */
+function MODULE_ablecore() {}
+
+/**
  * Implements hook_menu()
  *
  * @return array

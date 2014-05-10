@@ -22,12 +22,12 @@ class EmptyModuleCommand extends BaseCommand
 			->setName('generate:module')
 			->setDescription('Generates a new module')
 			->addArgument('machine-name',
-				InputArgument::OPTIONAL,
-				'The machine name of the module to create. Defaults to the profile name.',
+				InputArgument::REQUIRED,
+				'The machine name of the module to create.',
 				null)
 			->addArgument('name',
 				InputArgument::OPTIONAL,
-				'The name of the module to create.',
+				'The name of the module to create. Defaults to the machine name of the module.',
 				null)
 			->addArgument('description',
 				InputArgument::OPTIONAL,
@@ -37,16 +37,11 @@ class EmptyModuleCommand extends BaseCommand
 				InputArgument::OPTIONAL,
 				'The package of the module.',
 				null)
-			->addOption('profile',
-				'p',
-				InputOption::VALUE_REQUIRED,
-				"The profile to use.",
-				"")
 			->addOption('directory',
 				'd',
 				InputOption::VALUE_REQUIRED,
-				"The directory to create the scaffold in. Defaults to inside the current profile.",
-				"[profile]");
+				"The directory to create the scaffold in. Defaults to inside the current directory.",
+				null);
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output, $scaffold = 'empty-module')
@@ -68,7 +63,7 @@ class EmptyModuleCommand extends BaseCommand
 		// Get the path.
 		$this->log('Writing to the Filesystem');
 		$path = $this->getPath($input);
-		$module_path = $this->createModuleDirectory($path, $input);
+		$module_path = $this->createModuleDirectory($path);
 
 		// Save the result to the filesystem.
 		$scaffold->write($module_path);
@@ -76,14 +71,9 @@ class EmptyModuleCommand extends BaseCommand
 		$this->log('Complete!', 'green');
 	}
 
-	protected function createModuleDirectory($path, InputInterface $input)
+	protected function createModuleDirectory($path)
 	{
 		$module_path = $path . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->moduleMachineName;
-
-		// Cancel if they specified a directory.
-		if ($input->getOption('directory') && $input->getOption('directory') != '[profile]') {
-			$module_path = realpath($input->getOption('directory'));
-		}
 
 		// Create the modules directory if it doesn't exist.
 		if (!is_dir($module_path)) {
@@ -110,7 +100,7 @@ class EmptyModuleCommand extends BaseCommand
 	{
 		// Check to see if the option exists.
 		$dir = $input->getOption('directory');
-		if ($dir != '[profile]' && $dir) {
+		if ($dir) {
 			$dir = realpath($dir);
 			if (!is_dir($dir)) {
 				throw new \Exception("The directory '{$dir}' does not exist.");
@@ -119,26 +109,7 @@ class EmptyModuleCommand extends BaseCommand
 			}
 		}
 
-		// Try to find the profile.
-		$drupal_dir = $this->findDrupalDirectory();
-		$profile = $this->findProfile($input);
-		if (!$profile || $profile == '[multiple]') {
-
-			while(true) {
-				// Prompt the user for the profile.
-				$profile = $this->prompt('What is the name of the profile you would like to use?', true);
-
-				if (is_dir($drupal_dir . DIRECTORY_SEPARATOR . 'profiles' . DIRECTORY_SEPARATOR . $profile)) {
-					break;
-				} else {
-					$this->error('That profile does not exist.');
-				}
-			}
-
-		}
-
-		$this->profilePath = $drupal_dir . DIRECTORY_SEPARATOR . 'profiles' . DIRECTORY_SEPARATOR . $profile;
-		return $this->profilePath;
+		return getcwd();
 	}
 
 	/**
@@ -158,22 +129,7 @@ class EmptyModuleCommand extends BaseCommand
 		// Get the module machine name.
 		$this->log('Getting the module machine name.', 'white', self::DEBUG_VERBOSE);
 		$machine_name = $input->getArgument('machine-name');
-		if ($machine_name == null) {
 
-			// Generate a name based on the profile.
-			$profile = $this->findProfile($input);
-			if (!$profile || $profile == '[multiple]') {
-				$profile = $this->prompt('Able failed to find the profile installed. What is the name of your Drupal '
-					. 'profile?', true);
-			}
-			$generated_name = $profile . '_core';
-
-			// Ask the user to confirm the name.
-			$machine_name = $this->promptWithReplacement("How does the module machine name '{$generated_name}' sound?",
-				$generated_name,
-				true);
-
-		}
 		while (!$this->verifyMachineName($machine_name)) {
 			$this->error('That machine name is invalid. Machine names can only contain alphanumeric characters and ' .
 				'underscores.');
@@ -184,14 +140,18 @@ class EmptyModuleCommand extends BaseCommand
 		$this->log('Getting the human name for the module.', 'white', self::DEBUG_VERBOSE);
 		$name = $input->getArgument('name');
 		if ($name == null) {
-			$name = $this->prompt('What would you like the human name for your module to be?', true);
+			if ($input->getOption('no-interaction')) {
+				$name = $machine_name;
+			} else {
+				$name = $this->prompt('What would you like the human name for your module to be?', true);
+			}
 		}
 
 		// Get the module description.
 		$this->log('Getting the description for the module.', 'white', self::DEBUG_VERBOSE);
 		$description = $input->getArgument('description');
 		if ($description == null) {
-			$description = $this->prompt('What would you like the description for your module to be?', true);
+			$description = $this->prompt('What would you like the description for your module to be?', false);
 		}
 
 		// Get the module package.
@@ -199,7 +159,7 @@ class EmptyModuleCommand extends BaseCommand
 		$package = $input->getArgument('package');
 		if ($package == null) {
 			$package = $this->prompt('What would you like the package for your module to be (typically, this is the ' .
-				'name of the site you\'re working on)?', true);
+				'name of the site you\'re working on)?', false);
 		}
 
 		$this->moduleMachineName = $machine_name;
@@ -235,71 +195,5 @@ class EmptyModuleCommand extends BaseCommand
 			if (strpos($machine_name, $item) !== false) return false;
 		}
 		return true;
-	}
-
-	protected function findProfile(InputInterface $input)
-	{
-		// Check to see if we already found the profile.
-		if ($this->profileName) return $this->profileName;
-
-		// Check to see if the profile was provided.
-		if ($input->getOption('profile')) {
-			$profile = realpath($input->getOption('profile'));
-			if (is_dir($profile)) {
-				$segments = explode(DIRECTORY_SEPARATOR, $profile);
-				return $segments[count($segments) - 1];
-			} else {
-				$this->error('The profile specified does not exist. Continuing to auto-find profile.');
-			}
-		}
-
-		$drupalDir = $this->findDrupalDirectory();
-		if (!$drupalDir || !is_dir($drupalDir)) {
-			return '';
-		}
-
-		// Make sure the profiles directory exists.
-		$folders = scandir($drupalDir);
-		$profilesDir = '';
-		foreach ($folders as $folder) {
-
-			// Make sure it's a folder.
-			$path = $drupalDir . DIRECTORY_SEPARATOR . $folder;
-			if (!is_dir($path)) continue;
-
-			if ($folder == 'profiles') {
-				$profilesDir = $path;
-				break;
-			}
-
-		}
-		if (!$profilesDir || !is_dir($profilesDir)) {
-			return '';
-		}
-
-		// Try and find the Drupal profiles and get the odd man out.
-		$profiles = scandir($profilesDir);
-		$oddMenOut = array();
-		foreach ($profiles as $profile) {
-
-			// Make sure we have a directory.
-			$path = $profilesDir . DIRECTORY_SEPARATOR . $profile;
-			if (!is_dir($path)) continue;
-
-			if ($profile != 'minimal' && $profile  != 'standard' && $profile != 'testing' &&
-				$profile != '.' && $profile != '..')
-				$oddMenOut[] = $profile;
-
-		}
-
-		// If we have multiple odd men out, return '[multiple]'
-		if (count($oddMenOut) > 1)
-			return '[multiple]';
-
-		if (count($oddMenOut) <= 0)
-			return '';
-
-		$this->profileName = $oddMenOut[0];
-		return $oddMenOut[0];
 	}
 }

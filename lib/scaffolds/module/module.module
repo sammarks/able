@@ -4,7 +4,7 @@ use AbleCore\Modules\PathManager;
 use AbleCore\Modules\BlockManager;
 use AbleCore\Modules\ThemeManager;
 
-/**
+/*
  * Welcome to Able Core!
  *
  * This scaffold module was created by the Able Core CLI and serves as
@@ -21,38 +21,54 @@ use AbleCore\Modules\ThemeManager;
  * code :)
  *
  * For more information about how each of these classes work, refer to
- * the comments within their functions or take a look at the documentation
- * setup at http://ablecore.ae-lin-dev-1.ableengine.com/
+ * the comments within their functions.
  *
- * If you have any questions, feel free to email Sam (smarks@ableengine.com),
- * or ask questions in the office.
+ * If you have any questions or run into issues, feel free to create a new
+ * issue on the main ablecore repository.
  *
  * If you have a new feature that you'd like to add to the core, clone the
- * repository to your computer and add it! However, be sure to read through
- * the contributing notes before doing so (they can be found at the link
- * mentioned above).
+ * repository to your computer and add it! Once you're finished, just submit
+ * a pull request to get your changes merged back into the main project.
  *
  * Enjoy!
  */
 
-/**
+/*
  * About this File
  *
- * This file should only contain hook_menu(), hook_theme() and hook_block().
- * Any other utility functions should be included at the top of this file
- * (using require_once). By convention, these files should be inside a
- * "helpers" folder and should end in ".inc.php"
+ * This file should only contain high-level Drupal hooks (like hook_menu(),
+ * hook_theme(), hook_block_info(), etc). Any other utility functions should
+ * be added to helper files (files ending in ".inc" inside the "helpers/"
+ * folder of the module).
  *
  * These files should have hyphens in their name. As a convention, all
  * filenames should have hyphens and not underscores.
- *
- * An example of this is below:
  */
-require_once "helpers/some-hook.inc.php";
+
+/**
+ * Implements hook_ablecore()
+ */
+function MODULE_ablecore()
+{
+	/*
+	 * First and foremost, we must declare the current module as an Able Core
+	 * module so that we can take advantage of all the autoloading functionality
+	 * (and some other nifty features in the future). This hook is not meant
+	 * to contain any code, and is not ever called. It is simply meant to let Able
+	 * Core know that the current module requires the features of Able Core.
+	 *
+	 * Commonly, you'll see this function represented like so:
+	 *
+	 * function MODULE_ablecore() {}
+	 *
+	 * Because it's not meant to have any code, there's no reason to waste space by
+	 * moving the brackets to separate lines.
+	 */
+}
 
 function MODULE_menu()
 {
-	/**
+	/*
 	 * This is your hook_menu() function. Basically, this tells Drupal which
 	 * URLs go to which functions in your module. hook_menu() is extremely
 	 * flexible. Here are a few reasons why:
@@ -64,8 +80,8 @@ function MODULE_menu()
 	 *     - Getting the content of the page (page callback)
 	 *     - Checking permissions on the page (access callback)
 	 *
-	 * If you're curious about what hook_menu() has to offer, Google for something
-	 * like "drupal hook_menu()" and click on the Drupal API result.
+	 * If you're curious about what hook_menu() has to offer, take a look at
+	 * this page: https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_menu/7
 	 *
 	 * Normally, hook_menu() accepts an array of configuration values.
 	 * Unfortunately, if the module is large, this array can get quite messy.
@@ -77,7 +93,7 @@ function MODULE_menu()
 	 * Let's look at some examples!
 	 */
 
-	/**
+	/*
 	 * First, we have to start with a return statement. "Starting with a return
 	 * statement?" you ask. Why, of course! We put the return statement at the
 	 * top of the function because the entire function is a chain of calls to
@@ -85,7 +101,7 @@ function MODULE_menu()
 	 */
 	return PathManager::init()
 
-		/**
+		/*
 		 * This is the simplest way for declaring a menu item. The define function
 		 * accepts three arguments (in its simplest form):
 		 *
@@ -98,13 +114,15 @@ function MODULE_menu()
 		 *    mentioned in the path will be passed as arguments to the callback.
 		 *    For example, if we have the path test/%/path/%, two arguments will
 		 *    be passed to the callback. They are passed in the order that they
-		 *    appear in the path.
+		 *    appear in the path. It's also important to note that this accepts
+		 *    function names as well. For example, you can use "drupal_get_form" here
+		 *    instead of having a page that calls it.
 		 *  - title - This is simply the title of the page. If you're using something
 		 *    fancy like "title callback", this value is ignored.
 		 */
 		->define('test/path/%', 'file@testing', 'Test Path')
 
-		/**
+		/*
 		 * Let's go even further! Let's say you want to have a function called to
 		 * determine the title of a page. Simple.
 		 *
@@ -114,12 +132,15 @@ function MODULE_menu()
 		 *
 		 * Let's say you have the path hello/world, and you want the title of
 		 * that path to be the current unix timestamp. Here's how you would do it:
+		 *
+		 * (refer to action_date_title in callbacks/file.php for the rest of this
+		 * implementation)
 		 */
 		->define('hello/world', 'file@date', 'Test Path', array(
 			'title callback' => 'action_date_title'
 		))
 
-		/**
+		/*
 		 * Let's talk about a few conventions that are in place here.
 		 *
 		 *  - Filenames have hyphens only - Do not put underscores in the filename.
@@ -134,7 +155,7 @@ function MODULE_menu()
 		 *       key in the extra configuration array.
 		 */
 
-		/**
+		/*
 		 * Now let's say you want to pass some default arguments to the callback.
 		 *
 		 * Let's say we have the path test/path2 and want to pass an argument of the
@@ -149,12 +170,35 @@ function MODULE_menu()
 			'world'
 		))
 
+		/*
+		 * Now let's say you have a group of pages you want to be locked down with a
+		 * specific set of user permissions. In order to do this, we'll be using the
+		 * access() function in the PathManager class.
+		 *
+		 * For this example, let's say you want two pages all locked down under the
+		 * "test permission," so that only users who possess "test permission" will
+		 * be able to access the pages.
+		 */
+		->access(array('test permission'))
+			->define('test/path3', 'file@test_path_2', 'Test Path 3')
+			->define('test/path4', 'file@test_path_2', 'Test Path 4')
+
+		/*
+		 * Note that when you're done with the access block, you'll have to call the
+		 * fin() function.
+		 */
+		->fin()
+
+		/*
+		 * When you're finished with the entire set of path declarations, make sure you
+		 * call the fin() function to finish it all off and return the result.
+		 */
 		->fin();
 }
 
 function MODULE_theme()
 {
-	/**
+	/*
 	 * This is your hook_theme() function. This function tells Drupal core
 	 * what theme hooks to register. Theme hooks contain all the HTML
 	 * for a specific component. Typically, theme hooks are called using
@@ -166,32 +210,26 @@ function MODULE_theme()
 	 * It's a solution, much like the PathManager that lets us define theme
 	 * hooks in one line instead of 5.
 	 *
-	 * There are two basic components to defining a theme: the key and the
-	 * path to the template. Let's look at an example:
+	 * There is one major part for defining a theme: its key. That's about it.
 	 */
 
-	/**
+	/*
 	 * First, you have to initialize the ThemeManager with the same return
 	 * style as with the PathManager.
 	 */
 	return ThemeManager::init()
 
-		/**
+		/*
 		 * Here's our basic define() call again. The arguments to pass are
 		 * pretty self-explanatory:
 		 *
 		 *  - key - This is how the theme is identified. If you set the key
 		 *    to be 'test_theme', when calling theme(), you'll do it like this:
 		 *    theme('test_theme', array());
-		 *  - path - This is the path to the template file for the theme hook.
-		 *    Able Core prefixes all themes with themes/ and uses a . as a directory
-		 *    separator. Therefore, if you do something like 'testing.theme',
-		 *    Able Core will look in <module root>/themes/testing/theme.tpl.php
-		 *    for the HTML to render.
 		 */
-		->define('test_theme', 'testing.theme')
+		->define('test_theme')
 
-		/**
+		/*
 		 * Here's another example. This one employs some conventions used by
 		 * the block manager.
 		 *
@@ -200,25 +238,27 @@ function MODULE_theme()
 		 * contents of the block, they look for a theme that follows this
 		 * pattern:
 		 *
-		 *  block.[block_name]
+		 *  block_[block_name]
 		 *
 		 * Therefore, because our block is called 'test_block', it'll look
 		 * for the following theme hook when rendering the block:
 		 *
-		 *  block.test_block
+		 *  block_test_block
 		 *
-		 * Then, the 'block.test_block' theme hook looks for the HTML in the
-		 * themes/testing/test-block.tpl.php file.
+		 * Then, inside your theme you can create a template named like the
+		 * following:
+		 *
+		 * block-test-block.tpl.php.
 		 */
-		->define('block.test_block', 'testing.test-block')
+		->define('block.test_block')
 
-		/**
+		/*
 		 * Finally, call the fin() function when you're finished defining your
 		 * theme hooks.
 		 */
 		->fin();
 
-	/**
+	/*
 	 * One last thing...
 	 *
 	 * The ac_global module associates preprocess functions with each theme.
@@ -242,41 +282,19 @@ function MODULE_theme()
 	 * You have a theme hook with the name 'test_theme_hook.' Able Core will look
 	 * for the function 'MODULE_preprocess_test_theme_hook' in the file
 	 * '<module root>/preprocessors/test-theme-hook.php'. If it can't find the file
-	 * or the function, it won't do anything. If it finds the function and the file,
+	 * or the function, it won't do anything. If it finds the file and the function,
 	 * it will call the function passing a $variables array as the first argument.
 	 * If you want to pass variables to your theme hook, add them as keys to the
 	 * $variables array (it's passed by reference).
 	 *
 	 * If you're confused, fear not! There's an example in this scaffold module
 	 * with 'test_block' below.
-	 *
-	 * Let's look at a more complicated example.
-	 *
-	 * What if you want to nest your block logic into several different folders?
-	 * What if you have several blocks having to do with the homepage, and several
-	 * others having to do with another page? Don't fret! Able Core has a solution.
-	 *
-	 * You have a block called 'homepage.slideshow_area' to generate content for
-	 * the homepage slideshow. In order for this block to work, you'd have the
-	 * following theme declaration:
-	 *
-	 *  ->define('block.homepage.slideshow_area', 'path.to.slideshow-area')
-	 *
-	 * The preprocess hook for your theme would be in the following file:
-	 *
-	 *  <module root>/preprocessors/block/homepage/slideshow-area.php
-	 *
-	 * and have the following functions:
-	 *
-	 *  MODULE_preprocess_block_homepage_slideshow_area(&$variables) {}
-	 *
-	 * That's as complicated as it gets!
 	 */
 }
 
 function MODULE_block_info()
 {
-	/**
+	/*
 	 * And now we have the block manager...
 	 *
 	 * The block manager works very much like the theme and menu managers.
@@ -286,7 +304,7 @@ function MODULE_block_info()
 	 */
 	return BlockManager::init()
 
-		/**
+		/*
 		 * And then we define a block with the define() function. Here's the
 		 * argument order:
 		 *
@@ -295,21 +313,38 @@ function MODULE_block_info()
 		 *    what you can use here.
 		 *  - name - This is the human name of the block. This is displayed
 		 *    in the Drupal administration interface.
-		 *  - extra_config - Much like the menu manager, the final argument
-		 *    is an array of extra configuration options. Take a look at
-		 *    hook_block_info() in the Drupal API for a glimpse at what else
-		 *    you can put here!
 		 */
 		->define('test_block', 'Test Block')
 
-		/**
+		/*
+		 * Here's an example involving some more properties.
+		 *
+		 * - key - Same as above.
+		 * - name - Same as above.
+		 * - region - The machine name of the region the block is supposed to
+		 *   belong to by default. If the region doesn't exist in the current
+		 *   theme, Drupal will display a warning message and ignore the block.
+		 * - weight - The default weight of the block in the assigned region.
+		 *   This works just like any other Drupal weight field.
+		 */
+		->define('test_block_two', 'Test Block Two', 'main_content', 2)
+
+		/*
+		 * And as usual, the last argument is an array of configuration values which
+		 * will override anything generated by Able Core.
+		 */
+		->define('test_block_three', 'Test Block Three', 'main_content', 3, array(
+			'extra_key' => 'extra_value'
+		))
+
+		/*
 		 * As usual, call the fin() function once you're done defining
 		 * your module's blocks.
 		 */
 		->fin();
 
-	/**
+	/*
 	 * Don't forget to read the "One Last Thing..." section above for a more
-	 * advanced example!
+	 * complete example!
 	 */
 }

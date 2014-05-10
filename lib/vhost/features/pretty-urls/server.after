@@ -1,0 +1,9 @@
+# First attempt to serve request as file, then as directory, then fall back to default controller
+location / {
+    try_files $uri $uri/ @frontcontroller;
+}
+
+# Default route
+location @frontcontroller {
+    rewrite ^ /index.php last;
+}

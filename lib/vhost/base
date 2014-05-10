@@ -1,0 +1,30 @@
+[ablecore:base:global:before]
+
+server {
+
+	[ablecore:base:server:before]
+
+	listen 80 default_server;
+    root /var/www/[ablecore:webroot];
+
+    error_log /var/log/nginx/error.log warn;
+    access_log /var/log/nginx/access.log combined;
+
+	# Suppress favicon-related log entries
+    location ~* favicon\.ico {
+        access_log off;
+        log_not_found off;
+    }
+
+    # Prevents hidden files (beginning with a period) from being served
+    location ~ /\. {
+        access_log off;
+        log_not_found off;
+        deny all;
+    }
+
+	[ablecore:base:server:after]
+
+}
+
+[ablecore:base:global:after]

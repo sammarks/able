@@ -9,10 +9,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Able\CommandSets\BaseCommand;
 
-use SebastianBergmann\Diff;
-use Twitter;
-use TwitterException;
-
 class DeployCommand extends BaseCommand
 {
 
@@ -113,74 +109,8 @@ class DeployCommand extends BaseCommand
 		}
 
 		$this->log("Fixing Permissions", 'white', self::DEBUG_VERBOSE);
-		$this->exec("chown -R www-data:www-data '{$site_path}/profiles/{$profile_name}'");
-		$this->exec("chmod -R 775 '{$site_path}/profiles/{$profile_name}'");
-
-		$this->log("Checking for Module Differences", 'white', self::DEBUG_VERBOSE);
-		$org_contents = file_get_contents("{$site_path}/profiles/{$profile_name}/drupal-org.make");
-		if (file_exists("{$site_path}/profiles/{$profile_name}/drupal-org.make.old")) {
-
-			// Run the diff, and install new modules/uninstall old modules.
-			$old_contents = file_get_contents("{$site_path}/profiles/{$profile_name}/drupal-org.make.old");
-			$new_contents = file_get_contents("{$site_path}/profiles/{$profile_name}/drupal-org.make");
-			$diff = new Diff;
-			$results = $diff->diffToArray($old_contents, $new_contents);
-
-			$modules_to_install = array();
-			$modules_to_uninstall = array();
-
-			// Grab the currently installed modules.
-			$installed_modules = array();
-			$installed_results = $this->exec("cd {$site_path} && drush pm-list --type=module --no-core --pipe",
-				true,
-				false,
-				true);
-			if (is_array($installed_results)) {
-				$installed_modules = $installed_results;
-			}
-
-			foreach ($results as $result) {
-
-				$module_name = $this->_get_module_name($result[0]);
-				if (!$module_name) continue;
-
-				// Removed = 2
-				// Added = 1
-
-				// If a module was removed and it's currently installed, add it to the "to be removed" list.
-				if ($result[1] === 2 && array_search($module_name, $installed_modules) !== false) {
-					$modules_to_uninstall[] = $module_name;
-				}
-
-				// If a module was removed and it's on the to_install list, remove it from that list.
-				$key = array_search($module_name, $modules_to_install);
-				if ($result[1] === 2 && $key !== false) {
-					unset($modules_to_install[$key]);
-				}
-
-				// If a module was added and it's not currently installed, add it to the install list.
-				if ($result[1] === 1 && array_search($module_name, $installed_modules) === false) {
-					$modules_to_install[] = $module_name;
-				}
-
-				// If a module was added and it's on the to uninstall list, remove it from the to uninstall list.
-				$key = array_search($module_name, $modules_to_uninstall);
-				if ($result[1] === 1 && $key !== false) {
-					unset($modules_to_uninstall[$key]);
-				}
-
-			}
-
-			// Install new modules and uninstall old modules.
-			if (count($modules_to_install) > 0)
-				$this->_install_modules($modules_to_install, $site_path);
-			if (count($modules_to_uninstall) > 0)
-				$this->_uninstall_modules($modules_to_uninstall, $site_path);
-
-		}
-
-		// Update the old file with the new contents.
-		file_put_contents("{$site_path}/profiles/{$profile_name}/drupal-org.make.old", $org_contents);
+		$this->exec("chown -R www-data:www-data '{$site_path}/profiles/{$profile_name}'", false);
+		$this->exec("chmod -R 775 '{$site_path}/profiles/{$profile_name}'", false);
 
 		if ($site_path == './') {
 			$site_path = getcwd();
@@ -191,29 +121,6 @@ class DeployCommand extends BaseCommand
 			$this->exec("cd {$site_path} && drush make -y --no-core --working-copy {$site_path}/profiles/{$profile_name}/drupal-org.make");
 		}
 
-		$this->log("Posting to Twitter", 'white', self::DEBUG_VERBOSE);
-		$site_shortname = pathinfo($site_path, PATHINFO_BASENAME);
-		$consumer_key = "AU7vbLvxxSEG2LXsyP6K9A";
-		$consumer_secret = "nfy0eUmUsdJH0qKImr1KfTVCpN9fl33nFemTuK30cU";
-		$access_token_key = "948419676-bOsoVzIm9md1X8OomFtSaVS3z0LxHHwkeB7WJSfM";
-		$access_token_secret = "IqWR8YqMZ67lI1Kv1znzya5bPTnoBRAcT4Djep8Q";
-		date_default_timezone_set('America/Louisville');
-		$time = date('d M Y \a\t g:i:s a');
-		$hostname = gethostname();
-
-		$message = "Repository Deployed: {$site_shortname} on {$hostname} on {$time}";
-
-		$twitter = new Twitter($consumer_key, $consumer_secret, $access_token_key, $access_token_secret);
-		try {
-			$twitter->send($message);
-		} catch (TwitterException $e) {
-			$this->error("Could not send to Twitter: " . $e->getMessage(), false);
-		}
-
-		$this->log('Updating Redmine Repository...', 'white', self::DEBUG_VERBOSE);
-		$this->exec("curl 'http://redmine.ableengine.com/sys/fetch_changesets?key=AtrODTD96soYuvjahedb&id={$profile_name}'",
-			false);
-
 		$this->log("Complete!", 'green');
 
 	}
@@ -221,7 +128,7 @@ class DeployCommand extends BaseCommand
 	function _get_module_name($line)
 	{
 		$matches = array();
-		$num_matches = preg_match("^([a-z|_]*)(?=\]\[)(?!projects\[)^", $line, $matches);
+		$num_matches = preg_match('/^([a-z|_]*)(?=\]\[)(?!projects\[)/', $line, $matches);
 		if ($num_matches > 0) {
 			return $matches[0];
 		} else return false;

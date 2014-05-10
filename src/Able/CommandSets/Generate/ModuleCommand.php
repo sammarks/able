@@ -20,4 +20,13 @@ class ModuleCommand extends EmptyModuleCommand
 	{
 		parent::execute($input, $output, 'module');
 	}
+
+	protected function prepareModuleReplacements(InputInterface $input)
+	{
+		parent::prepareModuleReplacements($input);
+
+		$this->moduleReplacements['files'][] = 'helpers/helper.inc';
+		$this->moduleReplacements['files'][] = 'hooks/module.inc';
+		$this->moduleReplacements['files'][] = 'preprocessors/block-test-block.php';
+	}
 }

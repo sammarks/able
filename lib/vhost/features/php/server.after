@@ -1,0 +1,9 @@
+index index.php;
+
+# Pass PHP scripts to FastCGI server
+location ~ \.php$ {
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    fastcgi_pass php_connection;
+    fastcgi_index index.php;
+    include fastcgi_params;
+}

@@ -14,7 +14,16 @@ class BaseCommand extends Command
 	const DEBUG_VERBOSE = 1;
 	const DEBUG_NORMAL = 0;
 
+	/**
+	 * The current input interface.
+	 * @var InputInterface
+	 */
 	public $input = null;
+
+	/**
+	 * The current output interface.
+	 * @var OutputInterface
+	 */
 	public $output = null;
 	public $dialog = null;
 	public $config = null;
@@ -46,6 +55,14 @@ class BaseCommand extends Command
 			}
 		}
 
+	}
+
+	protected function overrideConfigOption($value, &$config)
+	{
+		if ($value) {
+			$config = $value;
+		}
+		return $config;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
@@ -300,6 +317,43 @@ class BaseCommand extends Command
 			}
 		}
 		return $directory;
+	}
+
+	public static function FileSizeConvert($bytes)
+	{
+		$bytes = floatval($bytes);
+		$arBytes = array(
+			0 => array(
+				"UNIT" => "TB",
+				"VALUE" => pow(1024, 4)
+			),
+			1 => array(
+				"UNIT" => "GB",
+				"VALUE" => pow(1024, 3)
+			),
+			2 => array(
+				"UNIT" => "MB",
+				"VALUE" => pow(1024, 2)
+			),
+			3 => array(
+				"UNIT" => "KB",
+				"VALUE" => 1024
+			),
+			4 => array(
+				"UNIT" => "B",
+				"VALUE" => 1
+			),
+		);
+
+		foreach ($arBytes as $arItem) {
+			if ($bytes >= $arItem["VALUE"]) {
+				$result = $bytes / $arItem["VALUE"];
+				$result = strval(round($result, 2)) . " " . $arItem["UNIT"];
+				break;
+			}
+		}
+
+		return $result;
 	}
 
 	public function strpos_array($haystack, $needles)

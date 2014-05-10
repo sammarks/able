@@ -62,7 +62,7 @@ return array(
 			'enable' => array(
 				'module_filter',
 				'admin_menu',
-				'admin_menu_toolbar',
+				'adminimal_admin_menu',
 				'ctools',
 				'libraries',
 				'smtp',
@@ -82,6 +82,55 @@ return array(
 		),
 
 	),
+
+	'backup' => array(
+
+		'temporary_storage' => array(
+			'database' => '/tmp/backup/database',
+			'files' => '/tmp/backup/files',
+			'patterns' => array(
+				'database' => 'backup-%db-%m-%d-%y-%h-%i',
+				'files' => 'backup-%path-%m-%d-%y-%h-%i',
+			),
+			'timestamps' => '/tmp/backup/timestamps',
+		),
+		'aws' => array(
+			'key' => 'changeme',
+			'secret' => 'changeme',
+			'region' => 'changeme',
+			'buckets' => array(
+				'database' => 'changeme',
+				'files' => 'changeme',
+			),
+			'patterns' => array(
+				'database' => '%server/%y/%m/%d/%file',
+				'files' => '%server/%y/%m/%file',
+			),
+		),
+		'files' => array(
+			'patterns' => array(
+				'include' => array(
+					'/var/www/*',
+					'/etc/nginx',
+				),
+				'exclude' => array(
+					'glob' => array(),
+					'regex' => array(),
+				),
+			),
+		),
+		'database' => array(
+			'patterns' => array(
+				'exclude' => array(
+					'mysql',
+					'performance_schema',
+					'information_schema',
+				),
+			),
+		),
+
+	),
+
 	/**
 	 * Server Configuration
 	 * --------------------

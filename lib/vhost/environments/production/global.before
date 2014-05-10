@@ -1,0 +1,5 @@
+# Canonical URL redirect
+server {
+        server_name [ablecore:siteaddress];
+        rewrite ^(.*) http://www.[ablecore:siteaddress]$1 permanent;
+}

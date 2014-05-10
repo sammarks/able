@@ -1,0 +1,5 @@
+# Performance tweak for Drupal image styles
+location ~* files/styles/ {
+	expires 2w;
+	try_files $uri @frontcontroller;
+}
