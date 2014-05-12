@@ -2,8 +2,7 @@
 
 namespace Able\CommandSets\Sites;
 
-use Able\Helpers\Install\SiteInstallerFactory;
-use Able\Helpers\Install\VHostConfigManager;
+use Able\Helpers\Install\Installers\InstallerFactory;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -44,9 +43,9 @@ class InstallCommand extends BaseCommand {
 
 		$this->log('Installing');
 
-		// Call the SiteInstaller factory to get the appropriate site installer for the current type.
+		// Call the Installer factory to get the appropriate installer for the current type.
 		$type = $settings['type'];
-		$installer = SiteInstallerFactory::installer($type, $this, $settings);
+		$installer = InstallerFactory::installer($type, $this, $settings);
 		$installer->install();
 
 	}

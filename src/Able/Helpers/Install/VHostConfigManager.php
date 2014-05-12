@@ -3,6 +3,7 @@
 namespace Able\Helpers\Install;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\Install\Features\Feature;
 
 class VHostConfigManager {
 
@@ -41,13 +42,22 @@ class VHostConfigManager {
 
 	protected function handleFeature(Feature $feature)
 	{
-		$feature_folder = $feature->getFolderName();
+		$feature_folder = $feature->getFolder();
 
-		$base = $this->vhost_root . 'features/' . $feature_folder . '/';
-		if (!is_dir($base)) return;
+		// Make sure the feature folder ends in /
+		if (substr($feature_folder, strlen($feature_folder) - 1) != '/') {
+			$feature_folder .= '/';
+		}
+
+		// If the feature folder path isn't absolute, give it a relative path.
+		if (strpos($feature_folder, '/') !== 0) {
+			$feature_folder = $this->vhost_root . 'features/' . $feature_folder;
+		}
+
+		if (!is_dir($feature_folder)) return;
 
 		// Handle the various implementations of the feature.
-		$this->handleAllImplementations($base, $feature->getWeight());
+		$this->handleAllImplementations($feature_folder, $feature->getWeight());
 	}
 
 	protected function handleAllImplementations($base, $weight)
@@ -86,7 +96,7 @@ class VHostConfigManager {
 		return false;
 	}
 
-	protected function build()
+	public function build()
 	{
 		// Load the base file...
 		$base_file_path = $this->vhost_root . 'base';
