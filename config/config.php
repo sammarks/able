@@ -59,7 +59,7 @@ return array(
 		),
 
 		'features' => array(
-			'Drupal' => array(
+			'Drupal7' => array(
 
 				/**
 				 * modules
@@ -128,14 +128,6 @@ return array(
 					'username' => 'admin',
 					'password' => 'admin',
 				),
-
-				/**
-				 * version
-				 * -------
-				 *
-				 * The Drupal version to install. Must have a corresponding makefile.
-				 */
-				'version' => '7',
 			)
 		),
 
