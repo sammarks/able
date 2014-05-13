@@ -7,17 +7,17 @@ use Able\Helpers\Install\ComponentFactory;
 
 class InstallerFactory extends ComponentFactory {
 
-	public static function getComponentClass()
+	public function getComponentClass()
 	{
 		return 'Able\\Helpers\\Install\\Installers\\Installer';
 	}
 
-	public static function getComponentClassSuffix()
+	public function getComponentClassSuffix()
 	{
 		return 'Installer';
 	}
 
-	public static function getInternalPrefix()
+	public function getInternalPrefix()
 	{
 		return 'Able\\Helpers\\Install\\Installers\\';
 	}
@@ -31,9 +31,9 @@ class InstallerFactory extends ComponentFactory {
 	 *
 	 * @return Installer
 	 */
-	public static function installer($type, BaseCommand $command, array $settings = array())
+	public function installer($type, BaseCommand $command, array $settings = array())
 	{
-		return self::component($type, $command, $settings);
+		return $this->factory($type, $command, $settings);
 	}
 
 }

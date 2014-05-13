@@ -2,7 +2,10 @@
 
 namespace Able\CommandSets\Sites;
 
-use Able\Helpers\Install\Installers\InstallerFactory;
+use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
+use Able\Helpers\Install\Features\FeatureCollection;
+use Able\Helpers\Install\Features\FeatureFactory;
+use Able\Helpers\Install\ConfigurationManagers\ConfigurationManagerFactory;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -43,11 +46,56 @@ class InstallCommand extends BaseCommand {
 
 		$this->log('Installing');
 
-		// Call the Installer factory to get the appropriate installer for the current type.
-		$type = $settings['type'];
-		$installer = InstallerFactory::installer($type, $this, $settings);
-		$installer->install();
+		// Install the site.
+		$this->install($settings);
 
+	}
+
+	protected function install(array $settings)
+	{
+		// Prepare the features for the site.
+		$features = new FeatureCollection();
+
+		// Add the site feature.
+		$features->append(FeatureFactory::getInstance()->factory('Site', $this, $settings));
+
+		// Add other features from the settings.
+		$this->getFeatures($features, $settings);
+
+		// Handle the configuration for the site.
+		$this->handleConfigurations($features, $settings);
+
+		// Call the pre-copy hook.
+
+		// Get the copy destination for the files from the features.
+		// If no feature specifies, we default to the webroot.
+
+		// Copy the files from the repository docroot to the destination.
+
+		// Call the post-copy hook.
+
+		// Enable the site's configuration in nginx.
+
+		// Restart nginx and php5-fpm.
+
+		// Done!
+	}
+
+	protected function handleConfigurations(FeatureCollection $features, array $settings)
+	{
+		foreach ($settings['configuration'] as $key => $config) {
+			$configuration = ConfigurationManagerFactory::getInstance()->factory($key, $this, $settings);
+			if (!($configuration instanceof ConfigurationManager)) continue;
+			$configuration->setFeatureCollection($features);
+			$configuration->save();
+		}
+	}
+
+	protected function getFeatures(FeatureCollection &$features, array $settings)
+	{
+		foreach ($settings['features'] as $feature) {
+			$features->append(FeatureFactory::getInstance()->factory($feature, $this, $settings));
+		}
 	}
 
 	protected function validateRepositoryRoot($directory)
@@ -84,6 +132,10 @@ class InstallCommand extends BaseCommand {
 
 		// Add the repository-root key to the settings.
 		$settings['repository-root'] = $directory;
+
+		// Merge those settings on top of the defaults.
+		$defaults = $this->config['site'];
+		$settings = array_replace_recursive($defaults, $settings);
 
 		// Validate the settings.
 		$this->validateSettings($settings);

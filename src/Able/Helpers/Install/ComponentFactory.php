@@ -6,22 +6,37 @@ use Able\CommandSets\BaseCommand;
 
 interface ComponentFactoryInterface {
 
-	public static function component($type, BaseCommand $command, array $settings = array());
+	static function getInstance();
 
-	public static function getComponentClass();
-	public static function getComponentClassSuffix();
-	public static function getInternalPrefix();
+	function factory($type, BaseCommand $command, array $settings = array());
+
+	function getComponentClass();
+	function getComponentClassSuffix();
+	function getInternalPrefix();
 
 }
 
 abstract class ComponentFactory implements ComponentFactoryInterface {
 
-	protected static function getComponent($type)
+	/**
+	 * @var ComponentFactory
+	 */
+	private static $instance = null;
+
+	public static function getInstance()
+	{
+		$class_name = get_called_class();
+		if (!self::$instance)
+			self::$instance = new $class_name();
+		return self::$instance;
+	}
+
+	protected function getComponent($type)
 	{
 		$candidates = array();
-		$candidates[] = self::getInternalPrefix() . $type . self::getComponentClassSuffix();
+		$candidates[] = $this->getInternalPrefix() . $type . $this->getComponentClassSuffix();
 		$candidates[] = $type;
-		$candidates[] = $type . self::getComponentClassSuffix();
+		$candidates[] = $type . $this->getComponentClassSuffix();
 
 		$candidates = array_reverse($candidates);
 
@@ -34,22 +49,22 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 		}
 
 		if ($accepted_candidate === null) {
-			throw new ComponentFactoryException('The ' . self::getComponentClass() . ' ' . $type . ' does not exist.');
+			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' does not exist.');
 		}
 
 		$reflect = new \ReflectionClass($accepted_candidate);
-		if (!$reflect->isSubclassOf(self::getComponentClass())) {
-			throw new ComponentFactoryException('The ' . self::getComponentClass() . ' ' . $type . ' does not extend the ' . self::getComponentClass() . ' class.');
+		if (!$reflect->isSubclassOf($this->getComponentClass())) {
+			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' does not extend the ' . $this->getComponentClass() . ' class.');
 		}
 
-		return new $accepted_candidate();
+		return new $accepted_candidate(get_called_class());
 	}
 
-	public static function component($type, BaseCommand $command, array $settings = array())
+	public function factory($type, BaseCommand $command, array $settings = array())
 	{
-		$component = self::getComponent($type);
+		$component = $this->getComponent($type);
 		if (!($component instanceof ComponentInterface)) {
-			throw new ComponentFactoryException('The ' . self::getComponentClass() . ' ' . $type . ' is an invalid component.');
+			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' is an invalid component.');
 		}
 		$component->initialize($command, $settings);
 		return $component;

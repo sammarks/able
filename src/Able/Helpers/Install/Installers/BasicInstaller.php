@@ -9,7 +9,7 @@ class BasicInstaller extends Installer {
 
 	public function install()
 	{
-
+		$this->prepareVHost();
 	}
 
 	protected function prepareVHost()
@@ -23,6 +23,12 @@ class BasicInstaller extends Installer {
 				$vhost->addFeature(FeatureFactory::feature($feature, $this->command, $this->settings));
 			}
 		}
+
+		// Call the pre-build hook.
+		$this->preBuildVHostConfiguration($vhost);
+
+		// Build the vhost.
+		$vhost->build();
 	}
 
 }

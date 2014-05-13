@@ -8,8 +8,9 @@ define('LIBS_ROOT', SCRIPTS_ROOT . '/lib');
 
 use Symfony\Component\Console\Application;
 
-$application = new Application('Able', '0.1a');
+$application = new Application('Able', '0.2a');
 
+// Register commands.
 $application->add(new Able\CommandSets\Sites\NewCommand());
 $application->add(new Able\CommandSets\Sites\InstallCommand());
 $application->add(new Able\CommandSets\Sites\DeployCommand());
@@ -21,4 +22,10 @@ $application->add(new Able\CommandSets\Core\PublishConfigCommand());
 $application->add(new Able\CommandSets\Generate\EmptyModuleCommand());
 $application->add(new Able\CommandSets\Generate\ModuleCommand());
 
+// Include all plugins.
+foreach (glob(SCRIPTS_ROOT . '/plugins/*.php') as $file) {
+	require_once($file);
+}
+
+// Run the application...
 $application->run();

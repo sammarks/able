@@ -7,17 +7,17 @@ use Able\Helpers\Install\ComponentFactory;
 
 class FeatureFactory extends ComponentFactory {
 
-	public static function getComponentClass()
+	public function getComponentClass()
 	{
 		return 'Able\\Helpers\\Install\\Features\\Feature';
 	}
 
-	public static function getComponentClassSuffix()
+	public function getComponentClassSuffix()
 	{
 		return 'Feature';
 	}
 
-	public static function getInternalPrefix()
+	public function getInternalPrefix()
 	{
 		return 'Able\\Helpers\\Install\\Features\\';
 	}
@@ -31,9 +31,9 @@ class FeatureFactory extends ComponentFactory {
 	 *
 	 * @return Feature
 	 */
-	public static function feature($type, BaseCommand $command, array $settings = array())
+	public function feature($type, BaseCommand $command, array $settings = array())
 	{
-		return self::component($type, $command, $settings);
+		return $this->factory($type, $command, $settings);
 	}
 
 }

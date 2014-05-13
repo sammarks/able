@@ -3,18 +3,40 @@
 namespace Able\Helpers\Install\Features;
 
 use Able\Helpers\Install\Component;
+use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
 
 abstract class Feature extends Component {
 
-	public function getWeight()
+	protected $configuration = array();
+
+	public function getWeight(ConfigurationManager $config)
 	{
+		$class_name = $config->getClassName();
+		if ($class_name == 'VHost') return 1;
 		return 0;
 	}
 
-	public function getFolder()
+	public function getFolder(ConfigurationManager $config)
 	{
-		$reflect = new \ReflectionClass($this);
-		return $reflect->getShortName();
+		return $this->getClassName() . '/' . $config->getClassName();
 	}
+
+	public function getDependencies()
+	{
+		return array();
+	}
+
+	public function getConfigurationArray(ConfigurationManager $config)
+	{
+		return array();
+	}
+
+	public function setConfiguration(array $configuration = array())
+	{
+		$this->configuration = $configuration;
+	}
+
+	public function preMount($directory) {}
+	public function postMount($directory) {}
 
 }
