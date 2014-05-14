@@ -31,7 +31,7 @@ class InstallCommand extends BaseCommand {
 
 		// Get the directory that houses the repository root.
 		$directory = $input->getArgument('directory');
-		$directory = trim($directory, '/') . '/';
+		$directory = rtrim($directory, '/') . '/';
 		if (($message = $this->validateRepositoryRoot($directory)) !== true) {
 			$this->error('The repository root: ' . $directory . ' is invalid because: ' . $message, true);
 		}
