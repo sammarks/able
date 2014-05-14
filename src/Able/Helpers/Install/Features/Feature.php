@@ -36,7 +36,9 @@ abstract class Feature extends Component {
 		$this->configuration = $configuration;
 	}
 
-	public function preMount($directory) {}
-	public function postMount($directory) {}
+	public function preCopy($directory) {}
+	public function postCopy($directory) {}
+	public function postRestartServices() {}
+	public function alterWebroot($directory) {}
 
 }

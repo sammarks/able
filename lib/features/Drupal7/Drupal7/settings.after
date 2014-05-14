@@ -1,0 +1,3 @@
+// Fix the cookie domain so that CKFinder will work.
+$result = explode(':', $_SERVER['HTTP_HOST']);
+$cookie_domain = '.' . $result[0];

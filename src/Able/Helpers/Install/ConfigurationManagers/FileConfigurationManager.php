@@ -6,7 +6,6 @@ use Able\Helpers\Install\Features\Feature;
 
 abstract class FileConfigurationManager extends ConfigurationManager {
 
-	protected $file_root = null;
 	protected $base_file = null;
 	protected $replacements = array();
 	protected $base_replacements = array();
@@ -15,17 +14,12 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 	public function postInitialize()
 	{
 		parent::postInitialize();
-		$this->file_root = $this->getFileRoot();
+		$this->base_file = $this->getBaseFile();
 
-		// Make sure the file root and base file exist.
-		if (!is_dir($this->file_root)) {
-			throw new FileConfigurationManagerException('The file root ' . $this->file_root . ' does not exist.');
+		// Make sure the base file exists.
+		if (!is_file($this->base_file)) {
+			throw new FileConfigurationManagerException('The base file ' . $this->base_file . ' does not exist.');
 		}
-		$base_file = $this->file_root . '/base';
-		if (!is_file($base_file)) {
-			throw new FileConfigurationManagerException('The base file ' . $base_file . ' does not exist.');
-		}
-		$this->base_file = $base_file;
 
 		// Setup the base replacements array.
 		$base_replacements_list = $this->getBaseReplacementList();
@@ -39,8 +33,10 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 		$this->buildReplacements();
 	}
 
-	protected abstract function getFileRoot();
+	protected abstract function getBaseFile();
 	protected abstract function getBaseReplacementList();
+
+	protected function prepareFeatureImplementation(&$contents) {}
 
 	protected function handleFeature(Feature $feature)
 	{
@@ -58,6 +54,7 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 	{
 		if (!is_file($base . $type)) return;
 		if ($contents = file_get_contents($base . $type)) {
+			$this->prepareFeatureImplementation($contents);
 			$this->performReplacements($contents, $this->replacements);
 			$replacements_key = $this->base_replacements_keys[$type];
 			$this->base_replacements[$replacements_key][] = array(

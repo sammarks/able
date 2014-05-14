@@ -91,7 +91,7 @@ class BaseCommand extends Command
 	 *
 	 * @throws \Exception
 	 */
-	protected function log($message, $color = 'white', $level = self::DEBUG_NORMAL)
+	public function log($message, $color = 'white', $level = self::DEBUG_NORMAL)
 	{
 
 		if (!$this->input || !$this->output) {

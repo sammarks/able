@@ -14,9 +14,9 @@ class VHostConfigurationManager extends FileConfigurationManager {
 		);
 	}
 
-	protected function getFileRoot()
+	protected function getBaseFile()
 	{
-		return SCRIPTS_ROOT . '/lib/vhost/';
+		return SCRIPTS_ROOT . '/lib/vhost/base';
 	}
 
 } 

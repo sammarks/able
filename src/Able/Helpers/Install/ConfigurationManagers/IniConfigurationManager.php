@@ -12,7 +12,11 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 	{
 		parent::postInitialize();
 
-		$this->configuration = parse_ini_string($this->existing_contents, true);
+		if ($this->existing_contents) {
+			$this->configuration = parse_ini_string($this->existing_contents, true);
+		} else {
+			$this->configuration = array();
+		}
 
 		// Get the initial configuration values from the site settings.
 		if (array_key_exists($this->getClassName(), $this->settings['configuration'])) {

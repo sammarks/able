@@ -49,6 +49,8 @@ class InstallCommand extends BaseCommand {
 		// Install the site.
 		$this->install($settings);
 
+		$this->log('Complete!', 'green');
+
 	}
 
 	protected function install(array $settings)
@@ -66,22 +68,54 @@ class InstallCommand extends BaseCommand {
 		$this->getFeatures($features, $settings);
 
 		// Handle the configuration for the site.
+		$this->log('Preparing Server Configuration', 'white', self::DEBUG_VERBOSE);
 		$this->handleConfigurations($features, $settings);
 
-		// Call the pre-copy hook.
-
-		// Get the copy destination for the files from the features.
+		// Get the copy destination for the files from the feautres.
 		// If no feature specifies, we default to the webroot.
+		$directory = $settings['webroot_folder'] . '/' . $settings['webroot'];
+		$directory = $features->alterHook('alterWebroot', $directory);
+
+		// Call the pre-copy hook.
+		$features->callHook('preCopy', $directory);
 
 		// Copy the files from the repository docroot to the destination.
+		$this->log('Copying docroot', 'white', self::DEBUG_VERBOSE);
+		$this->copyToWebroot($settings, $directory);
 
 		// Call the post-copy hook.
-
-		// Enable the site's configuration in nginx.
+		$features->callHook('postCopy', $directory);
 
 		// Restart nginx and php5-fpm.
+		$this->log('Restarting Services', 'white', self::DEBUG_VERBOSE);
+		$this->restartServices();
 
-		// Done!
+		// Call the post-restart-services hook.
+		$features->callHook('postRestartServices');
+	}
+
+	protected function restartServices()
+	{
+		$this->exec('service nginx restart');
+		$this->exec('service php5-fpm restart');
+	}
+
+	protected function copyToWebroot(array $settings, $destination)
+	{
+		$docroot = $settings['repository_root'] . '/docroot';
+		if (!is_dir($docroot)) {
+			throw new SiteInstallException('The repository docroot folder ' . $docroot . ' does not exist.');
+		}
+
+		if (!is_dir($destination)) {
+			mkdir($destination, 0777, true);
+		}
+
+		if (!is_dir($destination)) {
+			throw new SiteInstallException('The destination directory ' . $docroot . ' does not exist, and an attempt to create the directory failed.');
+		}
+
+		$this->exec("cp -r '$docroot' '$destination'");
 	}
 
 	protected function handleConfigurations(FeatureCollection $features, array $settings)
@@ -134,7 +168,7 @@ class InstallCommand extends BaseCommand {
 		}
 
 		// Add the repository-root key to the settings.
-		$settings['repository-root'] = $directory;
+		$settings['repository_root'] = $directory;
 
 		// Merge those settings on top of the defaults.
 		$defaults = $this->config['site'];
@@ -174,3 +208,4 @@ class InstallCommand extends BaseCommand {
 } 
 
 class MalformedSettingsException extends \Exception {}
+class SiteInstallException extends \Exception {}

@@ -31,6 +31,11 @@ class FeatureCollection extends \ArrayObject {
 		// Resolve the dependencies of the feature.
 		$this->resolveDependencies($newval);
 
+		// Set the configuration for the feature if it exists.
+		if (!empty($this->settings['features'][$class_name])) {
+			$newval->setConfiguration($this->settings['features'][$class_name]);
+		}
+
 		$this->added_features[$index] = $class_name;
 
 		parent::offsetSet($index, $newval);
@@ -64,6 +69,42 @@ class FeatureCollection extends \ArrayObject {
 				$this[] = FeatureFactory::getInstance()->factory($dependency, $this->base_command, $this->settings);
 			}
 		}
+	}
+
+	public function callHook($hook)
+	{
+		$args = func_get_args();
+		array_shift($args);
+
+		$results = array();
+		foreach ($this as $feature) {
+			if (method_exists($hook, $feature)) {
+				$results[] = call_user_func_array(array($feature, $hook), $args);
+			}
+		}
+
+		if (count($results) === 1) {
+			return $results[0];
+		} elseif (count($results) === 0) {
+			return null;
+		} else {
+			return $results;
+		}
+	}
+
+	public function alterHook($hook, $default_value = null)
+	{
+		$args = func_get_args();
+		unset($args[1]); // Remove $default_value
+
+		$results = call_user_func_array(array($this, 'callHook'), $args);
+		if (is_array($results)) {
+			throw new FeatureCollectionException('More than one alter was performed. This most likely means two features are in conflict.');
+		}
+		if ($results === null) {
+			return $default_value;
+		}
+		return $results;
 	}
 
 }
