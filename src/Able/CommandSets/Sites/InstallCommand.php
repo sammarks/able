@@ -58,6 +58,9 @@ class InstallCommand extends BaseCommand {
 		// Prepare the features for the site.
 		$features = new FeatureCollection();
 
+		// Initialize the feature collection.
+		$features->initialize($this, $settings);
+
 		// Add the site feature.
 		$features->append(FeatureFactory::getInstance()->factory('Site', $this, $settings));
 
