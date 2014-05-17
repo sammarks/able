@@ -167,7 +167,7 @@ class InstallCommand extends BaseCommand {
 			throw new MalformedSettingsException('The settings contains invalid JSON or could not be decoded.');
 		}
 
-		// Add the repository-root key to the settings.
+		// Add the repository_root key to the settings.
 		$settings['repository_root'] = $directory;
 
 		// Merge those settings on top of the defaults.
@@ -187,7 +187,7 @@ class InstallCommand extends BaseCommand {
 			'title',
 			'fqdn',
 			'webroot',
-			'repository-root',
+			'repository_root',
 		);
 		foreach ($required_keys as $key) {
 			if (!array_key_exists($key, $settings)) {

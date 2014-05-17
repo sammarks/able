@@ -15,7 +15,7 @@ class SiteFeature extends Feature {
 	public function getFolder(ConfigurationManager $config)
 	{
 		// Return the configuration directory relative to the site's repository.
-		return $this->settings['repository-root'] . 'config/';
+		return $this->settings['repository_root'] . 'config/';
 	}
 
 }
