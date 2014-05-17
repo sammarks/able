@@ -57,7 +57,8 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' does not extend the ' . $this->getComponentClass() . ' class.');
 		}
 
-		return new $accepted_candidate(get_called_class());
+		$instance = forward_static_call(array(get_called_class(), 'getInstance'));
+		return new $accepted_candidate($instance);
 	}
 
 	public function factory($type, BaseCommand $command, array $settings = array())
