@@ -162,7 +162,7 @@ class InstallCommand extends BaseCommand {
 			throw new MalformedSettingsException('The settings file could not be found or could not be loaded (' . $settings_file . ')');
 		}
 
-		$settings = json_decode($contents);
+		$settings = (array)json_decode($contents);
 		if ($settings === null) {
 			throw new MalformedSettingsException('The settings contains invalid JSON or could not be decoded.');
 		}
