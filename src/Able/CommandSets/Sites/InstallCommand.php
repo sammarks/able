@@ -105,7 +105,7 @@ class InstallCommand extends BaseCommand {
 
 	protected function copyToWebroot(array $settings, $destination)
 	{
-		$docroot = $settings['repository_root'] . '/docroot';
+		$docroot = $settings['repository_root'] . 'docroot';
 		if (!is_dir($docroot)) {
 			throw new SiteInstallException('The repository docroot folder ' . $docroot . ' does not exist.');
 		}

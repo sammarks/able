@@ -78,7 +78,7 @@ class FeatureCollection extends \ArrayObject {
 
 		$results = array();
 		foreach ($this as $feature) {
-			if (method_exists($hook, $feature)) {
+			if (method_exists($feature, $hook)) {
 				$results[] = call_user_func_array(array($feature, $hook), $args);
 			}
 		}
