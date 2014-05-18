@@ -77,7 +77,7 @@ class InstallCommand extends BaseCommand {
 		// Get the copy destination for the files from the feautres.
 		// If no feature specifies, we default to the webroot.
 		$directory = $settings['webroot_folder'] . '/' . $settings['webroot'];
-		$directory = $features->alterHook('alterWebroot', $directory);
+		$directory = $features->alterHook('alterWebroot', $directory, $directory);
 
 		// Call the pre-copy hook.
 		$features->callHook('preCopy', $directory);
