@@ -179,7 +179,6 @@ class InstallCommand extends BaseCommand {
 
 		// Validate the settings.
 		$this->validateSettings($settings);
-		$this->fillDefaults($settings);
 
 		return $settings;
 	}
@@ -197,15 +196,6 @@ class InstallCommand extends BaseCommand {
 				throw new MalformedSettingsException('The key ' . $key . ' is required, but does not exist in the project settings.');
 			}
 		}
-	}
-
-	protected function fillDefaults(&$settings)
-	{
-		$defaults = array(
-			'environment' => 'development',
-			'type' => 'Basic',
-		);
-		$settings = array_replace_recursive($settings, $defaults);
 	}
 
 } 
