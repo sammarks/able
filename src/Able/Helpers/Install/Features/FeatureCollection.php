@@ -74,7 +74,7 @@ class FeatureCollection extends \ArrayObject {
 	public function callHook($hook)
 	{
 		$args = func_get_args();
-		array_shift($args);
+		array_shift($args); // Remove $hook.
 
 		$results = array();
 		foreach ($this as $feature) {
@@ -96,6 +96,9 @@ class FeatureCollection extends \ArrayObject {
 	{
 		$args = func_get_args();
 		unset($args[1]); // Remove $default_value
+
+		// Reset the array indexes.
+		$args = array_values($args);
 
 		$results = call_user_func_array(array($this, 'callHook'), $args);
 		if (is_array($results)) {
