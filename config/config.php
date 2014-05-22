@@ -183,7 +183,14 @@ return array(
 					'username' => 'admin',
 					'password' => 'admin',
 				),
-			)
+			),
+			'Database' => array(
+				'username' => 'test-database',
+				'password' => 'test-password',
+				'database' => 'test-database',
+				'host' => 'test-host',
+				'create' => true,
+			),
 		),
 
 	),

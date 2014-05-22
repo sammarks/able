@@ -35,6 +35,7 @@ class FeatureCollection extends \ArrayObject {
 		if (!empty($this->settings['features'][$class_name])) {
 			$newval->setConfiguration($this->settings['features'][$class_name]);
 		}
+		$newval->feature_collection = $this;
 
 		$this->added_features[$index] = $class_name;
 

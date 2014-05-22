@@ -4,6 +4,7 @@ namespace Able\Helpers\Install\Features;
 
 use Able\CommandSets\BaseCommand;
 use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
+use Able\Helpers\Install\ConfigurationManagers\ConfigurationManagerFactory;
 use Able\Helpers\Install\ConfigurationManagers\Drupal7ConfigurationManager;
 
 class Drupal7Feature extends Feature {
@@ -59,6 +60,9 @@ class Drupal7Feature extends Feature {
 		$this->command->log('Updating Defaults', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->setDefaults($drupal_root);
 
+		$this->command->log('Preparing Site Configuration', 'white', BaseCommand::DEBUG_VERBOSE);
+		$this->prepareSettings();
+
 		$this->command->log('Clearing Caches', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->command->exec("drush cc --root='$drupal_root' -y all");
 
@@ -97,6 +101,17 @@ class Drupal7Feature extends Feature {
 
 		$this->command->exec("drush variable-set --root='$drupal_root' -y admin_theme $admin_theme");
 		$this->command->exec("drush variable-set --root='$drupal_root' -y theme_default $frontend_theme");
+	}
+
+	protected function prepareSettings()
+	{
+		// Get the configuraton manager.
+		$config_manager = ConfigurationManagerFactory::getInstance()->factory('Drupal7', $this->command, $this->settings);
+		if (!($config_manager instanceof Drupal7ConfigurationManager)) {
+			throw new Drupal7FeatureException('There is no Drupal7 configuration manager installed.');
+		}
+		$config_manager->setFeatureCollection($this->feature_collection);
+		$config_manager->build();
 	}
 
 	public function getWeight(ConfigurationManager $config)
