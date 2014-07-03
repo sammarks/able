@@ -136,6 +136,10 @@ server:
     # supported web server.
     web_server: nginx
 
+    # The URL to use when connecting to the global knowledge server. This is the etcd
+    # server that contains any shared configuration options across the node cluster.
+    global_knowledge: "http://127.0.0.1:4001"
+
     # Where items are located on the server.
     configuration:
         VHost: "/etc/nginx/sites-available/default"

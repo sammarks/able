@@ -2,7 +2,7 @@
 
 namespace Able\Helpers\GlobalKnowledge;
 
-use Guzzle\Common\Exception\ExceptionCollection;
+use Able\Helpers\ScopeManager;
 use LinkORB\Component\Etcd\Client;
 
 class GlobalKnowledge extends Client {
@@ -24,6 +24,10 @@ class GlobalKnowledge extends Client {
 	 */
 	public static function getInstance($url = 'http://127.0.0.1:4001')
 	{
+		if (ScopeManager::getInstance()->getScope() == ScopeManager::SCOPE_NONE) {
+			throw new \Exception('The Global Knowledge is only available to nodes in the cluster and containers.');
+		}
+
 		if (!self::$instance) {
 			self::$instance = new self($url);
 
