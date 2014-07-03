@@ -16,3 +16,5 @@ abstract class DatabaseFeature extends Feature {
 	public abstract function createDatabase();
 
 } 
+
+class DatabaseFeatureException extends \Exception {}

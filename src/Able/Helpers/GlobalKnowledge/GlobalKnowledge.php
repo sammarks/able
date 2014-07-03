@@ -4,6 +4,7 @@ namespace Able\Helpers\GlobalKnowledge;
 
 use Able\Helpers\ScopeManager;
 use LinkORB\Component\Etcd\Client;
+use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
 
 class GlobalKnowledge extends Client {
 
@@ -53,6 +54,25 @@ class GlobalKnowledge extends Client {
 			$this->get('/');
 			return true;
 		} catch (\Exception $ex) {
+			return false;
+		}
+	}
+
+	/**
+	 * Exists
+	 *
+	 * Checks to see if the specified key exists.
+	 *
+	 * @param string $key The key to check.
+	 *
+	 * @return bool
+	 */
+	public function exists($key)
+	{
+		try {
+			$this->get($key);
+			return true;
+		} catch (KeyNotFoundException $ex) {
 			return false;
 		}
 	}
