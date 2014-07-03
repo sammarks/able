@@ -6,6 +6,7 @@ use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
 use Able\Helpers\Install\Features\FeatureCollection;
 use Able\Helpers\Install\Features\FeatureFactory;
 use Able\Helpers\Install\ConfigurationManagers\ConfigurationManagerFactory;
+use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -199,7 +200,11 @@ class InstallCommand extends BaseCommand {
 		}
 	}
 
-} 
+	public function getScope()
+	{
+		return ScopeManager::SCOPE_CONTAINER;
+	}
+}
 
 class MalformedSettingsException extends \Exception {}
 class SiteInstallException extends \Exception {}

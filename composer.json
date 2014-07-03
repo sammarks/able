@@ -1,8 +1,15 @@
 {
 	"require": {
 		"symfony/console": "~2.5",
-		"symfony/yaml": "~2.5"
+		"symfony/yaml": "~2.5",
+		"linkorb/etcd-php": "dev-master"
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/sammarks/etcd-php.git"
+		}
+	],
 	"autoload": {
 		"psr-0": {
 			"Able": "src/"
