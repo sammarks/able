@@ -14,6 +14,7 @@ class Drupal7Feature extends Feature {
 		return array(
 			'PHP',
 			'PrettyURLs',
+			'Database',
 		);
 	}
 

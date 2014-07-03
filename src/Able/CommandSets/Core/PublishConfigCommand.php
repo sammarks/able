@@ -24,13 +24,13 @@ class PublishConfigCommand extends BaseCommand
 			mkdir('/etc/able', 0777, true);
 		}
 		if (!is_file('/etc/able/config.php')) {
-			copy(SCRIPTS_ROOT . '/config/config.php', '/etc/able/config.php');
+			copy(SCRIPTS_ROOT . '/config/config.yaml', '/etc/able/config.yaml');
 		} else {
-			if ($this->confirm('/etc/able/config.php already exists. Would you like to overwrite it?')) {
-				copy(SCRIPTS_ROOT . '/config/config.php', '/etc/able/config.php');
+			if ($this->confirm('/etc/able/config.yaml already exists. Would you like to overwrite it?')) {
+				copy(SCRIPTS_ROOT . '/config/config.yaml', '/etc/able/config.yaml');
 			} else return;
 		}
-		$this->log('Config published to /etc/able/config.php', 'green');
+		$this->log('Config published to /etc/able/config.yaml', 'green');
 	}
 
 }
