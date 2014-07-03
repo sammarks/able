@@ -28,6 +28,14 @@ class FeatureCollection extends \ArrayObject {
 			return; // Don't add the feature.
 		}
 
+		// Add any parents of the class so dependencies can be resolved by parent class.
+		$other_candidates = $newval->getParentNames();
+		foreach ($other_candidates as $candidate) {
+			if (array_search($candidate, $this->added_features) === false) {
+				$this->added_features[] = $candidate;
+			}
+		}
+
 		// Resolve the dependencies of the feature.
 		$this->resolveDependencies($newval);
 
