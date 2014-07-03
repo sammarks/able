@@ -2,6 +2,7 @@
 
 namespace Able\CommandSets;
 
+use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
-class BaseCommand extends Command
+abstract class BaseCommand extends Command
 {
 
 	const DEBUG_VERBOSE = 1;
@@ -72,6 +73,9 @@ class BaseCommand extends Command
 		$this->input = $input;
 		$this->output = $output;
 		$this->dialog = $this->getHelperSet()->get('dialog');
+
+		// Update the scope to reflect the current command.
+		ScopeManager::getInstance()->setScope($this->getScope());
 
 		// Check if the user has root privileges.
 		if (posix_getuid() != 0) {
@@ -365,6 +369,18 @@ class BaseCommand extends Command
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get Scope
+	 *
+	 * Gets the scope for the current command.
+	 *
+	 * @return int
+	 */
+	public function getScope()
+	{
+		return ScopeManager::SCOPE_NONE;
 	}
 
 }
