@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Able\CommandSets\BaseCommand;
+use Symfony\Component\Yaml\Yaml;
 
 class InstallCommand extends BaseCommand {
 
@@ -159,19 +160,16 @@ class InstallCommand extends BaseCommand {
 
 	protected function getSettings($directory)
 	{
-		$this->log('Parsing ablecore.json', 'white', self::DEBUG_VERBOSE);
+		$this->log('Parsing ablecore.yaml', 'white', self::DEBUG_VERBOSE);
 
-		$settings_file = $directory . 'config/ablecore.json';
+		$settings_file = $directory . 'config/ablecore.yaml';
 
 		$contents = file_get_contents($settings_file);
 		if (!$contents) {
 			throw new MalformedSettingsException('The settings file could not be found or could not be loaded (' . $settings_file . ')');
 		}
 
-		$settings = (array)json_decode($contents);
-		if ($settings === null) {
-			throw new MalformedSettingsException('The settings contains invalid JSON or could not be decoded.');
-		}
+		$settings = Yaml::parse($contents);
 
 		// Add the repository_root key to the settings.
 		$settings['repository_root'] = $directory;

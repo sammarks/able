@@ -1,6 +1,7 @@
 {
 	"require": {
-		"symfony/console": "*"
+		"symfony/console": "~2.5",
+		"symfony/yaml": "~2.5"
 	},
 	"autoload": {
 		"psr-0": {

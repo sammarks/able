@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class BaseCommand extends Command
 {
@@ -48,10 +49,10 @@ class BaseCommand extends Command
 	{
 
 		$this->config = array();
-		$configLocations = array(SCRIPTS_ROOT . '/config/config.php', '/etc/able/config.php');
+		$configLocations = array(SCRIPTS_ROOT . '/config/config.yaml', '/etc/able/config.yaml');
 		foreach ($configLocations as $location) {
 			if (file_exists($location)) {
-				$this->config = array_replace_recursive($this->config, include($location));
+				$this->config = array_replace_recursive($this->config, Yaml::parse(file_get_contents($location)));
 			}
 		}
 
