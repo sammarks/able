@@ -15,4 +15,13 @@ abstract class DatabaseFeature extends Feature {
 	public abstract function getConnectionString();
 	public abstract function createDatabase();
 
-} 
+	public function preCopy($directory)
+	{
+		// Create the database before everything else if it has been requested.
+		if ($this->create) {
+			$this->createDatabase();
+		}
+	}
+}
+
+class DatabaseFeatureException extends \Exception {}
