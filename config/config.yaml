@@ -1,0 +1,145 @@
+# This section represents the default configuration for every site
+# created through Able.
+site:
+
+    # The title of the website. Must be human readable.
+    title: "Test Site"
+    
+    # The environment to use for the website. Can either be "Production," "Staging," or "Development"
+    # Must correspond with a feature name.
+    environment: "Development"
+    
+    # The fully-qualified domain name for the website.
+    fqdn: "www.testsite.com"
+    
+    # The webroot folder for the website (not including webroot_folder).
+    webroot: "testsite.com"
+    
+    # The folder to contain webroots. This is a separate configuration option
+    # because it is rarely changed.
+    # TODO: This needs to be moved elsewhere.
+    webroot_folder: "/var/www"
+    
+    # The email to use when setting up various CMSs.
+    email: "noreply@example.org"
+    
+    # The configuration managers go here, along with additional configuration options for each.
+    # TODO: Merge the configuration managers and features into one.
+    configuration:
+    
+        VHost:
+        FPM:
+        PHP:
+    
+        # The key of the configuration item is the name of the feature, and the items contained
+        # within are the specific configuration options.
+        FPMPool:
+            max_children: 20
+            
+        Supervisor:
+            unix_http_server:
+                file: "/tmp/supervisor.sock"
+            supervisord:
+                logfile: "/tmp/supervisord.log"
+                logfile_maxbytes: "50MB"
+                logfile_backups: "10"
+                loglevel: "info"
+                pidfile: "/tmp/supervisord.pid"
+                nodaemon: false
+                minfds: 1024
+                minprocs: 200
+            "rpcinterface:supervisor":
+                "supervisor.rpcinterface_factory": "supervisor.rpcinterface:make_main_rpcinterface"
+            supervisorctl:
+                serverurl: "unix:///tmp/supervisor.sock"
+            "program:php5-fpm":
+                command: "/usr/sbin/php5-fpm -c /etc/php5/fpm"
+                stdout_events_enabled: true
+                stderr_events_enabled: true
+            "program:php5-fpm-log":
+                command: "tail -f /var/log/php5-fpm.log"
+                stdout_events_enabled: true
+                stderr_events_enabled: true
+            "program:nginx":
+                command: "/usr/sbin/nginx"
+                stdout_events_enabled: true
+                stderr_events_enabled: true
+            "eventlistener:stdout":
+                command: "supervisor_stdout"
+                buffer_size: 100
+                events: "PROCESS_LOG"
+                result_handler: "supervisor_stdout:event_handler"
+    
+    features:
+        Drupal7:
+        
+            # This array has two sub-items: disable and enable. When creating a site, the modules
+            # listed in the 'disable' array are disabled. Modules listed in the 'enable' array
+            # are enabled.
+            modules:
+                disable:
+                    - overlay
+                    - toolbar
+                    - update
+                enable:
+                    - module_filter
+                    - admin_menu
+                    - adminimal_admin_menu
+                    - ctools
+                    - libraries
+                    - smtp
+                    - ckeditor
+                    - less
+                    - conditional_styles
+                    - field_collection
+                    - token
+                    - entity
+                    - pathauto
+                    - features
+                    - defaultcontent
+                    - context
+                    - ablecore
+                    - xautoload
+
+            # The themes to enable when installing the site. Can be any available theme and
+            # can be either for the administration side or frontend.
+            themes:
+                administration: "adminimal"
+                frontend: "bartik"
+
+            # The Drupal profile to install. Can be any profile supported by Drupal and Drush.
+            profile: standard
+
+            # The database prefix to use when installing the site.
+            db_prefix: ''
+
+            # The default credentials to use when installing the site.
+            default_credentials:
+                email: "admin@example.org"
+                username: admin
+                password: admin
+
+        # This feature implements database connection settings.
+        # TODO: Actually implement this.
+        Database:
+            username: "test-database"
+            password: "test-password"
+            database: "test-database"
+            host: "test-host"
+            create: true
+
+# This configuration section outlines where specific items are located
+# on the server.
+server:
+
+    # The web server currently enabled on the server. Currently, nginx is the only
+    # supported web server.
+    web_server: nginx
+
+    # Where items are located on the server.
+    configuration:
+        VHost: "/etc/nginx/sites-available/default"
+        FPMPool: "/etc/php5/fpm/pool.d/www.conf"
+        FPM: "/etc/php5/fpm/php-fpm.conf"
+        PHP: "/etc/php5/fpm/php.ini"
+        Supervisor: "/etc/supervisord.conf"
