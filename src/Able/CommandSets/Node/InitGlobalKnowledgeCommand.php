@@ -2,13 +2,12 @@
 
 namespace Able\CommandSets\Node;
 
-use Able\CommandSets\BaseCommand;
 use Able\Helpers\GlobalKnowledge\GlobalKnowledge;
 use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InitGlobalKnowledgeCommand extends BaseCommand {
+class InitGlobalKnowledgeCommand extends GlobalKnowledgeCommand {
 
 	protected function configure()
 	{
@@ -32,18 +31,6 @@ class InitGlobalKnowledgeCommand extends BaseCommand {
 		$this->key($knowledge, '/config/aws/access_token', 'changeme');
 
 		$this->log('Complete!');
-	}
-
-	protected function key(GlobalKnowledge $knowledge, $key, $value)
-	{
-		$this->log('SET ' . $key . ' => ' . $value, 'green');
-		$knowledge->set($key, $value);
-	}
-
-	protected function mkdir(GlobalKnowledge $knowledge, $directory)
-	{
-		$this->log('MKDIR ' . $directory, 'green');
-		$knowledge->mkdir('/containers');
 	}
 
 	public function getScope()

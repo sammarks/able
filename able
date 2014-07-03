@@ -22,6 +22,8 @@ $application->add(new Able\CommandSets\Generate\EmptyModuleCommand());
 $application->add(new Able\CommandSets\Generate\ModuleCommand());
 
 $application->add(new \Able\CommandSets\Node\InitGlobalKnowledgeCommand());
+$application->add(new \Able\CommandSets\Node\GetCommand());
+$application->add(new \Able\CommandSets\Node\SetCommand());
 
 // Include all plugins.
 foreach (glob(SCRIPTS_ROOT . '/plugins/*.php') as $file) {
