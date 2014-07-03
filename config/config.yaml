@@ -120,8 +120,7 @@ site:
                 password: admin
 
         # This feature implements database connection settings.
-        # TODO: Actually implement this.
-        Database:
+        MySQLDatabase:
             username: "test-database"
             password: "test-password"
             database: "test-database"
