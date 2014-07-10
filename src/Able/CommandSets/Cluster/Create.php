@@ -153,6 +153,7 @@ class Create extends BaseCommand {
 	protected function generateEtcdToken()
 	{
 		if ($contents = file_get_contents('https://discovery.etcd.io/new')) {
+			$this->log('etcd token: ' . $contents, 'white', self::DEBUG_VERBOSE);
 			return $contents;
 		} else {
 			throw new \Exception('There was an error generating an etcd token.');
