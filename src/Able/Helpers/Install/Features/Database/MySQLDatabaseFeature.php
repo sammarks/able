@@ -19,19 +19,17 @@ class MySQLDatabaseFeature extends DatabaseFeature {
 
 	public function createDatabase()
 	{
-		$knowledge = GlobalKnowledge::getInstance();
-
-		$username_key = '/config/databases/mysql/' . $this->host . '/username';
-		if ($knowledge->exists($username_key)) {
-			throw new DatabaseFeatureException('Cannot create the database. The root username key at ' . $username_key . ' could not be found.');
+		$username = $this->command->config->get('databases/mysql/' . $this->host . '/username');
+		if ($username === null) {
+			throw new DatabaseFeatureException('Cannot create the database. The root username key at databases/mysql/' . $this->host . '/username could not be found.');
 		}
 
-		$password_key = '/config/databases/mysql/' . $this->host . '/password';
-		if ($knowledge->exists($password_key)) {
-			throw new DatabaseFeatureException('Cannot create the database. The root password key at ' . $password_key . ' could not be found.');
+		$password = $this->command->config->get('databases/mysql/' . $this->host . '/password');
+		if ($password === null) {
+			throw new DatabaseFeatureException('Cannot create the database. The root password key at databases/mysql/' . $this->host . '/password could not be found.');
 		}
 
-		$pdo = new \PDO("mysql:host={$this->host}", $knowledge->get($username_key), $knowledge->get($password_key));
+		$pdo = new \PDO("mysql:host={$this->host}", $username, $password);
 		$pdo->exec("CREATE DATABASE `{$this->database}`;");
 		$pdo->exec("GRANT ALL ON `{$this->database}`.* to '{$this->username}'@'{$this->host}' IDENTIFIED BY '{$this->password}';");
 
