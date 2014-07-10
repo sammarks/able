@@ -58,25 +58,25 @@ class Create extends BaseCommand {
 			}
 			$ipPermissions = array(
 				array(
-					'IpProtocol' => -1,
+					'IpProtocol' => 'TCP',
 					'FromPort' => 22,
 					'ToPort' => 22,
 					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0'))
 				),
 				array(
-					'IpProtocol' => -1,
+					'IpProtocol' => 'TCP',
 					'FromPort' => 80,
 					'ToPort' => 80,
 					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0'))
 				),
 				array(
-					'IpProtocol' => -1,
+					'IpProtocol' => 'TCP',
 					'FromPort' => 4001,
 					'ToPort' => 4001,
 					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0')),
 				),
 				array(
-					'IpProtocol' => -1,
+					'IpProtocol' => 'TCP',
 					'FromPort' => 7001,
 					'ToPort' => 7001,
 					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0')),
