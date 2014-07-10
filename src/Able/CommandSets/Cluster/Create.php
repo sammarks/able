@@ -86,10 +86,6 @@ class Create extends BaseCommand {
 				'GroupId' => $id,
 				'IpPermissions' => $ipPermissions,
 			));
-			$ec2->authorizeSecurityGroupEgress(array(
-				'GroupId' => $id,
-				'IpPermissions' => $ipPermissions,
-			));
 		}
 
 		// Generate the user data for the instance.
