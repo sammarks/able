@@ -116,7 +116,7 @@ class Create extends BaseCommand {
 		}
 
 		// Compile the user data.
-		$compiled_user_data = Yaml::dump($user_data);
+		$compiled_user_data = "#cloud-config\n\n" . Yaml::dump($user_data);
 
 		// Get the AMI.
 		$ami = $this->config->get('aws/ami');
