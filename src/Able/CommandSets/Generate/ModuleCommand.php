@@ -16,7 +16,7 @@ class ModuleCommand extends EmptyModuleCommand
 			->setDescription('Generates a new starter module');
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output, $scaffold = 'module')
 	{
 		parent::execute($input, $output, 'module');
 	}

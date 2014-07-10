@@ -143,7 +143,7 @@ class ConfigurationManager {
 		switch ($scheme) {
 			case 'yaml':
 				return 'parseYamlLocation';
-			case 'etc':
+			case 'etcd':
 				return 'parseEtcdLocation';
 			default:
 				return false;
@@ -178,8 +178,15 @@ class ConfigurationManager {
 	 */
 	protected function parseYamlLocation($location)
 	{
+		if (!file_exists($location)) {
+			return array();
+		}
 		$contents = file_get_contents($location);
-		return Yaml::parse($contents);
+		if ($contents) {
+			return Yaml::parse($contents);
+		} else {
+			return array();
+		}
 	}
 
 	/**
