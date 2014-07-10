@@ -51,7 +51,7 @@ class ConfigurationManager {
 	 *
 	 * @return array|null Either the value of the key or null if the key could not be found.
 	 */
-	public function get($key)
+	public function get($key = '')
 	{
 		$array_keys = explode('/', $key);
 		$item = $this->config;
