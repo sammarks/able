@@ -17,6 +17,7 @@ class Create extends BaseCommand {
 		$this
 			->setName('cluster:create')
 			->setDescription('Creates a new cluster of servers on Amazon EC2')
+			->addArgument('name', InputArgument::REQUIRED, 'The base name of the instances. Used for administrative purposes.')
 			->addArgument('ami', InputArgument::OPTIONAL, 'The AMI to use for the instances. Defaults to what is in the configuration.')
 			->addOption('number', null, InputOption::VALUE_REQUIRED, 'The number of instances to launch.', 1)
 			->addOption('security-groups', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'The security groups to add the instances to.', array('default'))
@@ -111,14 +112,42 @@ class Create extends BaseCommand {
 		$ec2->waitUntilInstanceRunning(array(
 			'InstanceIds' => $instance_ids,
 		));
+
+		$this->log('Creating tags for instances.');
+		$counter = 0;
+		$base = $input->getArgument('name');
+		foreach ($instance_ids as $id) {
+			$tag = $base . '-' . $counter;
+			$counter++;
+			$ec2->createTags(array(
+				'Resources' => array($id),
+				'Tags' => array(
+					array(
+						'Key' => 'Name',
+						'Value' => $tag,
+					)
+				)
+			));
+		}
+
 		$result = $ec2->describeInstances(array(
 			'InstanceIds' => $instance_ids,
 		));
 
-		$dns_names = $result->getPath('Reservations/*/Instances/*/PublicDnsName');
-		foreach ($dns_names as $name) {
-			$this->log('Instance ' . $name . ' launched successfully.', 'green');
+		$instances = $result->getPath('Reservations/*/Instances');
+		foreach ($instances as $instance) {
+			$this->log('Instance ' . $this->getInstanceName($instance) . ' launched successfully.', 'green');
 		}
+	}
+
+	protected function getInstanceName($instance)
+	{
+		foreach ($instance['Tags'] as $tag) {
+			if ($tag['Key'] == 'Name') {
+				return $tag['Value'];
+			}
+		}
+		return '';
 	}
 
 	protected function generateEtcdToken()
