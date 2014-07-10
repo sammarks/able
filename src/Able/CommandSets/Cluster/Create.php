@@ -20,7 +20,6 @@ class Create extends BaseCommand {
 			->addArgument('name', InputArgument::REQUIRED, 'The base name of the instances. Used for administrative purposes.')
 			->addArgument('ami', InputArgument::OPTIONAL, 'The AMI to use for the instances. Defaults to what is in the configuration.')
 			->addOption('number', null, InputOption::VALUE_REQUIRED, 'The number of instances to launch.', 1)
-			->addOption('security-groups', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'The security groups to add the instances to.', array('default'))
 			->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'The key to use when connecting to the instances.', '')
 			->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The type of instances to create.', 't1.micro')
 			->addOption('subnet', 's', InputOption::VALUE_REQUIRED, 'The name of the subnet to add the instances to.')
@@ -42,6 +41,55 @@ class Create extends BaseCommand {
 		if (!$ec2) {
 			$this->error('Connection to EC2 failed. Check your credentials.', true);
 			return;
+		}
+
+		$this->log('Checking for Security Groups');
+		$result = $ec2->describeSecurityGroups(array());
+		$groups = $result->getPath('SecurityGroups/*/GroupName');
+		if (!in_array('Able-CoreOS', $groups)) {
+			$this->log('Creating security group.');
+			$result = $ec2->createSecurityGroup(array(
+				'GroupName' => 'Able-CoreOS',
+				'Description' => 'Servers operating in CoreOS clusters.',
+			));
+			$id = $result->getPath('GroupId');
+			if (!$id) {
+				$this->error('There was an error creating the security group.', true);
+			}
+			$ipPermissions = array(
+				array(
+					'IpProtocol' => -1,
+					'FromPort' => 22,
+					'ToPort' => 22,
+					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0'))
+				),
+				array(
+					'IpProtocol' => -1,
+					'FromPort' => 80,
+					'ToPort' => 80,
+					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0'))
+				),
+				array(
+					'IpProtocol' => -1,
+					'FromPort' => 4001,
+					'ToPort' => 4001,
+					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0')),
+				),
+				array(
+					'IpProtocol' => -1,
+					'FromPort' => 7001,
+					'ToPort' => 7001,
+					'IpRanges' => array(array('CidrIp' => '0.0.0.0/0')),
+				),
+			);
+			$ec2->authorizeSecurityGroupIngress(array(
+				'GroupId' => $id,
+				'IpPermissions' => $ipPermissions,
+			));
+			$ec2->authorizeSecurityGroupEgress(array(
+				'GroupId' => $id,
+				'IpPermissions' => $ipPermissions,
+			));
 		}
 
 		// Generate the user data for the instance.
