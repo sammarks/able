@@ -18,7 +18,7 @@ class Create extends BaseCommand {
 			->setName('cluster:create')
 			->setDescription('Creates a new cluster of servers on Amazon EC2')
 			->addArgument('ami', InputArgument::OPTIONAL, 'The AMI to use for the instances. Defaults to what is in the configuration.')
-			->addOption('number', 'n', InputOption::VALUE_REQUIRED, 'The number of instances to launch.', 1)
+			->addOption('number', null, InputOption::VALUE_REQUIRED, 'The number of instances to launch.', 1)
 			->addOption('security-groups', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'The security groups to add the instances to.', array('default'))
 			->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'The key to use when connecting to the instances.', '')
 			->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The type of instances to create.', 't1.micro')
