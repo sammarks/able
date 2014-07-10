@@ -133,7 +133,7 @@ class Create extends BaseCommand {
 			'MinCount' => $input->getOption('number'),
 			'MaxCount' => $input->getOption('number'),
 			'KeyName' => $input->getOption('key'),
-			'SecurityGroups' => $input->getOption('security-groups'),
+			'SecurityGroups' => array('Able-CoreOS'),
 			'UserData' => base64_encode($compiled_user_data),
 			'InstanceType' => $input->getOption('type'),
 		);
