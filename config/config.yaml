@@ -146,3 +146,14 @@ server:
         FPM: "/etc/php5/fpm/php-fpm.conf"
         PHP: "/etc/php5/fpm/php.ini"
         Supervisor: "/etc/supervisord.conf"
+
+# This section contains authentication credentials for use when communicating with the
+# AWS API. This is required to create a cluster of servers or manage servers.
+aws:
+
+    access_key: changeme
+    access_secret: changeme
+    region: us-east-1
+
+    # The base AMI to use when creating new clusters of servers.
+    ami: ami-66be440e

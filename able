@@ -18,6 +18,8 @@ $application->add(new Able\CommandSets\Core\UpdateCommand());
 $application->add(new Able\CommandSets\Core\ConfigCommand());
 $application->add(new Able\CommandSets\Core\PublishConfigCommand());
 
+$application->add(new Able\CommandSets\Cluster\Create());
+
 $application->add(new Able\CommandSets\Generate\EmptyModuleCommand());
 $application->add(new Able\CommandSets\Generate\ModuleCommand());
 
