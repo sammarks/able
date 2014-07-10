@@ -22,29 +22,11 @@ class ConfigCommand extends BaseCommand {
 	{
 		parent::execute($input, $output);
 		$path = $input->getArgument('name');
-		if ($path) {
-			$value = $this->getValue($path);
-		} else {
-			$value = $this->config;
-		}
-		if (!$value) {
+		$value = $this->config->get($path);
+		if ($value === null) {
 			$this->error('The config value ' . $path . ' does not exist.', true);
 		}
 		$this->log((($path) ? $path : 'Config') . ': ' . print_r($value, 1));
-	}
-
-	protected function getValue($path)
-	{
-		$segments = explode('.', $path);
-		$current_value = $this->config;
-		foreach ($segments as $segment) {
-			if (array_key_exists($segment, $current_value)) {
-				$current_value = $current_value[$segment];
-			} else {
-				return null;
-			}
-		}
-		return $current_value;
 	}
 
 }

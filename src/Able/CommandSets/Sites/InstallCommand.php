@@ -176,7 +176,7 @@ class InstallCommand extends BaseCommand {
 		$settings['repository_root'] = $directory;
 
 		// Merge those settings on top of the defaults.
-		$defaults = $this->config['site'];
+		$defaults = $this->config->get('site');
 		$settings = array_replace_recursive($defaults, $settings);
 
 		// Validate the settings.

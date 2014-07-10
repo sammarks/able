@@ -43,7 +43,7 @@ abstract class ConfigurationManager extends Component {
 	protected function getFileLocation()
 	{
 		// Get the filename from the global settings.
-		$config_locations = $this->command->config['server']['configuration'];
+		$config_locations = $this->command->config->get('server/configuration');
 		$class_name = $this->getClassName();
 		if (!array_key_exists($class_name, $config_locations))
 			throw new ConfigurationManagerException('There is no config location defined for ' . $class_name);

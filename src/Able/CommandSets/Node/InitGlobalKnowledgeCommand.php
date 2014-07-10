@@ -20,7 +20,7 @@ class InitGlobalKnowledgeCommand extends GlobalKnowledgeCommand {
 	{
 		parent::execute($input, $output);
 
-		$knowledge = GlobalKnowledge::getInstance($this->config['server']['global_knowledge']);
+		$knowledge = GlobalKnowledge::getInstance($this->config->get('server/global_knowledge'));
 
 		// Create default directories.
 		$this->mkdir($knowledge, '/containers');

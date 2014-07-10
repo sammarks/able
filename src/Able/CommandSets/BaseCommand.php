@@ -2,13 +2,11 @@
 
 namespace Able\CommandSets;
 
+use Able\Helpers\ConfigurationManager;
 use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 
 abstract class BaseCommand extends Command
 {
@@ -28,43 +26,17 @@ abstract class BaseCommand extends Command
 	 */
 	public $output = null;
 	public $dialog = null;
+
+	/**
+	 * The configuration manager.
+	 * @var ConfigurationManager
+	 */
 	public $config = null;
 
 	public function __construct()
 	{
-
-		// Load the configuration necessary.
-		$this->_load_config();
-
+		$this->config = ConfigurationManager::getInstance();
 		parent::__construct();
-
-	}
-
-	/**
-	 * Loads the configuration files from SCRIPTS_ROOT/config/config.php first,
-	 * then from /etc/able/config.php. /etc/able/config.php takes precedence.
-	 *
-	 * @return void
-	 */
-	private function _load_config()
-	{
-
-		$this->config = array();
-		$configLocations = array(SCRIPTS_ROOT . '/config/config.yaml', '/etc/able/config.yaml');
-		foreach ($configLocations as $location) {
-			if (file_exists($location)) {
-				$this->config = array_replace_recursive($this->config, Yaml::parse(file_get_contents($location)));
-			}
-		}
-
-	}
-
-	protected function overrideConfigOption($value, &$config)
-	{
-		if ($value) {
-			$config = $value;
-		}
-		return $config;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
