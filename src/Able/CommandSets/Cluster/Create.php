@@ -108,7 +108,9 @@ class Create extends BaseCommand {
 		}
 
 		$this->log('Waiting for instances to launch.');
-		$ec2->waitUntilInstanceRunning($instance_ids);
+		$ec2->waitUntilInstanceRunning(array(
+			'InstanceIds' => $instance_ids,
+		));
 		$result = $ec2->describeInstances(array(
 			'InstanceIds' => $instance_ids,
 		));
