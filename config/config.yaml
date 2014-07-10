@@ -156,4 +156,4 @@ aws:
     region: us-east-1
 
     # The base AMI to use when creating new clusters of servers.
-    ami: ami-66be440e
+    ami: ami-66be440e # This is the CoreOS Beta AMI
