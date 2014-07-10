@@ -2,7 +2,8 @@
 	"require": {
 		"symfony/console": "~2.5",
 		"symfony/yaml": "~2.5",
-		"linkorb/etcd-php": "dev-master"
+		"linkorb/etcd-php": "dev-master",
+		"florianwolters/component-util-singleton": "~0.3"
 	},
 	"repositories": [
 		{
