@@ -51,8 +51,8 @@ class DeployCommand extends BaseCommand
 
 		// Get the context.
 		$context = new Context($directory);
-		$no_cache = ($input->getOption('no-cache') !== null);
-		$no_rm = ($input->getOption('no-rm') !== null);
+		$no_cache = ($input->getOption('no-cache') != null);
+		$no_rm = ($input->getOption('no-rm') != null);
 		$docker->build($context, $this->getImageName($directory), array(get_class(), 'buildCallback'), false,
 			!$no_cache, !$no_rm);
 
