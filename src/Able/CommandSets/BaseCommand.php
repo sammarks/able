@@ -50,7 +50,7 @@ abstract class BaseCommand extends Command
 		ScopeManager::getInstance()->setScope($this->getScope());
 
 		// Check if the user has root privileges.
-		if (posix_getuid() != 0) {
+		if ($this->requiresRoot() && posix_getuid() != 0) {
 			$this->error('This script must be run as root.', true);
 		}
 
@@ -355,6 +355,18 @@ abstract class BaseCommand extends Command
 	public function getScope()
 	{
 		return ScopeManager::SCOPE_NONE;
+	}
+
+	/**
+	 * Requires Root
+	 *
+	 * Determines whether the current command requres root access or not.
+	 *
+	 * @return bool
+	 */
+	protected function requiresRoot()
+	{
+		return false;
 	}
 
 }
