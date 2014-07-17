@@ -61,7 +61,7 @@ abstract class Component implements ComponentInterface {
 			$class_name = $parent_class->getShortName();
 			$suffix = $this->factory->getComponentClassSuffix();
 			$result[] = str_replace($suffix, '', $class_name);
-			$result = array_merge($this->getParentNames($class));
+			$result = array_merge($this->getParentNames($parent_class));
 		}
 
 		return $result;
