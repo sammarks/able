@@ -67,10 +67,11 @@ abstract class BaseCommand extends Command
 	 * @param string $color   The color of the message. Defaults to white.
 	 * @param int    $level   The level of the message. Defaults to DEBUG_NORMAL, but can be
 	 *                        DEBUG_VERBOSE.
+	 * @param bool   $newline Whether or not a newline should be appended.
 	 *
 	 * @throws \Exception
 	 */
-	public function log($message, $color = 'white', $level = self::DEBUG_NORMAL)
+	public function log($message, $color = 'white', $level = self::DEBUG_NORMAL, $newline = true)
 	{
 
 		if (!$this->input || !$this->output) {
@@ -78,12 +79,12 @@ abstract class BaseCommand extends Command
 		}
 
 		if ($this->output->getVerbosity() != OutputInterface::VERBOSITY_QUIET && $level == self::DEBUG_NORMAL) {
-			$this->output->writeln("<fg={$color}>{$message}</fg={$color}>");
+			$this->output->write("<fg={$color}>{$message}</fg={$color}>", $newline);
 			return;
 		}
 
 		if ($this->output->getVerbosity() == OutputInterface::VERBOSITY_VERBOSE && $level == self::DEBUG_VERBOSE) {
-			$this->output->writeln("<fg={$color}>{$message}</fg={$color}>");
+			$this->output->write("<fg={$color}>{$message}</fg={$color}>", $newline);
 			return;
 		}
 

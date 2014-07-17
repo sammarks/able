@@ -6,6 +6,7 @@ use Able\Helpers\Logger;
 use Docker\Context\Context;
 use Docker\Docker;
 use Docker\Http\DockerClient;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -50,8 +51,10 @@ class DeployCommand extends BaseCommand
 
 		// Get the context.
 		$context = new Context($directory);
+		$no_cache = ($input->getOption('no-cache') !== null);
+		$no_rm = ($input->getOption('no-rm') !== null);
 		$docker->build($context, $this->getImageName($directory), array(get_class(), 'buildCallback'), false,
-			!$input->getOption('no-cache'), !$input->getOption('no-rm'));
+			!$no_cache, !$no_rm);
 
 		$this->log('Successful.', 'green');
 	}
@@ -62,8 +65,20 @@ class DeployCommand extends BaseCommand
 		if (!getenv('DOCKER_HOST')) {
 
 			// Try to get the host from boot2docker.
-			if (($host = $this->exec('boot2docker ip 2>/dev/null', false)) !== false) {
-				return new DockerClient(array(), 'tcp://' . $host . ':2375');
+			if (($host = $this->exec('boot2docker ip 2>/dev/null', false, false, true)) !== false && is_array($host) && count($host) > 0) {
+				$host_ip = null;
+				foreach ($host as $potential) {
+					if (!$potential) continue;
+					if (strpos($potential, ':') !== false) {
+						$host_segments = explode(':', $potential);
+						$host_ip = trim($host_segments[count($host_segments) - 1]);
+					}
+				}
+				if (!$host_ip) {
+					$this->error('A host IP could not be found for Docker.', true);
+					return null;
+				}
+				return new DockerClient(array(), 'tcp://' . $host_ip . ':2375');
 			} else {
 				return new DockerClient(array(), $this->config->get('docker.connection'));
 			}
@@ -90,16 +105,44 @@ class DeployCommand extends BaseCommand
 		return $this->config->get('docker.registry') . '/' . $image_name;
 	}
 
-	public static function buildCallback($output, $type)
+	public static function buildCallback($output)
 	{
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 
-		if ($type === 1) {
-			$logger->log($output, 'white', BaseCommand::DEBUG_VERBOSE);
-		} else {
-			$logger->error($output);
+		$output_data = json_decode($output);
+		if (!empty($output_data->status)) {
+			if (!empty($output_data->progressDetail->current) && !empty($output_data->progressDetail->total)) {
+				$percentage = floor(($output_data->progressDetail->current / $output_data->progressDetail->total) * 100);
+				$human_start = self::formatSizeUnits($output_data->progressDetail->current);
+				$human_end = self::formatSizeUnits($output_data->progressDetail->total);
+				$logger->overwrite('Complete: ' . $percentage . '% (' . $human_start . '/' . $human_end . ')');
+			} else {
+				$logger->log($output_data->status);
+			}
+		} elseif (!empty($output_data->stream)) {
+			$logger->log(trim($output_data->stream, "\n"), 'white');
 		}
 	}
+
+	// Snippet from PHP Share: http://www.phpshare.org
+	protected static function formatSizeUnits($bytes)
+    {
+	    if ($bytes >= 1073741824) {
+		    $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+	    } elseif ($bytes >= 1048576) {
+		    $bytes = number_format($bytes / 1048576, 2) . ' MB';
+	    } elseif ($bytes >= 1024) {
+		    $bytes = number_format($bytes / 1024, 2) . ' KB';
+	    } elseif ($bytes > 1) {
+		    $bytes = $bytes . ' bytes';
+	    } elseif ($bytes == 1) {
+		    $bytes = $bytes . ' byte';
+	    } else {
+		    $bytes = '0 bytes';
+	    }
+
+	    return $bytes;
+    }
 
 }
