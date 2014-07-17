@@ -153,8 +153,8 @@ class InstallCommand extends BaseCommand {
 		// Let's make sure we can find the configuration file.
 		$configuration_directory = $directory . 'config/';
 		if (!is_dir($configuration_directory)) return 'Configuration directory could not be found (config/).';
-		$settings_file = $configuration_directory . 'ablecore.json';
-		if (!is_file($settings_file)) return 'Settings file could not be found (config/ablecore.json).';
+		$settings_file = $configuration_directory . 'ablecore.yaml';
+		if (!is_file($settings_file)) return 'Settings file could not be found (config/ablecore.yaml).';
 
 		return true;
 	}
