@@ -1,8 +1,9 @@
 <?php
 
-namespace Able\Helpers\Install;
+namespace Able\Helpers;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\ComponentFactory;
 
 interface ComponentInterface {
 
@@ -37,13 +38,16 @@ abstract class Component implements ComponentInterface {
 		$this->postInitialize();
 	}
 
-	protected function postInitialize() {}
+	protected function postInitialize()
+	{
+	}
 
 	public function getClassName()
 	{
 		$reflect = new \ReflectionClass($this);
 		$class_name = $reflect->getShortName();
 		$suffix = $this->factory->getComponentClassSuffix();
+
 		return str_replace($suffix, '', $class_name);
 	}
 
@@ -59,6 +63,7 @@ abstract class Component implements ComponentInterface {
 			$result[] = str_replace($suffix, '', $class_name);
 			$result = array_merge($this->getParentNames($class));
 		}
+
 		return $result;
 	}
 

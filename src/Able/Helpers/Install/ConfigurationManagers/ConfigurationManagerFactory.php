@@ -3,7 +3,7 @@
 namespace Able\Helpers\Install\ConfigurationManagers;
 
 use Able\CommandSets\BaseCommand;
-use Able\Helpers\Install\ComponentFactory;
+use Able\Helpers\ComponentFactory;
 
 class ConfigurationManagerFactory extends ComponentFactory {
 

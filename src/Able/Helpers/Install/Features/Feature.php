@@ -2,7 +2,7 @@
 
 namespace Able\Helpers\Install\Features;
 
-use Able\Helpers\Install\Component;
+use Able\Helpers\Component;
 use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
 
 abstract class Feature extends Component {

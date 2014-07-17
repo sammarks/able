@@ -3,7 +3,7 @@
 namespace Able\Helpers\Install\Features;
 
 use Able\CommandSets\BaseCommand;
-use Able\Helpers\Install\ComponentFactory;
+use Able\Helpers\ComponentFactory;
 
 class FeatureFactory extends ComponentFactory {
 

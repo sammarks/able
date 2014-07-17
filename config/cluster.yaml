@@ -1,0 +1,84 @@
+# This file contains the default values for new clusters.
+# Currently, Amazon EC2 is the only supported provider. As we expand
+# to more providers, support will have to be created for them.
+
+# Since multiple clusters can be defined in a single file, the identifier
+# for the cluster serves as the key. The key should consist of nothing but
+# lowercase alphanumeric characters, and dashes.
+cluster-defaults:
+
+    # This is the etcd url used to connect all of the servers together.
+    # If the value of this field is 'generate' a new etcd token will be generated
+    # from http://discovery.etcd.io/new
+    etcd-url: generate
+
+    # This defaults section contains the default configuration values
+    # for each of the nodes in the cluster.
+    # Individual nodes can override any of these values if they need to.
+    defaults:
+
+        # This is the provider all the servers start out with. The option can be
+        # changed for each of the nodes in the cluster.
+        provider: EC2
+
+        # Provider specific settings go in the name of the provider's category.
+        EC2:
+
+            # The AMI the node will be created from.
+            ami: ami-66be440e # This is the CoreOS Beta AMI
+
+            # This is the name of the key that will be registered with the node.
+            key: keyname
+
+            # The type of instance to create.
+            type: t1.micro
+
+            # The name of the subnet to add the instance to.
+            subnet:
+
+            # The name of the region the node is to be created in.
+            region: us-east-1
+
+        # While default metadata values are created for each node added to the
+        # cluster, you can add your own custom keys and values for each node here.
+        # This is useful for specifying which nodes will be used for production,
+        # and which nodes will be used for development.
+        #
+        # The following keys are automatically set by default:
+        # provider - The provider the instance is created under.
+        # region - The region inside the provider where the server resides.
+        # type - The type (size) of instance that is currently running.
+        # identifier - The identifier of the node.
+        metadata:
+
+            # For example, you can specify the environment the server will be in.
+            environment: production
+
+            # Or, maybe you want to specify the role the server plays?
+            role: web # file-storage, database, etc.
+
+        # And this is the default cloud config for the instance.
+        cloud-config:
+
+            coreos:
+                etcd:
+
+                    # Keep in mind, you need to change these references to $public_ipv4
+                    # if you have nodes that span across regions.
+                    addr: $private_ipv4:4001
+                    peer-addr: $private_ipv4:7001
+
+                units:
+                    - name: etcd.service
+                      command: start
+                    - name: fleet.service
+                      command: start
+
+                fleet:
+                    public-ip: $public_ipv4
+
+    nodes:
+
+        # And here, you define each one of your nodes. Looks something like this:
+        # node-identifier:
+        #     key: value (overriding each of the defaults if you need to)

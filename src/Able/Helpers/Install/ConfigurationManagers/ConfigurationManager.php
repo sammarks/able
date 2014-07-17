@@ -2,7 +2,7 @@
 
 namespace Able\Helpers\Install\ConfigurationManagers;
 
-use Able\Helpers\Install\Component;
+use Able\Helpers\Component;
 use Able\Helpers\Install\Features\Feature;
 use Able\Helpers\Install\Features\FeatureCollection;
 

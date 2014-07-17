@@ -3,6 +3,7 @@
 namespace Able\CommandSets;
 
 use Able\Helpers\ConfigurationManager;
+use Able\Helpers\Logger;
 use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +42,6 @@ abstract class BaseCommand extends Command
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-
 		$this->input = $input;
 		$this->output = $output;
 		$this->dialog = $this->getHelperSet()->get('dialog');
@@ -54,6 +54,8 @@ abstract class BaseCommand extends Command
 			$this->error('This script must be run as root.', true);
 		}
 
+		// Initialize the logger.
+		Logger::getInstance($this);
 	}
 
 	/**

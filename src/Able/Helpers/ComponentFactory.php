@@ -1,15 +1,13 @@
 <?php
 
-namespace Able\Helpers\Install;
+namespace Able\Helpers;
 
 use Able\CommandSets\BaseCommand;
 
 interface ComponentFactoryInterface {
 
 	static function getInstance();
-
 	function factory($type, BaseCommand $command, array $settings = array());
-
 	function getComponentClass();
 	function getComponentClassSuffix();
 	function getInternalPrefix();
@@ -26,9 +24,10 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 	public static function getInstance()
 	{
 		$class_name = get_called_class();
-		if (!self::$instance)
-			self::$instance = new $class_name();
-		return self::$instance;
+		if (!\Able\Helpers\self::$instance)
+			\Able\Helpers\self::$instance = new $class_name();
+
+		return \Able\Helpers\self::$instance;
 	}
 
 	protected function getComponent($type)
@@ -58,6 +57,7 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 		}
 
 		$instance = forward_static_call(array(get_called_class(), 'getInstance'));
+
 		return new $accepted_candidate($instance);
 	}
 
@@ -68,6 +68,7 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' is an invalid component.');
 		}
 		$component->initialize($command, $settings);
+
 		return $component;
 	}
 

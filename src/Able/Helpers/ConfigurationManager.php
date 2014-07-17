@@ -40,6 +40,7 @@ class ConfigurationManager {
 	public function addConfigLocation($location)
 	{
 		$this->locations[] = $location;
+		$this->refreshConfig();
 	}
 
 	/**
