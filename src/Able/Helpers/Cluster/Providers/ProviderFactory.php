@@ -18,7 +18,7 @@ class ProviderFactory extends ComponentFactory {
 
 	function getInternalPrefix()
 	{
-		return 'Able\\Helpers\\Cluster\\Providers';
+		return 'Able\\Helpers\\Cluster\\Providers\\';
 	}
 
 	/**

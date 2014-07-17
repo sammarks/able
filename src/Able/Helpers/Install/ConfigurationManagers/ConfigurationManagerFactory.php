@@ -19,7 +19,7 @@ class ConfigurationManagerFactory extends ComponentFactory {
 
 	public function getInternalPrefix()
 	{
-		return 'Able\\Helpers\\Install\\ConfigurationManagers';
+		return 'Able\\Helpers\\Install\\ConfigurationManagers\\';
 	}
 
 	/**

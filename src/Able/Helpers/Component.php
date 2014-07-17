@@ -29,7 +29,7 @@ abstract class Component implements ComponentInterface {
 		$this->factory = $factory;
 	}
 
-	public function initialize(BaseCommand $command, array $settings = array())
+	public function initialize(BaseCommand $command = null, array $settings = array())
 	{
 		$this->command = $command;
 		$this->settings = $settings;

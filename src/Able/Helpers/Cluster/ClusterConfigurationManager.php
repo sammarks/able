@@ -28,7 +28,7 @@ class ClusterConfigurationManager extends ConfigurationManager {
 			throw new \Exception('The default cluster configuration could not be found.');
 		}
 
-		$this->config = array_replace_recursive($this->config['default-cluster'], $configuration);
+		$this->config = array_replace_recursive($this->config['cluster-defaults'], $configuration);
 	}
 
 } 

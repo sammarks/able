@@ -18,7 +18,7 @@ class EC2Provider extends Provider {
 		/** @var ConfigurationManager $config */
 		$config = ConfigurationManager::getInstance();
 
-		$logger->log('Connecting to Amazon');
+		$logger->log('Connecting to Amazon', 'white', BaseCommand::DEBUG_VERBOSE);
 		$ec2 = Ec2Client::factory(array(
 			'key' => $config->get('aws/access_key'),
 			'secret' => $config->get('aws/access_secret'),
@@ -66,16 +66,22 @@ class EC2Provider extends Provider {
 
 		// Tag the instances.
 		$instance_ids = $response->getPath('Instances/*/InstanceId');
-		foreach ($instance_ids as $id) {
-			$logger->log('Successful.', 'green');
+
+		$logger->log('Waiting for instance to launch.', 'white', BaseCommand::DEBUG_VERBOSE);
+		$error = true;
+		$tries = 0;
+		while ($error === false && $tries < 3) {
+			try {
+				$tries++;
+				$ec2->waitUntilInstanceRunning(array(
+					'InstanceIds' => $instance_ids,
+				));
+			} catch (\Exception $ex) {
+				$logger->log('Failed. Trying again.', 'red', BaseCommand::DEBUG_VERBOSE);
+			}
 		}
 
-		$logger->log('Waiting for instance to launch.');
-		$ec2->waitUntilInstanceRunning(array(
-			'InstanceIds' => $instance_ids,
-		));
-
-		$logger->log('Creating tags for instance.');
+		$logger->log('Creating tags for instance.', 'white', BaseCommand::DEBUG_VERBOSE);
 		foreach ($instance_ids as $id) {
 			$ec2->createTags(array(
 				'Resources' => array($id),
@@ -87,6 +93,8 @@ class EC2Provider extends Provider {
 				)
 			));
 		}
+
+		$logger->log('Successful.', 'green');
 	}
 
 	public function getMetadata()
@@ -104,11 +112,11 @@ class EC2Provider extends Provider {
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 
-		$logger->log('Checking for Security Groups');
+		$logger->log('Checking for Security Groups', 'white', BaseCommand::DEBUG_VERBOSE);
 		$result = $ec2->describeSecurityGroups(array());
 		$groups = $result->getPath('SecurityGroups/*/GroupName');
 		if (!in_array('Able-CoreOS', $groups)) {
-			$logger->log('Creating security group.');
+			$logger->log('Creating security group.', 'white', BaseCommand::DEBUG_VERBOSE);
 			$result = $ec2->createSecurityGroup(array(
 				'GroupName' => 'Able-CoreOS',
 				'Description' => 'Servers operating in CoreOS clusters.',

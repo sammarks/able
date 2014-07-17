@@ -24,10 +24,10 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 	public static function getInstance()
 	{
 		$class_name = get_called_class();
-		if (!\Able\Helpers\self::$instance)
-			\Able\Helpers\self::$instance = new $class_name();
+		if (!self::$instance)
+			self::$instance = new $class_name();
 
-		return \Able\Helpers\self::$instance;
+		return self::$instance;
 	}
 
 	protected function getComponent($type)
@@ -61,7 +61,7 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 		return new $accepted_candidate($instance);
 	}
 
-	public function factory($type, BaseCommand $command, array $settings = array())
+	public function factory($type, BaseCommand $command = null, array $settings = array())
 	{
 		$component = $this->getComponent($type);
 		if (!($component instanceof ComponentInterface)) {

@@ -60,8 +60,8 @@ class Creator {
 
 		// Prepare the metadata string and add it to the cloud-config.
 		$metadata_string = $this->encodeMetadata($metadata);
-		$configuration['cloud-config']['fleet']['metadata'] = $metadata_string;
-		$configuration['cloud-config']['etcd']['discovery'] = $this->discovery_url;
+		$configuration['cloud-config']['coreos']['fleet']['metadata'] = $metadata_string;
+		$configuration['cloud-config']['coreos']['etcd']['discovery'] = $this->discovery_url;
 
 		// Call the provider create function.
 		$provider->setNodeSettings($configuration); // Refresh the configuration.
