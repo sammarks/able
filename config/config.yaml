@@ -157,3 +157,15 @@ aws:
 
     # The base AMI to use when creating new clusters of servers.
     ami: ami-66be440e # This is the CoreOS Beta AMI
+
+# These settings are specific to connecting to the local version of docker.
+# Certain features of Able Core require that docker be installed on the local machine.
+docker:
+
+    # The URI to use when connecting to Docker. If the environment variable DOCKER_HOST
+    # is set, this configuration value is not used.
+    connection: unix:///var/run/docker.sock
+
+    # The name of the registry to use when creating images. The index is prepended to image
+    # names so that the images are pushed to a private registry if required.
+    registry: index.docker.io
