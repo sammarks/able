@@ -4,7 +4,8 @@
 		"symfony/yaml": "~2.5",
 		"linkorb/etcd-php": "dev-master",
 		"florianwolters/component-util-singleton": "~0.3",
-		"aws/aws-sdk-php": "~2.6"
+		"aws/aws-sdk-php": "~2.6",
+		"stage1/docker-php": "@dev"
 	},
 	"repositories": [
 		{
