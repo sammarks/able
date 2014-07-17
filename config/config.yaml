@@ -168,4 +168,5 @@ docker:
 
     # The name of the registry to use when creating images. The index is prepended to image
     # names so that the images are pushed to a private registry if required.
+    # If boot2docker is detected, it will use that host over this as well.
     registry: index.docker.io

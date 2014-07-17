@@ -43,15 +43,8 @@ class DeployCommand extends BaseCommand
 			return;
 		}
 
-		// Instantiate the Docker client.
-		if (!getenv('DOCKER_HOST')) {
-			$client = new DockerClient(array(), $this->config->get('docker.connection'));
-		} else {
-			$client = new DockerClient();
-		}
-
 		// Instantiate docker.
-		$docker = new Docker($client);
+		$docker = new Docker($this->getDockerClient());
 
 		$this->log('BUILD ' . $directory . DIRECTORY_SEPARATOR . 'Dockerfile');
 
@@ -61,6 +54,23 @@ class DeployCommand extends BaseCommand
 			!$input->getOption('no-cache'), !$input->getOption('no-rm'));
 
 		$this->log('Successful.', 'green');
+	}
+
+	protected function getDockerClient()
+	{
+		// Instantiate the Docker client.
+		if (!getenv('DOCKER_HOST')) {
+
+			// Try to get the host from boot2docker.
+			if (($host = $this->exec('boot2docker ip 2>/dev/null', false)) !== false) {
+				return new DockerClient(array(), 'tcp://' . $host . ':2375');
+			} else {
+				return new DockerClient(array(), $this->config->get('docker.connection'));
+			}
+
+		} else {
+			return new DockerClient();
+		}
 	}
 
 	protected function getImageName($directory)
