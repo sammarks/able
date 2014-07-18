@@ -39,11 +39,15 @@ abstract class Feature extends Component {
 	public function setConfiguration(array $configuration = array())
 	{
 		$this->configuration = $configuration;
+
+		// Call the post set configuration hook.
+		$this->postSetConfiguration();
 	}
 
 	public function preCopy($directory) {}
 	public function postCopy($directory) {}
 	public function postRestartServices() {}
 	public function alterWebroot($directory) {}
+	public function postSetConfiguration() {}
 
 }
