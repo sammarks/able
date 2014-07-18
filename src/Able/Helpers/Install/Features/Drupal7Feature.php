@@ -55,6 +55,9 @@ class Drupal7Feature extends Feature {
 
 		$this->command->exec("which drush site-install --root='$drupal_root' --db-url='$db_url' --site-name='$site_name' --site-mail='$site_mail' --account-pass='$account_pass' --account-name='$account_username' --account-mail='$account_mail' --db-prefix='$db_prefix' -y '$profile'", false);
 
+		// Change to the Drupal root directory.
+		$this->command->exec('cd ' . $drupal_root);
+
 		$this->command->log('Changing Modules', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->manageModules($drupal_root);
 
