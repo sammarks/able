@@ -102,8 +102,9 @@ class FeatureCollection extends \ArrayObject {
 	 */
 	protected function satisfyDependency($dependency)
 	{
+		$feature_factory = FeatureFactory::getInstance();
+
 		foreach ($this->settings['features'] as $feature_name => $feature) {
-			$feature_factory = FeatureFactory::getInstance();
 			$full_feature_name = $feature_factory->getInternalPrefix() .
 				$feature_name . $feature_factory->getComponentClassSuffix();
 			$parent_names = Component::getClassParentNames($full_feature_name, $feature_factory);
@@ -112,6 +113,14 @@ class FeatureCollection extends \ArrayObject {
 					return $feature_name;
 				}
 			}
+		}
+
+		// If we still haven't found a feature, see if the class is abstract.
+		$full_feature_name = $feature_factory->getInternalPrefix() .
+			$dependency . $feature_factory->getComponentClassSuffix();
+		$reflect = new \ReflectionClass($full_feature_name);
+		if ($reflect->isInstantiable()) {
+			return $dependency;
 		}
 
 		return false;
