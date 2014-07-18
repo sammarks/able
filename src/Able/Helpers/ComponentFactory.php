@@ -3,6 +3,7 @@
 namespace Able\Helpers;
 
 use Able\CommandSets\BaseCommand;
+use FlorianWolters\Component\Util\Singleton\SingletonTrait;
 
 interface ComponentFactoryInterface {
 
@@ -16,19 +17,7 @@ interface ComponentFactoryInterface {
 
 abstract class ComponentFactory implements ComponentFactoryInterface {
 
-	/**
-	 * @var ComponentFactory
-	 */
-	private static $instance = null;
-
-	public static function getInstance()
-	{
-		$class_name = get_called_class();
-		if (!self::$instance)
-			self::$instance = new $class_name();
-
-		return self::$instance;
-	}
+	use SingletonTrait;
 
 	protected function getComponent($type)
 	{
@@ -56,9 +45,7 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' does not extend the ' . $this->getComponentClass() . ' class.');
 		}
 
-		$instance = forward_static_call(array(get_called_class(), 'getInstance'));
-
-		return new $accepted_candidate($instance);
+		return new $accepted_candidate($this);
 	}
 
 	public function factory($type, BaseCommand $command = null, array $settings = array())
