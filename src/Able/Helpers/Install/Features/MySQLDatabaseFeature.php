@@ -21,11 +21,11 @@ class MySQLDatabaseFeature extends DatabaseFeature {
 
 	public function postInitialize()
 	{
-		$this->username = $this->settings['username'];
-		$this->password = $this->settings['password'];
-		$this->database = $this->settings['database'];
-		$this->host = $this->settings['host'];
-		$this->create = $this->settings['create'];
+		$this->username = $this->configuration['username'];
+		$this->password = $this->configuration['password'];
+		$this->database = $this->configuration['database'];
+		$this->host = $this->configuration['host'];
+		$this->create = $this->configuration['create'];
 	}
 
 	public function createDatabase()
