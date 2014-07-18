@@ -164,9 +164,9 @@ docker:
 
     # The URI to use when connecting to Docker. If the environment variable DOCKER_HOST
     # is set, this configuration value is not used.
+    # If boot2docker is detected, it will use that host over this as well.
     connection: unix:///var/run/docker.sock
 
     # The name of the registry to use when creating images. The index is prepended to image
     # names so that the images are pushed to a private registry if required.
-    # If boot2docker is detected, it will use that host over this as well.
-    registry: index.docker.io
+    registry:
