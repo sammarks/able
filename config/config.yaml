@@ -3,25 +3,25 @@
 site:
 
     # The title of the website. Must be human readable.
-    title: "Test Site"
+    title: Test Site
     
     # The environment to use for the website. Can either be "Production," "Staging," or "Development"
     # Must correspond with a feature name.
-    environment: "Development"
+    environment: Development
     
     # The fully-qualified domain name for the website.
-    fqdn: "www.testsite.com"
+    fqdn: www.testsite.com
     
     # The webroot folder for the website (not including webroot_folder).
-    webroot: "testsite.com"
+    webroot: testsite.com
     
     # The folder to contain webroots. This is a separate configuration option
     # because it is rarely changed.
     # TODO: This needs to be moved elsewhere.
-    webroot_folder: "/var/www"
+    webroot_folder: /var/www
     
     # The email to use when setting up various CMSs.
-    email: "noreply@example.org"
+    email: noreply@example.org
     
     # The configuration managers go here, along with additional configuration options for each.
     # TODO: Merge the configuration managers and features into one.
@@ -38,37 +38,37 @@ site:
             
         Supervisor:
             unix_http_server:
-                file: "/tmp/supervisor.sock"
+                file: /tmp/supervisor.sock
             supervisord:
-                logfile: "/tmp/supervisord.log"
-                logfile_maxbytes: "50MB"
-                logfile_backups: "10"
-                loglevel: "info"
-                pidfile: "/tmp/supervisord.pid"
+                logfile: /tmp/supervisord.log
+                logfile_maxbytes: 50MB
+                logfile_backups: 10
+                loglevel: info
+                pidfile: /tmp/supervisord.pid
                 nodaemon: false
                 minfds: 1024
                 minprocs: 200
             "rpcinterface:supervisor":
-                "supervisor.rpcinterface_factory": "supervisor.rpcinterface:make_main_rpcinterface"
+                "supervisor.rpcinterface_factory": supervisor.rpcinterface:make_main_rpcinterface
             supervisorctl:
-                serverurl: "unix:///tmp/supervisor.sock"
+                serverurl: unix:///tmp/supervisor.sock
             "program:php5-fpm":
-                command: "/usr/sbin/php5-fpm -c /etc/php5/fpm"
+                command: /usr/sbin/php5-fpm -c /etc/php5/fpm
                 stdout_events_enabled: true
                 stderr_events_enabled: true
             "program:php5-fpm-log":
-                command: "tail -f /var/log/php5-fpm.log"
+                command: tail -f /var/log/php5-fpm.log
                 stdout_events_enabled: true
                 stderr_events_enabled: true
             "program:nginx":
-                command: "/usr/sbin/nginx"
+                command: /usr/sbin/nginx
                 stdout_events_enabled: true
                 stderr_events_enabled: true
             "eventlistener:stdout":
-                command: "supervisor_stdout"
+                command: supervisor_stdout
                 buffer_size: 100
-                events: "PROCESS_LOG"
-                result_handler: "supervisor_stdout:event_handler"
+                events: PROCESS_LOG
+                result_handler: supervisor_stdout:event_handler
     
     features:
         Drupal7:
@@ -104,27 +104,27 @@ site:
             # The themes to enable when installing the site. Can be any available theme and
             # can be either for the administration side or frontend.
             themes:
-                administration: "adminimal"
-                frontend: "bartik"
+                administration: adminimal
+                frontend: bartik
 
             # The Drupal profile to install. Can be any profile supported by Drupal and Drush.
             profile: standard
 
             # The database prefix to use when installing the site.
-            db_prefix: ''
+            db_prefix:
 
             # The default credentials to use when installing the site.
             default_credentials:
-                email: "admin@example.org"
+                email: admin@example.org
                 username: admin
                 password: admin
 
         # This feature implements database connection settings.
         MySQLDatabase:
-            username: "test-database"
-            password: "test-password"
-            database: "test-database"
-            host: "test-host"
+            username: test-database
+            password: test-password
+            database: test-database
+            host: test-host
             create: true
 
 # This configuration section outlines where specific items are located
@@ -137,15 +137,15 @@ server:
 
     # The URL to use when connecting to the global knowledge server. This is the etcd
     # server that contains any shared configuration options across the node cluster.
-    global_knowledge: "http://127.0.0.1:4001"
+    global_knowledge: http://127.0.0.1:4001
 
     # Where items are located on the server.
     configuration:
-        VHost: "/etc/nginx/sites-available/default"
-        FPMPool: "/etc/php5/fpm/pool.d/www.conf"
-        FPM: "/etc/php5/fpm/php-fpm.conf"
-        PHP: "/etc/php5/fpm/php.ini"
-        Supervisor: "/etc/supervisord.conf"
+        VHost: /etc/nginx/sites-available/default
+        FPMPool: /etc/php5/fpm/pool.d/www.conf
+        FPM: /etc/php5/fpm/php-fpm.conf
+        PHP: /etc/php5/fpm/php.ini
+        Supervisor: /etc/supervisord.conf
 
 # This section contains authentication credentials for use when communicating with the
 # AWS API. This is required to create a cluster of servers or manage servers.
