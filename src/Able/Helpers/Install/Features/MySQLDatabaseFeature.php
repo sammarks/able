@@ -25,6 +25,7 @@ class MySQLDatabaseFeature extends DatabaseFeature {
 		$this->password = $this->settings['password'];
 		$this->database = $this->settings['database'];
 		$this->host = $this->settings['host'];
+		$this->create = $this->settings['create'];
 	}
 
 	public function createDatabase()
