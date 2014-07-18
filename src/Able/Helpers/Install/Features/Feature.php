@@ -8,6 +8,10 @@ use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
 abstract class Feature extends Component {
 
 	protected $configuration = array();
+
+	/**
+	 * @var FeatureCollection
+	 */
 	public $feature_collection = null;
 
 	public function getWeight(ConfigurationManager $config)

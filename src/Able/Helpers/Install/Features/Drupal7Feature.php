@@ -72,16 +72,13 @@ class Drupal7Feature extends Feature {
 
 	protected function getDB()
 	{
-		if (!getenv('RDS_USERNAME') || !getenv('RDS_PASSWORD') || !getenv('RDS_DB_NAME') || !getenv('RDS_HOSTNAME')) {
-			throw new Drupal7FeatureException('The RDS environment variables are not available. Cannot continue.');
+		/** @var DatabaseFeature $database_feature */
+		$database_feature = $this->feature_collection->getFeatureByType('Database');
+		if (!$database_feature) {
+			throw new \Exception('A database feature could not be found.');
 		}
 
-		$username = urlencode(getenv('RDS_USERNAME'));
-		$password = urlencode(getenv('RDS_PASSWORD'));
-		$database = urlencode(getenv('RDS_DB_NAME'));
-		$host = urlencode(getenv('RDS_HOSTNAME'));
-
-		return "mysql://$username:$password@$host/$database";
+		return $database_feature->getConnectionString();
 	}
 
 	protected function manageModules($drupal_root)

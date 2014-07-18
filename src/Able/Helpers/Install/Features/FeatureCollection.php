@@ -68,6 +68,47 @@ class FeatureCollection extends \ArrayObject {
 		return false;
 	}
 
+	/**
+	 * Get Feature by Class
+	 *
+	 * Gets a feature by its class name.
+	 *
+	 * @param string $class_name The class name of the feature to get.
+	 *
+	 * @return Feature|bool Either the feature if successful, else false.
+	 */
+	public function getFeatureByClass($class_name)
+	{
+		foreach ($this as $feature) {
+			if ($feature instanceof $class_name) {
+				return $feature;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get Feature by Type
+	 *
+	 * Gets a feature by its parent classes.
+	 *
+	 * @param string $type Any parent class of the feature to get.
+	 *
+	 * @return Feature|bool Either the feature found, or false.
+	 */
+	public function getFeatureByType($type)
+	{
+		$feature_name = $this->satisfyDependency($type);
+		if (!$feature_name) {
+			return false;
+		}
+		$feature_factory = FeatureFactory::getInstance();
+		$full_feature_name = $feature_factory->getInternalPrefix() .
+			$feature_name . $feature_factory->getComponentClassSuffix();
+		return $this->getFeatureByClass($full_feature_name);
+	}
+
 	protected function resolveDependencies(Feature $feature)
 	{
 		if ($this->base_command === null || $this->settings === null) {
