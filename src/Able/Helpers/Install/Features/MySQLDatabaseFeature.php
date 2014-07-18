@@ -19,6 +19,14 @@ class MySQLDatabaseFeature extends DatabaseFeature {
 		return "mysql://$username:$password@$host/$database";
 	}
 
+	public function postInitialize()
+	{
+		$this->username = $this->settings['username'];
+		$this->password = $this->settings['password'];
+		$this->database = $this->settings['database'];
+		$this->host = $this->settings['host'];
+	}
+
 	public function createDatabase()
 	{
 		$username = $this->command->config->get('databases/mysql/' . $this->host . '/username');
