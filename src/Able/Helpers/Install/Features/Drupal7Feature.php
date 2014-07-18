@@ -107,10 +107,8 @@ class Drupal7Feature extends Feature {
 	protected function prepareSettings()
 	{
 		// Get the configuraton manager.
+		/** @var Drupal7ConfigurationManager $config_manager */
 		$config_manager = ConfigurationManagerFactory::getInstance()->factory('Drupal7', $this->command, $this->settings);
-		if (!($config_manager instanceof Drupal7ConfigurationManager)) {
-			throw new Drupal7FeatureException('There is no Drupal7 configuration manager installed.');
-		}
 		$config_manager->setFeatureCollection($this->feature_collection);
 		$config_manager->build();
 	}
