@@ -19,7 +19,8 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 		}
 
 		// Get the initial configuration values from the site settings.
-		if (array_key_exists($this->getClassName(), $this->settings['configuration'])) {
+		if (array_key_exists($this->getClassName(), $this->settings['configuration']) &&
+			is_array($this->settings['configuration'][$this->getClassName()])) {
 			$site_configuration = $this->settings['configuration'][$this->getClassName()];
 			$this->configuration = array_replace_recursive($this->configuration, $site_configuration);
 		}
