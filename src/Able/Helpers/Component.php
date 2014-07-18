@@ -54,14 +54,19 @@ abstract class Component implements ComponentInterface {
 	public function getParentNames($class = null)
 	{
 		if ($class === null) $class = $this;
+		return self::getClassParentNames($class, $this->factory);
+	}
+
+	public static function getClassParentNames($class, ComponentFactory $factory)
+	{
 		$reflect = new \ReflectionClass($class);
 		$parent_class = $reflect->getParentClass();
 		$result = array();
 		if ($parent_class) {
 			$class_name = $parent_class->getShortName();
-			$suffix = $this->factory->getComponentClassSuffix();
+			$suffix = $factory->getComponentClassSuffix();
 			$result[] = str_replace($suffix, '', $class_name);
-			$result = array_merge($this->getParentNames($parent_class));
+			$result = array_merge(self::getClassParentNames($parent_class, $factory));
 		}
 
 		return $result;

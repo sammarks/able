@@ -3,6 +3,7 @@
 namespace Able\Helpers\Install\Features;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\Component;
 
 class FeatureCollection extends \ArrayObject {
 
@@ -75,9 +76,45 @@ class FeatureCollection extends \ArrayObject {
 
 		foreach ($feature->getDependencies() as $dependency) {
 			if (!$this->featureExists($dependency)) {
-				$this[] = FeatureFactory::getInstance()->factory($dependency, $this->base_command, $this->settings);
+				// Try to satisfy the dependency.
+				$suggested_feature = $this->satisfyDependency($dependency);
+				if (!$suggested_feature) {
+					throw new \Exception('Feature dependency ' . $dependency . ' could not be satisfied.');
+				}
+				$this[] = FeatureFactory::getInstance()->factory($suggested_feature, $this->base_command, $this->settings);
 			}
 		}
+	}
+
+	/**
+	 * Satisfy Dependency
+	 *
+	 * Satisfies a dependency by looking at a feature's parent class and the
+	 * site settings to get the feature specific to the current site.
+	 *
+	 * For example, when satisfying the dependency 'Database,' this returns
+	 * the MySQLDatabase feature if the current site has a MySQLDatabase
+	 * feature section.
+	 *
+	 * @param string $dependency The name of the dependency to satisfy.
+	 *
+	 * @return bool|string The found feature name on success, or false on failure.
+	 */
+	protected function satisfyDependency($dependency)
+	{
+		foreach ($this->settings['features'] as $feature_name => $feature) {
+			$feature_factory = FeatureFactory::getInstance();
+			$full_feature_name = $feature_factory->getInternalPrefix() .
+				$feature_name . $feature_factory->getComponentClassSuffix();
+			$parent_names = Component::getClassParentNames($full_feature_name, $feature_factory);
+			foreach ($parent_names as $parent_name) {
+				if ($parent_name == $dependency) {
+					return $feature_name;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public function callHook($hook)

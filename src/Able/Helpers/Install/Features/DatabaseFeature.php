@@ -1,8 +1,8 @@
 <?php
-
-namespace Able\Helpers\Install\Features\Database;
-
-use Able\Helpers\Install\Features\Feature;
+/**
+ * @file DatabaseFeature.php
+ */
+namespace Able\Helpers\Install\Features;
 
 abstract class DatabaseFeature extends Feature {
 

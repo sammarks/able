@@ -1,9 +1,11 @@
 <?php
 
-namespace Able\Helpers\Install\Features\Database;
+namespace Able\Helpers\Install\Features;
 
 use Able\CommandSets\BaseCommand;
 use Able\Helpers\GlobalKnowledge\GlobalKnowledge;
+use Able\Helpers\Install\Features\DatabaseFeature;
+use Able\Helpers\Install\Features\DatabaseFeatureException;
 
 class MySQLDatabaseFeature extends DatabaseFeature {
 
