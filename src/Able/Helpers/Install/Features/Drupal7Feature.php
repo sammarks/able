@@ -53,7 +53,7 @@ class Drupal7Feature extends Feature {
 		$account_pass = $this->configuration['default_credentials']['password'];
 		$profile = $this->configuration['profile'];
 
-		$this->command->exec("php -d sendmail_path=/dev/null $(which drush) site-install --root='$drupal_root' --db-url='$db_url' --site-name='$site_name' --site-mail='$site_mail' --account-pass='$account_pass' --account-name='$account_username' --account-mail='$account_mail' --db-prefix='$db_prefix' -y '$profile'");
+		$this->command->exec("which drush site-install --root='$drupal_root' --db-url='$db_url' --site-name='$site_name' --site-mail='$site_mail' --account-pass='$account_pass' --account-name='$account_username' --account-mail='$account_mail' --db-prefix='$db_prefix' -y '$profile'", false);
 
 		$this->command->log('Changing Modules', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->manageModules($drupal_root);
