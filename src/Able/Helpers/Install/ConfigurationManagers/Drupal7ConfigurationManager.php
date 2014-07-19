@@ -45,6 +45,11 @@ class Drupal7ConfigurationManager extends FileConfigurationManager {
 		return $this->settings['webroot_folder'] . '/' . $this->settings['webroot'] . '/sites/default/settings.php';
 	}
 
+	protected function getFileLocation()
+	{
+		return $this->getBaseFile();
+	}
+
 	protected function getBaseReplacementList()
 	{
 		return array(
