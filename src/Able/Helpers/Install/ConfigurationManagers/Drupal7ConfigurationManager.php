@@ -16,7 +16,7 @@ class Drupal7ConfigurationManager extends FileConfigurationManager {
 
 			// Remove the <?php
 			if (strpos($contents, '<?php') === 0) {
-				$contents = substr($contents, 0, 5);
+				$contents = substr($contents, 5);
 			}
 
 			// Prepend <?php [settings:top] to the beginning of the file.

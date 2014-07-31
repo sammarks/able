@@ -110,7 +110,7 @@ class Drupal7Feature extends Feature {
 		/** @var Drupal7ConfigurationManager $config_manager */
 		$config_manager = ConfigurationManagerFactory::getInstance()->factory('Drupal7', $this->command, $this->settings);
 		$config_manager->setFeatureCollection($this->feature_collection);
-		$config_manager->build();
+		$config_manager->save();
 	}
 
 	public function getWeight(ConfigurationManager $config)
