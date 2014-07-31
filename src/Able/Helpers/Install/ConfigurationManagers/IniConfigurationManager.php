@@ -48,29 +48,37 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 			$this->handleFeature($feature);
 		}
 
-		return $this->arr2ini($this->configuration);
+		return $this->write_ini_file($this->configuration, true);
 	}
 
-	// From: http://stackoverflow.com/questions/17316873/php-array-to-a-ini-file
-	protected function arr2ini(array $a, array $parent = array())
+	// From: http://stackoverflow.com/questions/1268378/create-ini-file-write-values-in-php
+	protected function write_ini_file($assoc_arr, $has_sections = false)
 	{
-		$out = '';
-		foreach ($a as $k => $v) {
-			if (is_array($v)) {
-				//subsection case
-				//merge all the sections into one array...
-				$sec = array_merge((array)$parent, (array)$k);
-				//add section information to the output
-				$out .= '[' . join('.', $sec) . ']' . PHP_EOL;
-				//recursively traverse deeper
-				$out .= $this->arr2ini($v, $sec);
-			} else {
-				//plain key->value case
-				$out .= "$k=$v" . PHP_EOL;
+		$content = "";
+		if ($has_sections) {
+			foreach ($assoc_arr as $key => $elem) {
+				$content .= "[" . $key . "]\n";
+				foreach ($elem as $key2 => $elem2) {
+					if (is_array($elem2)) {
+						for ($i = 0; $i < count($elem2); $i++) {
+							$content .= $key2 . "[] = \"" . $elem2[$i] . "\"\n";
+						}
+					} else if ($elem2 == "") $content .= $key2 . " = \n";
+					else $content .= $key2 . " = \"" . $elem2 . "\"\n";
+				}
+			}
+		} else {
+			foreach ($assoc_arr as $key => $elem) {
+				if (is_array($elem)) {
+					for ($i = 0; $i < count($elem); $i++) {
+						$content .= $key . "[] = \"" . $elem[$i] . "\"\n";
+					}
+				} else if ($elem == "") $content .= $key . " = \n";
+				else $content .= $key . " = \"" . $elem . "\"\n";
 			}
 		}
 
-		return $out;
+		return $content;
 	}
 
 }
