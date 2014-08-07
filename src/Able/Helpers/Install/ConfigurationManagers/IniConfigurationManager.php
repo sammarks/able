@@ -3,6 +3,7 @@
 namespace Able\Helpers\Install\ConfigurationManagers;
 
 use Able\Helpers\Install\Features\Feature;
+use Able\Helpers\Logger;
 
 abstract class IniConfigurationManager extends ConfigurationManager {
 
@@ -77,6 +78,12 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 		$content = "";
 		if ($this->hasSections()) {
 			foreach ($assoc_arr as $key => $elem) {
+				if (!is_array($elem)) {
+					/** @var \Able\Helpers\Logger $logger */
+					$logger = Logger::getInstance();
+					$logger->error('The element: ' . $elem . ' is invalid and has been skipped.');
+					continue;
+				}
 				$content .= "[" . $key . "]\n";
 				foreach ($elem as $key2 => $elem2) {
 					if (is_array($elem2)) {
@@ -110,6 +117,14 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 				return "\"{$value}\"";
 			}
 		} else return $value;
+	}
+
+	protected function verifyIniSections($arr)
+	{
+		foreach ($arr as $item) {
+			if (!is_array($item)) return false;
+		}
+		return true;
 	}
 
 }
