@@ -61,8 +61,8 @@ abstract class ConfigurationManager extends Component {
 			$feature_folder .= '/';
 		}
 
-		// Append the name of this configuration class.
-		$feature_folder .= $this->getClassName();
+		// Append the name of this configuration class. NO!
+		// $feature_folder .= $this->getClassName(); - NONO! This doesn't work.
 
 		return $feature_folder;
 	}

@@ -31,8 +31,6 @@ class NginxConfigurationManager extends FileConfigurationManager {
 				throw new NginxConfigurationManagerException('There was an error saving the default nginx configuration.');
 			}
 
-			print $contents;
-
 		} else {
 			throw new NginxConfigurationManagerException('Could not open the default nginx configuration for modification.');
 		}
