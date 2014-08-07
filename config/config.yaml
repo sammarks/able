@@ -38,7 +38,8 @@ site:
         # The key of the configuration item is the name of the feature, and the items contained
         # within are the specific configuration options.
         FPMPool:
-            max_children: 20
+            www:
+                max_children: 20
             
         Supervisor:
             unix_http_server:
