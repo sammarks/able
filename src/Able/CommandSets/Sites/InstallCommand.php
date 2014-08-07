@@ -138,9 +138,6 @@ class InstallCommand extends BaseCommand {
 	protected function getFeatures(FeatureCollection &$features, array $settings)
 	{
 		foreach ($settings['features'] as $feature => $configuration) {
-			if (!is_array($configuration)) { // Here we're able to accept either an array or a string without a value.
-				$feature = $configuration;
-			}
 			$features->append(FeatureFactory::getInstance()->factory($feature, $this, $settings));
 		}
 	}

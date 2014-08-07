@@ -126,6 +126,9 @@ site:
             host: test-host
             create: true
 
+        # All sites are based on nginx by default.
+        Nginx:
+
 # This configuration section outlines where specific items are located
 # on the server.
 server:
