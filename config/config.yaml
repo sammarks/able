@@ -87,7 +87,6 @@ site:
                     - adminimal_admin_menu
                     - ctools
                     - libraries
-                    - smtp
                     - ckeditor
                     - less
                     - token
