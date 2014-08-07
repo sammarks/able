@@ -78,6 +78,7 @@ abstract class ConfigurationManager extends Component {
 	protected function getFeatureConfigurationFolderGlobal(Feature $feature)
 	{
 		$feature_folder = SCRIPTS_ROOT . '/lib/features/' . $this->getFeatureConfigurationFolderBase($feature);
+		print "Feature folder:" . $feature_folder;
 
 		if (!is_dir($feature_folder)) return false;
 		return $feature_folder;
