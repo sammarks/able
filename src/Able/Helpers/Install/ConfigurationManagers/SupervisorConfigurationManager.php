@@ -2,4 +2,4 @@
 
 namespace Able\Helpers\Install\ConfigurationManagers;
 
-class SupervisorConfigurationManager extends IniConfigurationManager {}
+class SupervisorConfigurationManager extends IniConfigurationManager { }

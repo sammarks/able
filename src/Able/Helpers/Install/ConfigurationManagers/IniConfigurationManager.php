@@ -8,6 +8,26 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 
 	protected $configuration = array();
 
+	/**
+	 * Has Sections
+	 *
+	 * @return bool Whether or not the current ini file has sections.
+	 */
+	protected function hasSections()
+	{
+		return true;
+	}
+
+	/**
+	 * String Values
+	 *
+	 * @return bool Whether or not we should use quotes around the values of the configuration.
+	 */
+	protected function stringValues()
+	{
+		return false;
+	}
+
 	public function postInitialize()
 	{
 		parent::postInitialize();
@@ -52,10 +72,10 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 	}
 
 	// From: http://stackoverflow.com/questions/1268378/create-ini-file-write-values-in-php
-	protected function write_ini_file($assoc_arr, $has_sections = false)
+	protected function write_ini_file($assoc_arr)
 	{
 		$content = "";
-		if ($has_sections) {
+		if ($this->hasSections()) {
 			foreach ($assoc_arr as $key => $elem) {
 				$content .= "[" . $key . "]\n";
 				foreach ($elem as $key2 => $elem2) {
@@ -83,11 +103,13 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 
 	protected function iniValue($value)
 	{
-		if (is_numeric($value)) {
-			return $value;
-		} else {
-			return "\"{$value}\"";
-		}
+		if ($this->stringValues()) {
+			if (is_numeric($value)) {
+				return $value;
+			} else {
+				return "\"{$value}\"";
+			}
+		} else return $value;
 	}
 
 }
