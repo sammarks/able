@@ -61,6 +61,10 @@ site:
                 command: /usr/sbin/php5-fpm -F -c /etc/php5/fpm
                 stdout_events_enabled: true
                 stderr_events_enabled: true
+            "program:php5-fpm-log":
+                command: tail -f /var/log/php5-fpm.log
+                stdout_events_enabled: true
+                stderr_events_enabled: true
             "program:nginx":
                 command: /usr/sbin/nginx
                 stdout_events_enabled: true
