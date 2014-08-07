@@ -36,7 +36,7 @@ class Drupal7Feature extends Feature {
 
 		$this->command->log('Downloading CKEditor', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->command->exec('wget "http://download.cksource.com/CKEditor%20for%20Drupal/CKEditor%204.0.1%20for%20Drupal/ckeditor_4.0.1_for_drupal_7.zip?drupal-version=on" --output-document=/tmp/ckeditor.zip --no-verbose');
-		$this->command->exec("unzip /tmp/ckeditor.zip -d '$drupal_root/sites/all/modules/contrib/' -q");
+		$this->command->exec("unzip /tmp/ckeditor.zip -q -d '$drupal_root/sites/all/modules/contrib/'");
 	}
 
 	public function postCopy($directory)
