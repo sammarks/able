@@ -1,7 +1,5 @@
 [ablecore:base:global:before]
 
-daemon off;
-
 server {
 
 	[ablecore:base:server:before]

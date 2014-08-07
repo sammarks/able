@@ -33,6 +33,7 @@ site:
         VHost:
         FPM:
         PHP:
+        Nginx:
     
         # The key of the configuration item is the name of the feature, and the items contained
         # within are the specific configuration options.
@@ -149,6 +150,7 @@ server:
         FPM: /etc/php5/fpm/php-fpm.conf
         PHP: /etc/php5/fpm/php.ini
         Supervisor: /etc/supervisord.conf
+        Nginx: /etc/nginx/nginx.conf
 
 # This section contains authentication credentials for use when communicating with the
 # AWS API. This is required to create a cluster of servers or manage servers.
