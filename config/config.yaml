@@ -39,7 +39,7 @@ site:
         # within are the specific configuration options.
         FPMPool:
             www:
-                max_children: 20
+                pm.max_children: 20
             
         Supervisor:
             unix_http_server:
