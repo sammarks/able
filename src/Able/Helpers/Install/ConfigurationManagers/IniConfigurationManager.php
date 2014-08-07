@@ -90,7 +90,7 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 						for ($i = 0; $i < count($elem2); $i++) {
 							$content .= $key2 . "[] = " . $this->iniValue($elem2[$i]) . "\n";
 						}
-					} else if ($elem2 == "") $content .= $key2 . " = \n";
+					} else if ($elem2 === "") $content .= $key2 . " = \n";
 					else $content .= $key2 . " = " . $this->iniValue($elem2) . "\n";
 				}
 			}
