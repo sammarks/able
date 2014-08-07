@@ -90,14 +90,9 @@ site:
                     - smtp
                     - ckeditor
                     - less
-                    - conditional_styles
-                    - field_collection
                     - token
                     - entity
                     - pathauto
-                    - features
-                    - defaultcontent
-                    - context
                     - ablecore
                     - xautoload
 
