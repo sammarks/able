@@ -76,7 +76,6 @@ site:
                 result_handler: supervisor_stdout:event_handler
     
     features:
-        Nginx:
         Drupal7:
         
             # This array has two sub-items: disable and enable. When creating a site, the modules
