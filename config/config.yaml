@@ -57,7 +57,7 @@ site:
             supervisorctl:
                 serverurl: unix:///tmp/supervisor.sock
             "program:php5-fpm":
-                command: /usr/sbin/php5-fpm -c /etc/php5/fpm
+                command: /usr/sbin/php5-fpm -F -c /etc/php5/fpm
                 stdout_events_enabled: true
                 stderr_events_enabled: true
             "program:php5-fpm-log":
