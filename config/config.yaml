@@ -50,7 +50,7 @@ site:
                 logfile_backups: 10
                 loglevel: info
                 pidfile: /tmp/supervisord.pid
-                nodaemon: false
+                nodaemon: "false"
                 minfds: 1024
                 minprocs: 200
             "rpcinterface:supervisor":
