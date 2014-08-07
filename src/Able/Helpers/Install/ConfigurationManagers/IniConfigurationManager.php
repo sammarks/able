@@ -75,8 +75,6 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 	// From: http://stackoverflow.com/questions/1268378/create-ini-file-write-values-in-php
 	protected function write_ini_file($assoc_arr)
 	{
-		// Temporarily debug.
-		print_r($assoc_arr);
 		$content = "";
 		if ($this->hasSections()) {
 			foreach ($assoc_arr as $key => $elem) {
