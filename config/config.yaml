@@ -50,6 +50,9 @@ site:
                 logfile_backups: 10
                 loglevel: info
                 pidfile: /tmp/supervisord.pid
+
+                # In order to get the false value actually output as a string, you need to put
+                # the value in quotes.
                 nodaemon: "false"
                 minfds: 1024
                 minprocs: 200
