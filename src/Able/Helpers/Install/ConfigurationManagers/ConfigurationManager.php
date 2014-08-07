@@ -61,9 +61,6 @@ abstract class ConfigurationManager extends Component {
 			$feature_folder .= '/';
 		}
 
-		// Append the name of this configuration class. NO!
-		// $feature_folder .= $this->getClassName(); - NONO! This doesn't work.
-
 		return $feature_folder;
 	}
 
@@ -78,7 +75,6 @@ abstract class ConfigurationManager extends Component {
 	protected function getFeatureConfigurationFolderGlobal(Feature $feature)
 	{
 		$feature_folder = SCRIPTS_ROOT . '/lib/features/' . $this->getFeatureConfigurationFolderBase($feature);
-		print "Feature folder:" . $feature_folder;
 
 		if (!is_dir($feature_folder)) return false;
 		return $feature_folder;
