@@ -75,6 +75,8 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 	// From: http://stackoverflow.com/questions/1268378/create-ini-file-write-values-in-php
 	protected function write_ini_file($assoc_arr)
 	{
+		// Temporarily debug.
+		print_r($assoc_arr);
 		$content = "";
 		if ($this->hasSections()) {
 			foreach ($assoc_arr as $key => $elem) {
@@ -90,8 +92,7 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 						for ($i = 0; $i < count($elem2); $i++) {
 							$content .= $key2 . "[] = " . $this->iniValue($elem2[$i]) . "\n";
 						}
-					} else if ($elem2 === 'false') $content .= $key2 . " = false\n";
-					else if ($elem2 === "") $content .= $key2 . " = \n";
+					} else if ($elem2 === "") $content .= $key2 . " = \n";
 					else $content .= $key2 . " = " . $this->iniValue($elem2) . "\n";
 				}
 			}
@@ -101,8 +102,7 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 					for ($i = 0; $i < count($elem); $i++) {
 						$content .= $key . "[] = " . $this->iniValue($elem[$i]) . "\n";
 					}
-				} else if ($elem === 'false') $content .= $key . " = false\n";
-				else if ($elem === "") $content .= $key . " = \n";
+				} else if ($elem === "") $content .= $key . " = \n";
 				else $content .= $key . " = " . $this->iniValue($elem) . "\n";
 			}
 		}
