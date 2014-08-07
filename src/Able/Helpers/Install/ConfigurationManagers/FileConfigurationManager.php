@@ -40,13 +40,23 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 
 	protected function handleFeature(Feature $feature)
 	{
-		$feature_folder = $this->getFeatureConfigurationFolder($feature);
-		if (!$feature_folder) return;
-
-		// Handle the various implementations of the feature.
+		// Get the weight of the feature.
 		$weight = $feature->getWeight($this);
-		foreach ($this->base_replacements_keys as $type) {
-			$this->handleImplementation($feature_folder, $type, $weight);
+
+		// First get the feature from the site's configuration.
+		$feature_folder = $this->getFeatureConfigurationFolderLocal($feature);
+		if ($feature_folder) {
+			foreach ($this->base_replacements_keys as $type) {
+				$this->handleImplementation($feature_folder, $type, $weight);
+			}
+		}
+
+		// Now check inside the lib/features folder for default configurations.
+		$feature_folder = $this->getFeatureConfigurationFolderGlobal($feature);
+		if ($feature_folder) {
+			foreach ($this->base_replacements_keys as $type) {
+				$this->handleImplementation($feature_folder, $type, $weight);
+			}
 		}
 	}
 
