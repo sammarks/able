@@ -22,6 +22,9 @@ site:
     
     # The email to use when setting up various CMSs.
     email: noreply@example.org
+
+    # Whether or not Able manages the services on the server, or if something like supervisor does.
+    manage_services: false
     
     # The configuration managers go here, along with additional configuration options for each.
     # TODO: Merge the configuration managers and features into one.

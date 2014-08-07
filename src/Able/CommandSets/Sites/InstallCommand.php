@@ -92,8 +92,10 @@ class InstallCommand extends BaseCommand {
 		$features->callHook('postCopy', $directory);
 
 		// Restart nginx and php5-fpm.
-		$this->log('Restarting Services', 'white', self::DEBUG_VERBOSE);
-		$this->restartServices();
+		if ($settings['manage_services']) {
+			$this->log('Restarting Services', 'white', self::DEBUG_VERBOSE);
+			$this->restartServices();
+		}
 
 		// Call the post-restart-services hook.
 		$features->callHook('postRestartServices');
