@@ -80,7 +80,6 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 		$replace = array();
 		foreach ($replacements as $key => $replacement) {
 			if (is_array($replacement)) {
-				print_r($replacement);
 				$replacement = implode(PHP_EOL, $replacement);
 			}
 			$search[] = '[' . trim($key, '[]') . ']';
@@ -131,7 +130,18 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 
 			// Perform the replacements on the file.
 			$this->performReplacements($contents, $this->replacements);
-			$this->performReplacements($contents, $this->base_replacements);
+
+			// Condense the base replacements.
+			$base_replacements_contents = array();
+			foreach ($this->base_replacements as $replacement) {
+				if (!is_array($replacement)) {
+					$base_replacements_contents[] = $replacement;
+					continue;
+				} elseif (array_key_exists('contents', $replacement)) {
+					$base_replacements_contents[] = $replacement['contents'];
+				}
+			}
+			$this->performReplacements($contents, $base_replacements_contents);
 
 			// Finally, return the contents.
 			return $contents;
