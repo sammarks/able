@@ -59,6 +59,7 @@ class Drupal7Feature extends Feature {
 		// A lot of this is taken from Drush:commands/core/drupal/site_install.inc
 
 		// Require the Drupal installer.
+		define('DRUPAL_ROOT', $drupal_root);
 		require_once $drupal_root . '/includes/install.core.inc';
 
 		// Get the database spec.
