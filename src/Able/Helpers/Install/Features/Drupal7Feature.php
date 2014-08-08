@@ -41,10 +41,9 @@ class Drupal7Feature extends Feature {
 
 	public function postCopy($directory)
 	{
-		$this->command->log('Installing Drupal', 'white', BaseCommand::DEBUG_VERBOSE);
 		$drupal_root = str_replace('/sites/all/', '', $directory); // Undo the webroot so we can run drush commands.
 
-		$db_url = $this->getDB();
+		// Come up with some defaults.
 		$db_prefix = !empty($this->configuration['db_prefix']) ? $this->configuration['db_prefix'] : '';
 		$site_name = $this->settings['title'];
 		$site_mail = $this->settings['email'];
@@ -56,10 +55,62 @@ class Drupal7Feature extends Feature {
 		// Change to the Drupal root directory.
 		$this->command->exec('cd ' . $drupal_root);
 
-		// If the DB didn't exist, install the website.
-		if (!$this->checkIfDBExists()) {
+		// Bootstrap Drupal and create the settings.php.
+		// A lot of this is taken from Drush:commands/core/drupal/site_install.inc
 
-			$this->command->exec("drush site-install --root='$drupal_root' --db-url='$db_url' --site-name='$site_name' --site-mail='$site_mail' --account-pass='$account_pass' --account-name='$account_username' --account-mail='$account_mail' --db-prefix='$db_prefix' -y '$profile'", false);
+		// Require the Drupal installer.
+		require_once $drupal_root . '/includes/install.core.inc';
+
+		// Get the database spec.
+		$db_spec = $this->getDatabaseSpec();
+		$db_spec['db_prefix'] = $db_prefix;
+
+		$settings = array(
+			'parameters' => array(
+				'profile' => $profile,
+				'locale' => 'en',
+			),
+			'forms' => array(
+				'install_settings_form' => array(
+					'driver' => $db_spec['driver'],
+					$db_spec['driver'] => $db_spec,
+					'op' => 'Save and continue',
+				),
+				'install_configure_form' => array(
+					'site_name' => $site_name,
+					'site_mail' => $site_mail,
+					'account' => array(
+						'name' => $account_username,
+						'mail' => $account_mail,
+						'pass' => array(
+							'pass1' => $account_pass,
+							'pass2' => $account_pass,
+						),
+					),
+					'update_status_module' => array(
+						1 => false,
+						2 => false,
+					),
+					'clean_url' => true,
+					'op' => 'Save and continue',
+				),
+			),
+		);
+
+		try {
+			install_drupal($settings);
+		} catch (\Exception $ex) {
+
+			// We're only looking for the install already done error.
+			// If we don't get it, something else went wrong and we need to show it.
+			if ($ex->getMessage() != install_already_done_error()) {
+				throw $ex;
+			}
+
+		}
+
+		// If the DB didn't exist, enable and disable modules, and then set the defaults.
+		if (!$this->checkIfDBExists()) {
 
 			$this->command->log('Changing Modules', 'white', BaseCommand::DEBUG_VERBOSE);
 			$this->manageModules($drupal_root);
@@ -69,10 +120,10 @@ class Drupal7Feature extends Feature {
 
 		}
 
-		$this->command->log('Preparing Site Configuration', 'white', BaseCommand::DEBUG_VERBOSE);
+		$this->command->log('Preparing Drupal Configuration', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->prepareSettings();
 
-		$this->command->log('Clearing Caches', 'white', BaseCommand::DEBUG_VERBOSE);
+		$this->command->log('Clearing Drupal Caches', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->command->exec("drush cc --root='$drupal_root' -y all");
 
 		$this->command->log('Drupal Installed!', 'white', BaseCommand::DEBUG_VERBOSE);
@@ -89,14 +140,41 @@ class Drupal7Feature extends Feature {
 		return $database_feature;
 	}
 
-	protected function getDB()
-	{
-		return $this->getDatabaseFeature()->getConnectionString();
-	}
-
 	protected function checkIfDBExists()
 	{
 		return $this->getDatabaseFeature()->didDatabaseExist();
+	}
+
+	/**
+	 * Get Database Spec
+	 *
+	 * Gets the Drupal database spec. Again, this was borrowed heavily from
+	 * Drush.
+	 *
+	 * @return array The database spec.
+	 */
+	protected function getDatabaseSpec()
+	{
+		$url = parse_url($this->getDatabaseFeature()->getConnectionString());
+		$url += array(
+			'driver' => null,
+			'user' => null,
+			'pass' => null,
+			'host' => null,
+			'port' => null,
+			'path' => null,
+			'database' => null,
+		);
+		$url = (object) array_map('urldecode', $url);
+
+		return array(
+			'driver' => $url->scheme == 'mysqli' ? 'mysql' : $url->scheme,
+			'username' => $url->user,
+			'password' => $url->pass,
+			'port '=> $url->port,
+			'host' => $url->scheme == 'sqlite' ? '' : $url->host,
+			'database' => $url->scheme == 'sqlite' ? $url->host . $url->path : substr($url->path, 1),
+		);
 	}
 
 	protected function manageModules($drupal_root)
