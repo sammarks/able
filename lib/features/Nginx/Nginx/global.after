@@ -1,1 +1,6 @@
+
+# Put nginx in daemon mode.
 daemon off;
+
+# Redirect the error log to stderr.
+error_log /dev/stderr warn;
