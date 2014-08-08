@@ -63,6 +63,7 @@ class Drupal7Feature extends Feature {
 		define('MAINTENANCE_MODE', 'install');
 		require_once $drupal_root . '/includes/bootstrap.inc';
 		drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
+		drupal_load('module', 'system');
 		require_once $drupal_root . '/includes/install.core.inc';
 
 		// Get the database spec.
