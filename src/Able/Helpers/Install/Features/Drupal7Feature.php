@@ -108,6 +108,9 @@ class Drupal7Feature extends Feature {
 			// If we don't get it, something else went wrong and we need to show it.
 			if ($ex->getMessage() != install_already_done_error()) {
 				throw $ex;
+			} else {
+				$this->command->log('It appears that Drupal is already installed to the specified database. ' .
+					'If you would like to reinstall it, clear the database.', 'yellow');
 			}
 
 		}
