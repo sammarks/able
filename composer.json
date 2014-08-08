@@ -5,12 +5,16 @@
 		"linkorb/etcd-php": "dev-master",
 		"florianwolters/component-util-singleton": "~0.3",
 		"aws/aws-sdk-php": "~2.6",
-		"stage1/docker-php": "@dev"
+		"stage1/docker-php": "dev-image-api"
 	},
 	"repositories": [
 		{
 			"type": "vcs",
 			"url": "https://github.com/sammarks/etcd-php.git"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/sammarks/docker-php.git"
 		}
 	],
 	"autoload": {
