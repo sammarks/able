@@ -54,16 +54,14 @@ class Drupal7Feature extends Feature {
 
 		// Change to the Drupal root directory.
 		$this->command->exec('cd ' . $drupal_root);
+		chdir($drupal_root);
 
 		// Bootstrap Drupal and create the settings.php.
 		// A lot of this is taken from Drush:commands/core/drupal/site_install.inc
 
 		// Require the Drupal installer.
-		define('DRUPAL_ROOT', $drupal_root);
+		define('DRUPAL_ROOT', getcwd());
 		define('MAINTENANCE_MODE', 'install');
-		require_once $drupal_root . '/includes/bootstrap.inc';
-		drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
-		drupal_load('module', 'system');
 		require_once $drupal_root . '/includes/install.core.inc';
 
 		// Get the database spec.
