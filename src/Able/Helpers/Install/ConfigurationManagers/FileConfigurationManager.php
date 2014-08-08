@@ -46,7 +46,7 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 		// First get the feature from the site's configuration.
 		$feature_folder = $this->getFeatureConfigurationFolderLocal($feature);
 		if ($feature_folder) {
-			foreach ($this->base_replacements_keys as $type) {
+			foreach (array_keys($this->base_replacements_keys) as $type) {
 				$this->handleImplementation($feature_folder, $type, $weight);
 			}
 		}
@@ -54,7 +54,7 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 		// Now check inside the lib/features folder for default configurations.
 		$feature_folder = $this->getFeatureConfigurationFolderGlobal($feature);
 		if ($feature_folder) {
-			foreach ($this->base_replacements_keys as $type) {
+			foreach (array_keys($this->base_replacements_keys) as $type) {
 				$this->handleImplementation($feature_folder, $type, $weight);
 			}
 		}
