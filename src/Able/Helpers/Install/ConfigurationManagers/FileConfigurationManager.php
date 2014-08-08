@@ -62,7 +62,9 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 
 	protected function handleImplementation($base, $type, $weight)
 	{
+		print $base . $type . "\n";
 		if (!is_file($base . $type)) return;
+		print $base . $type . " is a file\n";
 		if ($contents = file_get_contents($base . $type)) {
 			$this->prepareFeatureImplementation($contents);
 			$this->performReplacements($contents, $this->replacements);
