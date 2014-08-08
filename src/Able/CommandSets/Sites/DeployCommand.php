@@ -6,6 +6,7 @@ use Able\Helpers\Logger;
 use Docker\Context\Context;
 use Docker\Docker;
 use Docker\Http\DockerClient;
+use Docker\Manager\ImageManager;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,12 @@ use Able\CommandSets\BaseCommand;
 
 class DeployCommand extends BaseCommand
 {
+
+	/**
+	 * The last image ID of the transaction.
+	 * @var string
+	 */
+	protected $image_id = null;
 
 	protected function configure()
 	{
@@ -56,13 +63,29 @@ class DeployCommand extends BaseCommand
 		$no_rm = ($input->getOption('no-rm') != null);
 
 		// Build the image.
-		$this->log('Name: ' . $this->getImageName($directory));
-		return;
-		$docker->build($context, $this->getImageName($directory), array(get_class(), 'buildCallback'), false,
-			!$no_cache, !$no_rm);
+		$image_name = $this->getImageName($directory) . ':' . $this->getTag();
+		$docker->build($context, $image_name, array($this, 'opCallback'), false, !$no_cache, !$no_rm);
 
 		// Tag the image with the current date (and an optional description).
-		$tag_name = $this->getTag();
+		$image_manager = $docker->getImageManager();
+
+		if (!$this->image_id) {
+			$this->error('An image ID could not be obtained from the Docker build process. This probably means ' .
+				'something went wrong.', true);
+			return;
+		}
+
+		// Get the image.
+		$image = $image_manager->find($this->image_id);
+		if (!$image) {
+			$this->error('An image with the ID ' . $this->image_id . ' could not be found. This probably means ' .
+				'something went wrong.', true);
+			return;
+		}
+
+		// Push the image.
+		$this->log('PUSH ' . $image_name);
+		$image_manager->push($image, array($this, 'opCallback'));
 
 		$this->log('Successful.', 'green');
 	}
@@ -116,12 +139,17 @@ class DeployCommand extends BaseCommand
 	protected function getTag()
 	{
 		$message = $this->input->getOption('message');
+		if ($message && preg_match('/[^A-Za-z0-9.-]/', $message)) {
+			$this->error('Message "' . $message . '" contains invalid characters. Only upper or lowercase alphanumeric characters, hyphens and periods are allowed.', true);
+			return '';
+		}
+
 		$date = date('M.D.Y.H.I', time());
 
 		return implode(' - ', array($date, $message));
 	}
 
-	public static function buildCallback($output)
+	public function opCallback($output)
 	{
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
@@ -132,12 +160,26 @@ class DeployCommand extends BaseCommand
 				$percentage = floor(($output_data->progressDetail->current / $output_data->progressDetail->total) * 100);
 				$human_start = self::formatSizeUnits($output_data->progressDetail->current);
 				$human_end = self::formatSizeUnits($output_data->progressDetail->total);
-				$logger->overwrite('Complete: ' . $percentage . '% (' . $human_start . '/' . $human_end . ')');
+				$logger->overwrite('Complete: ' . $percentage . '% (' . $human_start . '/' . $human_end . ')', 'white', BaseCommand::DEBUG_VERBOSE);
 			} else {
-				$logger->log($output_data->status);
+				$logger->log($output_data->status, 'white', BaseCommand::DEBUG_VERBOSE);
 			}
 		} elseif (!empty($output_data->stream)) {
-			$logger->log(trim($output_data->stream, "\n"), 'white');
+			$this->checkForImageID($output_data->stream);
+			$logger->log(trim($output_data->stream, "\n"), 'white', BaseCommand::DEBUG_VERBOSE);
+		}
+	}
+
+	protected function checkForImageID($status)
+	{
+		// TODO: This is kind of a nasty way to determine the image ID. Maybe Docker will give us a better
+		// way to do this at some point?
+
+		if (strpos($status, ' ---> ') === 0) {
+			$image_id = str_replace(' ---> ', '', $status);
+			if (strpos($image_id, ' ') === false) {
+				$this->image_id = $image_id;
+			}
 		}
 	}
 
