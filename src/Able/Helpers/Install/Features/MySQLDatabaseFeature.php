@@ -47,4 +47,17 @@ class MySQLDatabaseFeature extends DatabaseFeature {
 		$this->command->log('Created database successfully.', 'white', BaseCommand::DEBUG_VERBOSE);
 	}
 
+	public function didDatabaseExist()
+	{
+		if ($this->was_created === true) return false;
+
+		try {
+			new \PDO("mysql:host={$this->host};dbname={$this->database}", $this->username, $this->password);
+		} catch (\PDOException $ex) {
+			return false;
+		}
+
+		return true;
+	}
+
 }

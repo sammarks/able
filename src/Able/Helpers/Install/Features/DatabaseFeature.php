@@ -37,6 +37,12 @@ abstract class DatabaseFeature extends Feature {
 	protected $create = false;
 
 	/**
+	 * Whether or not the database was created by this script.
+	 * @var bool
+	 */
+	protected $was_created = false;
+
+	/**
 	 * Get Connection String
 	 *
 	 * Gets the connection string for connecting to the database.
@@ -52,10 +58,18 @@ abstract class DatabaseFeature extends Feature {
 	 */
 	public abstract function createDatabase();
 
+	/**
+	 * Does Database Exist?
+	 *
+	 * @return bool Whether or not the current database exists.
+	 */
+	public abstract function didDatabaseExist();
+
 	public function preCopy($directory)
 	{
 		// Create the database before everything else if it has been requested.
-		if ($this->create) {
+		if ($this->create && !$this->didDatabaseExist()) {
+			$this->was_created = true;
 			$this->createDatabase();
 		}
 	}

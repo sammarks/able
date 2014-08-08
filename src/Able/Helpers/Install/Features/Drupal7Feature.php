@@ -53,16 +53,21 @@ class Drupal7Feature extends Feature {
 		$account_pass = $this->configuration['default_credentials']['password'];
 		$profile = $this->configuration['profile'];
 
-		$this->command->exec("drush site-install --root='$drupal_root' --db-url='$db_url' --site-name='$site_name' --site-mail='$site_mail' --account-pass='$account_pass' --account-name='$account_username' --account-mail='$account_mail' --db-prefix='$db_prefix' -y '$profile'", false);
-
 		// Change to the Drupal root directory.
 		$this->command->exec('cd ' . $drupal_root);
 
-		$this->command->log('Changing Modules', 'white', BaseCommand::DEBUG_VERBOSE);
-		$this->manageModules($drupal_root);
+		// If the DB didn't exist, install the website.
+		if (!$this->checkIfDBExists()) {
 
-		$this->command->log('Updating Defaults', 'white', BaseCommand::DEBUG_VERBOSE);
-		$this->setDefaults($drupal_root);
+			$this->command->exec("drush site-install --root='$drupal_root' --db-url='$db_url' --site-name='$site_name' --site-mail='$site_mail' --account-pass='$account_pass' --account-name='$account_username' --account-mail='$account_mail' --db-prefix='$db_prefix' -y '$profile'", false);
+
+			$this->command->log('Changing Modules', 'white', BaseCommand::DEBUG_VERBOSE);
+			$this->manageModules($drupal_root);
+
+			$this->command->log('Updating Defaults', 'white', BaseCommand::DEBUG_VERBOSE);
+			$this->setDefaults($drupal_root);
+
+		}
 
 		$this->command->log('Preparing Site Configuration', 'white', BaseCommand::DEBUG_VERBOSE);
 		$this->prepareSettings();
@@ -73,7 +78,7 @@ class Drupal7Feature extends Feature {
 		$this->command->log('Drupal Installed!', 'white', BaseCommand::DEBUG_VERBOSE);
 	}
 
-	protected function getDB()
+	protected function getDatabaseFeature()
 	{
 		/** @var DatabaseFeature $database_feature */
 		$database_feature = $this->feature_collection->getFeatureByType('Database');
@@ -81,7 +86,17 @@ class Drupal7Feature extends Feature {
 			throw new \Exception('A database feature could not be found.');
 		}
 
-		return $database_feature->getConnectionString();
+		return $database_feature;
+	}
+
+	protected function getDB()
+	{
+		return $this->getDatabaseFeature()->getConnectionString();
+	}
+
+	protected function checkIfDBExists()
+	{
+		return $this->getDatabaseFeature()->didDatabaseExist();
 	}
 
 	protected function manageModules($drupal_root)
