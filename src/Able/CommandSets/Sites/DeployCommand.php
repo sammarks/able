@@ -24,7 +24,8 @@ class DeployCommand extends BaseCommand
 			->addArgument('directory', InputArgument::OPTIONAL, 'The directory that corresponds to the root of the site repository.', getcwd())
 			->addOption('name', null, InputOption::VALUE_REQUIRED, 'The name of the image to create. Defaults to the name of the repository with the environment appended.')
 			->addOption('no-cache', null, InputOption::VALUE_NONE, 'If this is set, the Docker cache will not be used.')
-			->addOption('no-rm', null, InputOption::VALUE_NONE, 'If this is set, the intermediate container will not be removed after the image is created.');
+			->addOption('no-rm', null, InputOption::VALUE_NONE, 'If this is set, the intermediate container will not be removed after the image is created.')
+			->addOption('message', 'm', InputOption::VALUE_REQUIRED, 'The message to append to the tag of the image when deploying.');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
@@ -53,8 +54,15 @@ class DeployCommand extends BaseCommand
 		$context = new Context($directory);
 		$no_cache = ($input->getOption('no-cache') != null);
 		$no_rm = ($input->getOption('no-rm') != null);
+
+		// Build the image.
+		$this->log('Name: ' . $this->getImageName($directory));
+		return;
 		$docker->build($context, $this->getImageName($directory), array(get_class(), 'buildCallback'), false,
 			!$no_cache, !$no_rm);
+
+		// Tag the image with the current date (and an optional description).
+		$tag_name = $this->getTag();
 
 		$this->log('Successful.', 'green');
 	}
@@ -80,7 +88,7 @@ class DeployCommand extends BaseCommand
 				}
 				return new DockerClient(array(), 'tcp://' . $host_ip . ':2375');
 			} else {
-				return new DockerClient(array(), $this->config->get('docker.connection'));
+				return new DockerClient(array(), $this->config->get('docker/connection'));
 			}
 
 		} else {
@@ -95,14 +103,22 @@ class DeployCommand extends BaseCommand
 			if (strpos($supplied_name, '/') !== false) {
 				return $supplied_name;
 			} else {
-				return $this->config->get('docker.registry') . '/' . $supplied_name;
+				return $this->config->get('docker/registry') . '/' . $supplied_name;
 			}
 		}
 
 		$directory = realpath($directory);
 		$directory_segments = explode('/', $directory);
 		$image_name = $directory_segments[count($directory_segments) - 1];
-		return $this->config->get('docker.registry') . '/' . $image_name;
+		return $this->config->get('docker/registry') . '/' . $image_name;
+	}
+
+	protected function getTag()
+	{
+		$message = $this->input->getOption('message');
+		$date = date('M.D.Y.H.I', time());
+
+		return implode(' - ', array($date, $message));
 	}
 
 	public static function buildCallback($output)
