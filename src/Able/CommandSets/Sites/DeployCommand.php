@@ -75,16 +75,10 @@ class DeployCommand extends BaseCommand
 		// Tag the image with the current date (and an optional description).
 		$image_manager = $docker->getImageManager();
 
-		if (!$this->image_id) {
-			$this->error('An image ID could not be obtained from the Docker build process. This probably means ' .
-				'something went wrong.', true);
-			return;
-		}
-
 		// Get the image.
 		$image = $image_manager->find($image_name);
 		if (!$image) {
-			$this->error('An image with the ID ' . $this->image_id . ' could not be found. This probably means ' .
+			$this->error('An image with the ID ' . $image_name . ' could not be found. This probably means ' .
 				'something went wrong.', true);
 			return;
 		}
