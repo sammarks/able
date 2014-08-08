@@ -133,12 +133,15 @@ abstract class FileConfigurationManager extends ConfigurationManager {
 
 			// Condense the base replacements.
 			$base_replacements_contents = array();
-			foreach ($this->base_replacements as $replacement) {
-				if (!is_array($replacement)) {
-					$base_replacements_contents[] = $replacement;
-					continue;
-				} elseif (array_key_exists('contents', $replacement)) {
-					$base_replacements_contents[] = $replacement['contents'];
+			foreach ($this->base_replacements as $key => $replacements) {
+				$base_replacements_contents[$key] = array();
+				foreach ($replacements as $replacement) {
+					if (!is_array($replacement)) {
+						$base_replacements_contents[$key][] = $replacement;
+						continue;
+					} elseif (array_key_exists('contents', $replacement)) {
+						$base_replacements_contents[$key][] = $replacement['contents'];
+					}
 				}
 			}
 			$this->performReplacements($contents, $base_replacements_contents);
