@@ -485,12 +485,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sammarks/docker-php.git",
-                "reference": "87bc58b0caefb996c48d9e07be43d6b1b293d50b"
+                "reference": "1bc3b43f75c0498e5ac60d532f1df7a97b94d9eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sammarks/docker-php/zipball/87bc58b0caefb996c48d9e07be43d6b1b293d50b",
-                "reference": "87bc58b0caefb996c48d9e07be43d6b1b293d50b",
+                "url": "https://api.github.com/repos/sammarks/docker-php/zipball/1bc3b43f75c0498e5ac60d532f1df7a97b94d9eb",
+                "reference": "1bc3b43f75c0498e5ac60d532f1df7a97b94d9eb",
                 "shasum": ""
             },
             "require": {
@@ -516,7 +516,7 @@
             "support": {
                 "source": "https://github.com/sammarks/docker-php/tree/image-api"
             },
-            "time": "2014-08-08 18:02:57"
+            "time": "2014-08-08 18:47:06"
         },
         {
             "name": "symfony/console",

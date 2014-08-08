@@ -6,8 +6,6 @@ use Able\Helpers\Logger;
 use Docker\Context\Context;
 use Docker\Docker;
 use Docker\Http\DockerClient;
-use Docker\Manager\ImageManager;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,6 +20,12 @@ class DeployCommand extends BaseCommand
 	 * @var string
 	 */
 	protected $image_id = null;
+
+	/**
+	 * The registry to push the image to.
+	 * @var string
+	 */
+	protected $registry = '';
 
 	protected function configure()
 	{
@@ -54,6 +58,7 @@ class DeployCommand extends BaseCommand
 
 		// Instantiate docker.
 		$docker = new Docker($this->getDockerClient());
+		$this->registry = $this->config->get('docker/registry');
 
 		$this->log('BUILD ' . $directory . DIRECTORY_SEPARATOR . 'Dockerfile');
 
@@ -64,7 +69,8 @@ class DeployCommand extends BaseCommand
 
 		// Build the image.
 		$image_name = $this->getImageName($directory) . ':' . $this->getTag();
-		$docker->build($context, $image_name, array($this, 'opCallback'), false, !$no_cache, !$no_rm);
+		$docker->build($context, $image_name, array($this, 'opCallback'),
+			$output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE, !$no_cache, !$no_rm);
 
 		// Tag the image with the current date (and an optional description).
 		$image_manager = $docker->getImageManager();
@@ -76,7 +82,7 @@ class DeployCommand extends BaseCommand
 		}
 
 		// Get the image.
-		$image = $image_manager->find($this->image_id);
+		$image = $image_manager->find($image_name);
 		if (!$image) {
 			$this->error('An image with the ID ' . $this->image_id . ' could not be found. This probably means ' .
 				'something went wrong.', true);
@@ -85,7 +91,7 @@ class DeployCommand extends BaseCommand
 
 		// Push the image.
 		$this->log('PUSH ' . $image_name);
-		$image_manager->push($image, array($this, 'opCallback'));
+		$image_manager->push($image, array($this, 'opCallback'), $this->registry);
 
 		$this->log('Successful.', 'green');
 	}
@@ -124,16 +130,22 @@ class DeployCommand extends BaseCommand
 		$supplied_name = $this->input->getOption('name');
 		if ($supplied_name) {
 			if (strpos($supplied_name, '/') !== false) {
-				return $supplied_name;
+				$segments = explode('/', $supplied_name);
+				if (count($segments) !== 2) {
+					$this->error($supplied_name . ' is an invalid image name.', true);
+					return '';
+				}
+				$this->registry = $segments[0];
+				return $segments[1];
 			} else {
-				return $this->config->get('docker/registry') . '/' . $supplied_name;
+				return $supplied_name;
 			}
 		}
 
 		$directory = realpath($directory);
 		$directory_segments = explode('/', $directory);
 		$image_name = $directory_segments[count($directory_segments) - 1];
-		return $this->config->get('docker/registry') . '/' . $image_name;
+		return $image_name;
 	}
 
 	protected function getTag()
@@ -144,9 +156,13 @@ class DeployCommand extends BaseCommand
 			return '';
 		}
 
-		$date = date('M.D.Y.H.I', time());
+		$date = date('m.d.Y.H.i', time());
 
-		return implode(' - ', array($date, $message));
+		if ($message) {
+			return implode('-', array($date, $message));
+		} else {
+			return $date;
+		}
 	}
 
 	public function opCallback($output)
@@ -160,26 +176,12 @@ class DeployCommand extends BaseCommand
 				$percentage = floor(($output_data->progressDetail->current / $output_data->progressDetail->total) * 100);
 				$human_start = self::formatSizeUnits($output_data->progressDetail->current);
 				$human_end = self::formatSizeUnits($output_data->progressDetail->total);
-				$logger->overwrite('Complete: ' . $percentage . '% (' . $human_start . '/' . $human_end . ')', 'white', BaseCommand::DEBUG_VERBOSE);
+				$logger->overwrite('Complete: ' . $percentage . '% (' . $human_start . '/' . $human_end . ')');
 			} else {
-				$logger->log($output_data->status, 'white', BaseCommand::DEBUG_VERBOSE);
+				$logger->log($output_data->status);
 			}
 		} elseif (!empty($output_data->stream)) {
-			$this->checkForImageID($output_data->stream);
-			$logger->log(trim($output_data->stream, "\n"), 'white', BaseCommand::DEBUG_VERBOSE);
-		}
-	}
-
-	protected function checkForImageID($status)
-	{
-		// TODO: This is kind of a nasty way to determine the image ID. Maybe Docker will give us a better
-		// way to do this at some point?
-
-		if (strpos($status, ' ---> ') === 0) {
-			$image_id = str_replace(' ---> ', '', $status);
-			if (strpos($image_id, ' ') === false) {
-				$this->image_id = $image_id;
-			}
+			$logger->log(trim($output_data->stream, "\n"));
 		}
 	}
 
