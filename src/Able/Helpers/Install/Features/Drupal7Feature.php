@@ -60,6 +60,7 @@ class Drupal7Feature extends Feature {
 
 		// Require the Drupal installer.
 		define('DRUPAL_ROOT', $drupal_root);
+		define('MAINTENANCE_MODE', 'install');
 		require_once $drupal_root . '/includes/install.core.inc';
 
 		// Get the database spec.
