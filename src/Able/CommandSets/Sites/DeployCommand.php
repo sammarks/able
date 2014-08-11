@@ -3,6 +3,7 @@
 namespace Able\CommandSets\Sites;
 
 use Able\Helpers\Logger;
+use Docker\AuthConfig;
 use Docker\Context\Context;
 use Docker\Docker;
 use Docker\Http\DockerClient;
@@ -86,9 +87,26 @@ class DeployCommand extends SiteCommand {
 
 		// Push the image.
 		$this->log('PUSH ' . $image_name);
-		$image_manager->push($image, array($this, 'opCallback'));
+		$image_manager->push($image, $this->getDockerAuth(), array($this, 'opCallback'));
 
 		$this->log('Successful.', 'green');
+	}
+
+	protected function getDockerAuth()
+	{
+		$registry_key = ($this->registry) ? $this->registry : 'default';
+		$credentials = $this->config->get('docker/auth/' . $registry_key);
+		if (!is_array($credentials)) {
+			throw new \Exception('The provided Docker credentials for the registry: ' . $registry_key . ' are invalid.');
+		}
+
+		foreach (array('username', 'password', 'email') as $check) {
+			if (!array_key_exists($check, $credentials)) {
+				throw new \Exception('Missing ' . $check . ' for registry ' . $registry_key . '. Please check your config.');
+			}
+		}
+
+		return new AuthConfig($credentials['username'], $credentials['password'], $credentials['email']);
 	}
 
 	protected function getDockerClient()

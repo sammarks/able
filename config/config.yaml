@@ -172,3 +172,11 @@ docker:
     # The name of the registry to use when creating images. The index is prepended to image
     # names so that the images are pushed to a private registry if required.
     registry:
+
+    # This is your authentication for logging into specified Docker registries.
+    # The credentials under "default" are for the main Docker registry.
+    auth:
+        default:
+            username: test-user
+            password: test-password
+            email: email@example.org
