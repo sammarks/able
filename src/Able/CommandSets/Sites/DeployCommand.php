@@ -10,10 +10,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Able\CommandSets\BaseCommand;
 
-class DeployCommand extends BaseCommand
-{
+class DeployCommand extends SiteCommand {
 
 	/**
 	 * The last image ID of the transaction.
@@ -69,6 +67,9 @@ class DeployCommand extends BaseCommand
 
 		// Build the image.
 		$image_name = $this->getImageName($directory) . ':' . $this->getTag();
+		if ($this->registry) {
+			$image_name = $this->registry . '/' . $image_name;
+		}
 		$docker->build($context, $image_name, array($this, 'opCallback'),
 			$output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE, !$no_cache, !$no_rm);
 
@@ -85,7 +86,7 @@ class DeployCommand extends BaseCommand
 
 		// Push the image.
 		$this->log('PUSH ' . $image_name);
-		$image_manager->push($image, array($this, 'opCallback'), $this->registry);
+		$image_manager->push($image, array($this, 'opCallback'));
 
 		$this->log('Successful.', 'green');
 	}
@@ -136,9 +137,14 @@ class DeployCommand extends BaseCommand
 			}
 		}
 
+		// Generate an image name from the directory name.
 		$directory = realpath($directory);
 		$directory_segments = explode('/', $directory);
 		$image_name = $directory_segments[count($directory_segments) - 1];
+
+		// And then append the environment to it.
+		$image_name .= '-' . strtolower($this->settings['environment']);
+
 		return $image_name;
 	}
 
