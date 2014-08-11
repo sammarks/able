@@ -67,26 +67,25 @@ class DeployCommand extends SiteCommand {
 		$no_rm = ($input->getOption('no-rm') != null);
 
 		// Build the image.
-		$image_base_name = $this->getImageName($directory);
+		$image_name = $this->getImageName($directory) . ':' . $this->getTag();
 		if ($this->registry) {
-			$image_base_name = $this->registry . '/' . $image_base_name;
+			$image_name = $this->registry . '/' . $image_name;
 		}
-		$image_name = $image_base_name . ':' . $this->getTag();
 
 		$docker->build($context, $image_name, array($this, 'opCallback'),
 			$output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE, !$no_cache, !$no_rm);
 
 		// Get the image.
 		$image_manager = $docker->getImageManager();
-		$image = $image_manager->find($image_base_name);
+		$image = $image_manager->find($image_name);
 		if (!$image) {
-			$this->error('An image with the ID ' . $image_base_name . ' could not be found. This probably means ' .
+			$this->error('An image with the ID ' . $image_name . ' could not be found. This probably means ' .
 				'something went wrong.', true);
 			return;
 		}
 
 		// Push the image.
-		$this->log('PUSH ' . $image_base_name);
+		$this->log('PUSH ' . $image_name);
 		$auth = $this->getDockerAuth();
 		$image_manager->push($image, $auth, array($this, 'opCallback'));
 
