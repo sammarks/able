@@ -58,6 +58,7 @@ class Fleet {
 		$filename = pathinfo($path, PATHINFO_FILENAME);
 
 		$this->command->log("Submitting unit {$path} to the cluster.");
+		$this->command->exec("{$this->fleet_executable} destroy '{$filename}'", true);
 		$this->command->exec("{$this->fleet_executable} submit '{$path}'", true);
 		$this->command->exec("{$this->fleet_executable} start '{$filename}'", true);
 	}
