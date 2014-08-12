@@ -32,6 +32,11 @@ class EC2Provider extends Provider {
 
 		// Create the security group if we need to.
 		$this->verifySecurityGroups($ec2);
+		$security_group = $this->getSecurityGroupID($ec2);
+		if (!$security_group) {
+			$logger->error('The Able-CoreOS security group could not be created.', true);
+			return;
+		}
 
 		// Generate the compiled user data.
 		$compiled_user_data = "#cloud-config\n\n" . Yaml::dump($this->node_settings['cloud-config']);
@@ -45,7 +50,7 @@ class EC2Provider extends Provider {
 			'MinCount' => 1,
 			'MaxCount' => 1,
 			'KeyName' => $this->settings['key'],
-			'SecurityGroups' => array('Able-CoreOS'),
+			'SecurityGroupIds' => array($security_group),
 			'UserData' => base64_encode($compiled_user_data),
 			'InstanceType' => $this->settings['type'],
 		);
@@ -105,6 +110,19 @@ class EC2Provider extends Provider {
 			'type' => $this->settings['type'],
 			'identifier' => $this->identifier,
 		);
+	}
+
+	protected function getSecurityGroupID(Ec2Client $ec2)
+	{
+		$result = $ec2->describeSecurityGroups(array());
+		$groups = $result->getPath('SecurityGroups/*');
+		foreach ($groups as $group) {
+			if ($group['groupName'] == 'Able-CoreOS') {
+				return $group['groupId'];
+			}
+		}
+
+		return false;
 	}
 
 	protected function verifySecurityGroups(Ec2Client $ec2)
