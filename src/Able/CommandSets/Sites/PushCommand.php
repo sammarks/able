@@ -15,6 +15,8 @@ class PushCommand extends SiteCommand {
 			->setName('site:push')
 			->setDescription('Pushes the current site\'s Docker container to the specified cluster.')
 			->addArgument('cluster', InputArgument::REQUIRED, 'The name of the cluster to push to.');
+
+		parent::configure();
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
@@ -23,26 +25,34 @@ class PushCommand extends SiteCommand {
 
 		// Instantiate Docker.
 		$docker = new Docker($this->getDockerClient());
+		$image_manager = $docker->getImageManager();
 
 		// Get the image name.
-		$image_name = $this->getImageName($this->directory) . ':' . $this->getTag();
+		$image_repository = $this->getImageName($this->directory);
 		if ($this->registry) {
-			$image_name = $this->registry . '/' . $image_name;
+			$image_repository = $this->registry . '/' . $image_repository;
 		}
-		$this->log('PUSH ' . $image_name);
 
-		// Get the image.
-		$image_manager = $docker->getImageManager();
-		$image = $image_manager->find($image_name);
-		if (!$image) {
-			$this->error('An image with the name ' . $image_name . ' could not be found. This probably means ' .
+		// Find the image.
+		$images = $image_manager->findAll();
+		$current_image = false;
+		foreach ($images as $image) {
+			if ($image->getRepository() == $image_repository) {
+				$current_image = $image;
+				break;
+			}
+		}
+		if ($current_image === false) {
+			$this->error('An image with the name ' . $image_repository . ' could not be found. This probably means ' .
 				'something went wrong.', true);
 			return;
 		}
 
+		$this->log('PUSH ' . $current_image->getName());
+
 		// Push the image.
 		$auth = $this->getDockerAuth();
-		$image_manager->push($image, $auth, array($this, 'opCallback'));
+		$image_manager->push($current_image, $auth, array($this, 'opCallback'));
 
 		$this->log('Success.', 'green');
 	}
