@@ -25,6 +25,7 @@ class CreateOperation extends Operation {
 		// Create each of the nodes...
 		foreach ($this->config->get('nodes') as $node_identifier => $node) {
 			$node['full-identifier'] = $this->config->name . '-' . $node_identifier;
+			$node['cluster'] = $this->config->name;
 			$this->createNode($node_identifier, $node);
 		}
 	}

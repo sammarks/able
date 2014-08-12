@@ -180,3 +180,12 @@ docker:
             username: test-user
             password: test-password
             email: email@example.org
+
+# These settings are specific to the local instance of fleetctl.
+# Some commands (like site:deploy) require that fleetctl be installed.
+fleet:
+
+    # This is where the fleet systemd units will be stored.
+    # This doesn't have to be a permanent location as the unit files are added to etcd
+    # and then the local version is no longer used.
+    unit_storage: /var/fleet/units

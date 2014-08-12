@@ -33,7 +33,7 @@ class ProviderFactory extends ComponentFactory {
 	 * @return Provider The loaded provider.
 	 * @throws \Exception
 	 */
-	public function provider($type, $identifier, array $settings = array())
+	public function provider($type, $identifier = '', array $settings = array())
 	{
 		$provider_settings = $settings[$type];
 
@@ -46,6 +46,22 @@ class ProviderFactory extends ComponentFactory {
 		$component->setNodeSettings($settings);
 
 		return $component;
+	}
+
+	/**
+	 * All
+	 *
+	 * @return array An array of all the providers.
+	 */
+	public function all()
+	{
+		$providers = array('EC2');
+		$provider_instances = array();
+		foreach ($providers as $provider) {
+			$provider_instances[] = $this->factory($provider, null, array());
+		}
+
+		return $provider_instances;
 	}
 
 }

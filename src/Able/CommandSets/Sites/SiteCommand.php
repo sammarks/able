@@ -6,6 +6,7 @@ use Able\CommandSets\BaseCommand;
 use Able\Helpers\Logger;
 use Docker\AuthConfig;
 use Docker\Http\DockerClient;
+use Docker\Manager\ImageManager;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -253,6 +254,41 @@ abstract class SiteCommand extends BaseCommand {
 		} else {
 			return $date;
 		}
+	}
+
+	/**
+	 * Find Existing Image
+	 *
+	 * @param ImageManager $image_manager The Docker image manager.
+	 *
+	 * @return bool|\Docker\Image Either the existing image if one was found, or false.
+	 */
+	protected function findExistingImage(ImageManager $image_manager)
+	{
+		// Get the image name.
+		$image_repository = $this->getImageName($this->directory);
+		if ($this->registry) {
+			$image_repository = $this->registry . '/' . $image_repository;
+		}
+
+		// Find the image.
+		$images = $image_manager->findAll();
+		$current_image = false;
+		foreach ($images as $image) {
+			if ($image->getRepository() == $image_repository) {
+				$current_image = $image;
+				break;
+			}
+		}
+		if ($current_image === false) {
+			$this->error('An image with the name ' . $image_repository . ' could not be found. This probably means ' .
+				'something went wrong.',
+				true);
+
+			return false;
+		}
+
+		return $current_image;
 	}
 
 }

@@ -3,6 +3,8 @@
 namespace Able\Helpers\Cluster\Providers;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\Cluster\Cluster;
+use Able\Helpers\Cluster\Node;
 use Able\Helpers\ConfigurationManager;
 use Able\Helpers\Logger;
 use Aws\Ec2\Ec2Client;
@@ -10,25 +12,16 @@ use Symfony\Component\Yaml\Yaml;
 
 class EC2Provider extends Provider {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function createNode()
 	{
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 
-		/** @var ConfigurationManager $config */
-		$config = ConfigurationManager::getInstance();
-
-		$logger->log('Connecting to Amazon', 'white', BaseCommand::DEBUG_VERBOSE);
-		$ec2 = Ec2Client::factory(array(
-			'key' => $config->get('aws/access_key'),
-			'secret' => $config->get('aws/access_secret'),
-			'region' => $this->settings['region'],
-		));
-
-		if (!$ec2) {
-			$logger->error('Connection to EC2 failed. Check your credentials.', true);
-			return;
-		}
+		// Initialize EC2.
+		$ec2 = $this->getEC2();
 
 		// Get information about the subnet.
 		if ($this->settings['subnet']) {
@@ -108,6 +101,10 @@ class EC2Provider extends Provider {
 					array(
 						'Key' => 'Name',
 						'Value' => $this->node_settings['full-identifier'],
+					),
+					array(
+						'Key' => 'Cluster',
+						'Value' => $this->node_settings['cluster'],
 					)
 				)
 			));
@@ -116,6 +113,9 @@ class EC2Provider extends Provider {
 		$logger->log('Successful.', 'green');
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getMetadata()
 	{
 		return array(
@@ -124,6 +124,84 @@ class EC2Provider extends Provider {
 			'type' => $this->settings['type'],
 			'identifier' => $this->identifier,
 		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getNodes(Cluster $cluster)
+	{
+		$instances = $this->findCluster($cluster->getName());
+		if (!$instances) return false;
+
+		$nodes = array();
+		foreach ($instances as $instance) {
+			$nodes[] = $this->inspectNode($cluster, $instance);
+		}
+
+		return $nodes;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function inspectNode(Cluster $cluster, $node_identifier)
+	{
+		$ec2 = $this->getEC2();
+		$result = $ec2->describeInstances(array(
+			array(
+				'InstanceIds' => array($node_identifier),
+			),
+		));
+		$reservation = $result->getPath('Reservations/0/Instances/0');
+		if (!$reservation) {
+			throw new \Exception('The node ' . $node_identifier . ' could not be found.');
+		}
+
+		// Get the name of the node.
+		$name = false;
+		foreach ($reservation['Tags'] as $tag) {
+			if ($tag['Key'] == 'Name') {
+				$name = $tag['Value'];
+				break;
+			}
+		}
+		if (!$name) {
+			throw new \Exception('The name for the node ' . $node_identifier . ' could not be found.');
+		}
+
+		return new Node($name, $cluster, 'EC2', $reservation['InstanceId'], $reservation);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findCluster($cluster_identifier)
+	{
+		$ec2 = $this->getEC2();
+		$result = $ec2->describeInstances(array(
+			'Filters' => array(
+				array(
+					'Name' => 'tag:Cluster',
+					'Values' => array($cluster_identifier),
+				)
+			)
+		));
+		$instances = $result->getPath('Reservations/*/ReservationId');
+
+		if (count($instances) > 0) {
+			return $instances;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getNodePrivateIp(Node $node)
+	{
+		return $node->getAttributes()['PrivateIpAddress'];
 	}
 
 	protected function getSubnet(Ec2Client $ec2, $subnet_id = '')
@@ -219,6 +297,35 @@ class EC2Provider extends Provider {
 			$index = array_search('Able-CoreOS', $groups);
 			return $group_ids[$index];
 		}
+	}
+
+	/**
+	 * Get EC2
+	 *
+	 * @return Ec2Client|bool Either the EC2 client on success, or false on failure.
+	 */
+	protected function getEC2()
+	{
+		/** @var Logger $logger */
+		$logger = Logger::getInstance();
+
+		/** @var ConfigurationManager $config */
+		$config = ConfigurationManager::getInstance();
+
+		$logger->log('Connecting to Amazon', 'white', BaseCommand::DEBUG_VERBOSE);
+		$ec2 = Ec2Client::factory(array(
+			'key' => $config->get('aws/access_key'),
+			'secret' => $config->get('aws/access_secret'),
+			'region' => $this->settings['region'],
+		));
+
+		if (!$ec2) {
+			$logger->error('Connection to EC2 failed. Check your credentials.', true);
+
+			return false;
+		}
+
+		return $ec2;
 	}
 
 }

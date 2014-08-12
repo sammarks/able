@@ -2,6 +2,7 @@
 
 namespace Able\Helpers\Install\ConfigurationManagers;
 
+use Able\Helpers\IniWriter;
 use Able\Helpers\Install\Features\Feature;
 use Able\Helpers\Logger;
 
@@ -69,62 +70,7 @@ abstract class IniConfigurationManager extends ConfigurationManager {
 			$this->handleFeature($feature);
 		}
 
-		return $this->write_ini_file($this->configuration, true);
-	}
-
-	// From: http://stackoverflow.com/questions/1268378/create-ini-file-write-values-in-php
-	protected function write_ini_file($assoc_arr)
-	{
-		$content = "";
-		if ($this->hasSections()) {
-			foreach ($assoc_arr as $key => $elem) {
-				if (!is_array($elem)) {
-					/** @var \Able\Helpers\Logger $logger */
-					$logger = Logger::getInstance();
-					$logger->error('The element: ' . $elem . ' is invalid and has been skipped.');
-					continue;
-				}
-				$content .= "[" . $key . "]\n";
-				foreach ($elem as $key2 => $elem2) {
-					if (is_array($elem2)) {
-						for ($i = 0; $i < count($elem2); $i++) {
-							$content .= $key2 . "[] = " . $this->iniValue($elem2[$i]) . "\n";
-						}
-					} else if ($elem2 === "") $content .= $key2 . " = \n";
-					else $content .= $key2 . " = " . $this->iniValue($elem2) . "\n";
-				}
-			}
-		} else {
-			foreach ($assoc_arr as $key => $elem) {
-				if (is_array($elem)) {
-					for ($i = 0; $i < count($elem); $i++) {
-						$content .= $key . "[] = " . $this->iniValue($elem[$i]) . "\n";
-					}
-				} else if ($elem === "") $content .= $key . " = \n";
-				else $content .= $key . " = " . $this->iniValue($elem) . "\n";
-			}
-		}
-
-		return $content;
-	}
-
-	protected function iniValue($value)
-	{
-		if ($this->stringValues()) {
-			if (is_numeric($value)) {
-				return $value;
-			} else {
-				return "\"{$value}\"";
-			}
-		} else return $value;
-	}
-
-	protected function verifyIniSections($arr)
-	{
-		foreach ($arr as $item) {
-			if (!is_array($item)) return false;
-		}
-		return true;
+		return IniWriter::getInstance($this->hasSections(), $this->stringValues())->write($this->configuration);
 	}
 
 }
