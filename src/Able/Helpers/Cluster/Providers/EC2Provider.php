@@ -30,9 +30,23 @@ class EC2Provider extends Provider {
 			return;
 		}
 
+		// Get information about the subnet.
+		if ($this->settings['subnet']) {
+			$subnet = $this->getSubnet($ec2, $this->settings['subnet']);
+			if (!$subnet) {
+				$logger->error('A subnet was specified, but could not be found.', true);
+				return;
+			}
+		} else {
+			$subnet = array();
+		}
+
 		// Create the security group if we need to.
-		$this->verifySecurityGroups($ec2);
-		$security_group = $this->getSecurityGroupID($ec2);
+		if (array_key_exists('VpcId', $subnet)) {
+			$security_group = $this->verifySecurityGroups($ec2, $subnet['VpcId']);
+		} else {
+			$security_group = $this->verifySecurityGroups($ec2);
+		}
 		if (!$security_group) {
 			$logger->error('The Able-CoreOS security group could not be created.', true);
 			return;
@@ -112,37 +126,63 @@ class EC2Provider extends Provider {
 		);
 	}
 
-	protected function getSecurityGroupID(Ec2Client $ec2)
+	protected function getSubnet(Ec2Client $ec2, $subnet_id = '')
 	{
-		$result = $ec2->describeSecurityGroups(array());
-		$groups = $result->getPath('SecurityGroups/*');
-		foreach ($groups as $group) {
-			if ($group['groupName'] == 'Able-CoreOS') {
-				return $group['groupId'];
-			}
+		/** @var Logger $logger */
+		$logger = Logger::getInstance();
+
+		$logger->log('Fetching additional information about subnets.', 'white', BaseCommand::DEBUG_VERBOSE);
+		$result = $ec2->describeSubnets(array(
+			'SubnetIds' => array($subnet_id),
+		));
+		$subnet = $result->getPath('Subnets/0');
+		if ($subnet && is_array($subnet)) {
+			return $subnet;
 		}
 
 		return false;
 	}
 
-	protected function verifySecurityGroups(Ec2Client $ec2)
+	protected function verifySecurityGroups(Ec2Client $ec2, $vpc_id = false)
 	{
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 
 		$logger->log('Checking for Security Groups', 'white', BaseCommand::DEBUG_VERBOSE);
-		$result = $ec2->describeSecurityGroups(array());
+
+		// Prepare the arguments.
+		$arguments = array();
+		if ($vpc_id !== false) {
+			$arguments = array(
+				'Filters' => array(
+					array(
+						'Name' => 'vpc-id',
+						'Values' => array($vpc_id),
+					)
+				)
+			);
+		}
+
+		$result = $ec2->describeSecurityGroups($arguments);
 		$groups = $result->getPath('SecurityGroups/*/GroupName');
+		$group_ids = $result->getPath('SecurityGroups/*/GroupId');
 		if (!in_array('Able-CoreOS', $groups)) {
 			$logger->log('Creating security group.', 'white', BaseCommand::DEBUG_VERBOSE);
-			$result = $ec2->createSecurityGroup(array(
+
+			// Generate the creation arguments.
+			$create_args = array(
 				'GroupName' => 'Able-CoreOS',
 				'Description' => 'Servers operating in CoreOS clusters.',
-			));
+			);
+			if ($vpc_id !== false) {
+				$create_args['VpcId'] = $vpc_id;
+			}
+
+			$result = $ec2->createSecurityGroup($create_args);
 			$id = $result->getPath('GroupId');
 			if (!$id) {
 				$logger->error('There was an error creating the security group.', true);
-				return;
+				return false;
 			}
 			$ipPermissions = array(
 				array(
@@ -174,6 +214,10 @@ class EC2Provider extends Provider {
 				'GroupId' => $id,
 				'IpPermissions' => $ipPermissions,
 			));
+			return $id;
+		} else {
+			$index = array_search('Able-CoreOS', $groups);
+			return $group_ids[$index];
 		}
 	}
 
