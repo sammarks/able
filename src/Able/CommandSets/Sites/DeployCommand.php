@@ -73,7 +73,7 @@ class DeployCommand extends SiteCommand {
 		}
 
 		$docker->build($context, $image_name, array($this, 'opCallback'),
-			$output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE, !$no_cache, !$no_rm);
+            $output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE, !$no_cache, !$no_rm);
 
 		// Get the image.
 		$image_manager = $docker->getImageManager();
@@ -200,6 +200,8 @@ class DeployCommand extends SiteCommand {
 			}
 		} elseif (!empty($output_data->stream)) {
 			$logger->log(trim($output_data->stream, "\n"));
+		} elseif (!empty($output_data->error)) {
+			throw new \Exception('Docker error: ' . $output_data->error);
 		}
 	}
 
