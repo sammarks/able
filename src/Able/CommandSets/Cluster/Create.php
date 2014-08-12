@@ -2,39 +2,32 @@
 
 namespace Able\CommandSets\Cluster;
 
-use Able\CommandSets\BaseCommand;
-use Able\Helpers\Cluster\Creator;
-use Symfony\Component\Console\Input\InputArgument;
+use Able\Helpers\Cluster\Operations\CreateOperation;
+use Able\Helpers\Cluster\Operations\OperationFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 
-class Create extends BaseCommand {
+class Create extends ClusterCommand {
 
 	protected function configure()
 	{
 		$this
 			->setName('cluster:create')
-			->setDescription('Creates a new cluster of servers on Amazon EC2')
-			->addArgument('config', InputArgument::REQUIRED, 'The location of a YAML configuration file for the cluster.');
+			->setDescription('Creates a new cluster of servers on Amazon EC2');
+
+		parent::configure();
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
 		parent::execute($input, $output);
 
-		// Make sure the configuration file exists.
-		$config_file = $input->getArgument('config');
-		if (!file_exists($config_file)) {
-			throw new \Exception('The configuration file specified does not exist.');
-		}
-
-		// Get the configuration.
-		$configuration = Yaml::parse(file_get_contents($config_file));
-
 		// Foreach of the clusters...
-		foreach ($configuration as $cluster_identifier => $cluster) {
-			$creator = new Creator();
+		foreach ($this->configuration as $cluster_identifier => $cluster) {
+			/** @var OperationFactory $factory */
+			$factory = OperationFactory::getInstance();
+			/** @var CreateOperation $creator */
+			$creator = $factory->operation('Create', $this, $cluster_identifier, $cluster);
 			$creator->create($cluster_identifier, $cluster);
 		}
 	}
