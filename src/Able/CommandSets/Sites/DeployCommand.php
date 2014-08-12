@@ -26,6 +26,12 @@ class DeployCommand extends SiteCommand {
 	 */
 	protected $registry = '';
 
+	/**
+	 * Used internally. Keeps track of the last message to prevent duplicates.
+	 * @var string
+	 */
+	protected $last_message = '';
+
 	protected function configure()
 	{
 		$this
@@ -195,11 +201,16 @@ class DeployCommand extends SiteCommand {
 				$human_start = self::formatSizeUnits($output_data->progressDetail->current);
 				$human_end = self::formatSizeUnits($output_data->progressDetail->total);
 				$logger->overwrite('Complete: ' . $percentage . '% (' . $human_start . '/' . $human_end . ')');
+				$this->last_message = '';
 			} else {
-				$logger->log($output_data->status);
+				if ($output_data->status != $this->last_message) {
+					$logger->log($output_data->status);
+				}
+				$this->last_message = $output_data->status;
 			}
 		} elseif (!empty($output_data->stream)) {
 			$logger->log(trim($output_data->stream, "\n"));
+			$this->last_message = '';
 		} elseif (!empty($output_data->error)) {
 			throw new \Exception('Docker error: ' . $output_data->error);
 		}
