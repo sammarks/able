@@ -12,7 +12,8 @@ $application = new Application('Able', '0.2a');
 
 // Register commands.
 $application->add(new Able\CommandSets\Sites\InstallCommand());
-$application->add(new Able\CommandSets\Sites\DeployCommand());
+$application->add(new Able\CommandSets\Sites\BuildCommand());
+$application->add(new Able\CommandSets\Sites\PushCommand());
 
 $application->add(new Able\CommandSets\Core\UpdateCommand());
 $application->add(new Able\CommandSets\Core\ConfigCommand());
