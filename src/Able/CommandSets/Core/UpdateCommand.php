@@ -31,7 +31,7 @@ class UpdateCommand extends BaseCommand
 		$output = $this->exec('cd ' . SCRIPTS_ROOT . ' && git pull', true, false, true);
 		$composer_updated = false;
 		foreach ($output as $line) {
-			if (strpos($line, 'composer.json') !== false) {
+			if (strpos($line, 'composer.json') !== false || strpos($line, 'composer.lock') !== false) {
 				$composer_updated = true;
 				break;
 			}
