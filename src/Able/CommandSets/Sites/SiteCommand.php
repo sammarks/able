@@ -273,7 +273,6 @@ abstract class SiteCommand extends BaseCommand {
 		$images = $image_manager->findAll();
 		$current_image = false;
 		foreach ($images as $image) {
-			print $image->getRepository() . "\n";
 			if ($image->getRepository() == $image_repository) {
 				$current_image = $image;
 				break;
