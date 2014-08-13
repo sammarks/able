@@ -92,17 +92,11 @@ class Drupal7Feature extends Feature {
 							'pass2' => $account_pass,
 						),
 					),
-					'update_status_module' => array(
-						1 => false,
-						2 => false,
-					),
-					'clean_url' => true,
+					'clean_url' => TRUE,
 					'op' => 'Save and continue',
 				),
 			),
 		);
-
-		print_r($settings);
 
 		try {
 			install_drupal($settings);
