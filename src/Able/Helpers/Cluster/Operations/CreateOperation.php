@@ -18,21 +18,20 @@ class CreateOperation extends Operation {
 	{
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
-		$logger->log('CREATE cluster ' . $this->config->name);
+		$logger->log('CREATE cluster ' . $this->cluster->getName());
 
 		// Make sure the cluster doesn't already exist.
-		if (Cluster::exists($this->config->name)) {
-			$logger->error('The cluster ' . $this->config->name . ' already exists.', true);
-			return;
+		if ($this->cluster->nodeCount() > 0) {
+			throw new \Exception('The cluster ' . $this->cluster->getName() . ' already exists.');
 		}
 
 		// Prepare the etcd discovery url.
 		$this->prepareEtcd();
 
 		// Create each of the nodes...
-		foreach ($this->config->get('nodes') as $node_identifier => $node) {
-			$node['full-identifier'] = $this->config->name . '-' . $node_identifier;
-			$node['cluster'] = $this->config->name;
+		foreach ($this->cluster->config->get('nodes') as $node_identifier => $node) {
+			$node['full-identifier'] = $this->cluster->getName() . '-' . $node_identifier;
+			$node['cluster'] = $this->cluster->getName();
 			$this->createNode($node_identifier, $node);
 		}
 	}
@@ -40,7 +39,7 @@ class CreateOperation extends Operation {
 	protected function createNode($identifier, array $configuration = array())
 	{
 		// Fill in the defaults for the configuration.
-		$defaults = $this->config->get('defaults');
+		$defaults = $this->cluster->config->get('defaults');
 		$configuration = array_replace_recursive($defaults, $configuration);
 
 		// Get the provider.
@@ -51,10 +50,10 @@ class CreateOperation extends Operation {
 
 		/** @var ProviderFactory $provider_factory */
 		$provider_factory = ProviderFactory::getInstance();
-		$provider = $provider_factory->provider($provider_name, $identifier, $configuration);
+		$provider = $provider_factory->provider($provider_name, $this->cluster);
 
 		// Generate the default metadata for the node.
-		$metadata = $provider->getMetadata();
+		$metadata = $provider->getMetadata($identifier);
 		$metadata = array_replace_recursive($metadata, $configuration['metadata']);
 
 		// Prepare the metadata string and add it to the cloud-config.
@@ -63,8 +62,7 @@ class CreateOperation extends Operation {
 		$configuration['cloud-config']['coreos']['etcd']['discovery'] = $this->discovery_url;
 
 		// Call the provider create function.
-		$provider->setNodeSettings($configuration); // Refresh the configuration.
-		$provider->createNode();
+		$provider->createNode($identifier, $configuration);
 	}
 
 	protected function encodeMetadata(array $metadata)
@@ -79,7 +77,7 @@ class CreateOperation extends Operation {
 
 	protected function prepareEtcd()
 	{
-		$url = $this->config->get('etcd-url');
+		$url = $this->cluster->config->get('etcd-url');
 		if ($url == 'generate') {
 			if ($contents = file_get_contents('https://discovery.etcd.io/new')) {
 				$this->discovery_url = $contents;

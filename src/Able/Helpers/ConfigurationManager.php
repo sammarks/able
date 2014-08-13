@@ -54,6 +54,11 @@ class ConfigurationManager {
 	 */
 	public function get($key = '')
 	{
+		// Return the raw config if we didn't pass a key.
+		if ($key === '') {
+			return $this->config;
+		}
+
 		$array_keys = explode('/', $key);
 		$item = $this->config;
 		foreach ($array_keys as $key) {

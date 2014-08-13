@@ -2,16 +2,17 @@
 
 namespace Able\Helpers\Cluster\Operations;
 
+use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\Cluster\ClusterConfigurationManager;
 use Able\Helpers\Component;
 
 abstract class Operation extends Component {
 
 	/**
-	 * The configuration for the cluster.
-	 * @var ClusterConfigurationManager
+	 * The cluster object.
+	 * @var Cluster|null
 	 */
-	protected $config = null;
+	protected $cluster = null;
 
 	/**
 	 * Setup Configuration
@@ -24,12 +25,14 @@ abstract class Operation extends Component {
 	 */
 	public function setupConfiguration($name)
 	{
-		$this->config = ClusterConfigurationManager::getInstance($name);
-		if (!($this->config instanceof ClusterConfigurationManager)) {
+		$config = ClusterConfigurationManager::getInstance($name);
+		if (!($config instanceof ClusterConfigurationManager)) {
 			throw new \Exception('There was an error loading the configuration for the cluster.');
 		}
 
-		$this->config->setConfiguration($this->settings);
+		// Set the configuration and create the cluster based on that.
+		$config->setConfiguration($this->settings);
+		$this->cluster = new Cluster($config);
 	}
 
 }

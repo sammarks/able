@@ -15,8 +15,10 @@ class EC2Provider extends Provider {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function createNode()
+	public function createNode($identifier, array $node_settings)
 	{
+		parent::createNode($identifier, $node_settings);
+
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 
@@ -46,7 +48,7 @@ class EC2Provider extends Provider {
 		}
 
 		// Generate the compiled user data.
-		$compiled_user_data = "#cloud-config\n\n" . Yaml::dump($this->node_settings['cloud-config']);
+		$compiled_user_data = "#cloud-config\n\n" . Yaml::dump($node_settings['cloud-config']);
 
 		// Get the AMI.
 		$ami = $this->settings['ami'];
@@ -75,12 +77,12 @@ class EC2Provider extends Provider {
 		}
 
 		// Actually create the instance.
-		$logger->log('CREATE ' . $this->identifier);
+		$logger->log('CREATE ' . $identifier);
 		$response = $ec2->runInstances($instance_configuration);
 
 		if (!is_array($response['Instances'])) {
 			$logger->log(print_r($response, 1), 'white', BaseCommand::DEBUG_VERBOSE);
-			$logger->error('There was an error creating the node ' . $this->identifier . '.', true);
+			$logger->error('There was an error creating the node ' . $identifier . '.', true);
 			return;
 		}
 
@@ -108,11 +110,11 @@ class EC2Provider extends Provider {
 				'Tags' => array(
 					array(
 						'Key' => 'Name',
-						'Value' => $this->node_settings['full-identifier'],
+						'Value' => $node_settings['full-identifier'],
 					),
 					array(
 						'Key' => 'Cluster',
-						'Value' => $this->node_settings['cluster'],
+						'Value' => $node_settings['cluster'],
 					)
 				)
 			));
@@ -124,36 +126,49 @@ class EC2Provider extends Provider {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getMetadata()
+	public function getMetadata($identifier)
 	{
 		return array(
 			'provider' => 'EC2',
 			'region' => $this->settings['region'],
 			'type' => $this->settings['type'],
-			'identifier' => $this->identifier,
+			'identifier' => $identifier,
 		);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getNodes(Cluster $cluster)
+	public function getNodes()
 	{
-		$instances = $this->findCluster($cluster->getName());
-		if (!$instances) return false;
+		$ec2 = $this->getEC2();
+		$result = $ec2->describeInstances(array(
+			'Filters' => array(
+				array(
+					'Name' => 'tag:Cluster',
+					'Values' => array($this->cluster->getName()),
+				)
+			)
+		));
+		$instances = $result->getPath('Reservations/*/ReservationId');
 
-		$nodes = array();
-		foreach ($instances as $instance) {
-			$nodes[] = $this->inspectNode($cluster, $instance);
+		if (count($instances) > 0) {
+
+			$nodes = array();
+			foreach ($instances as $instance) {
+				$nodes[] = $this->inspectNode($instance);
+			}
+			return $nodes;
+
+		} else {
+			return false;
 		}
-
-		return $nodes;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function inspectNode(Cluster $cluster, $node_identifier)
+	public function inspectNode($node_identifier)
 	{
 		$ec2 = $this->getEC2();
 		$result = $ec2->describeInstances(array(
@@ -178,30 +193,7 @@ class EC2Provider extends Provider {
 			throw new \Exception('The name for the node ' . $node_identifier . ' could not be found.');
 		}
 
-		return new Node($name, $cluster, 'EC2', $reservation['InstanceId'], $reservation);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function findCluster($cluster_identifier)
-	{
-		$ec2 = $this->getEC2();
-		$result = $ec2->describeInstances(array(
-			'Filters' => array(
-				array(
-					'Name' => 'tag:Cluster',
-					'Values' => array($cluster_identifier),
-				)
-			)
-		));
-		$instances = $result->getPath('Reservations/*/ReservationId');
-
-		if (count($instances) > 0) {
-			return $instances;
-		} else {
-			return false;
-		}
+		return new Node($name, $this->cluster, 'EC2', $reservation['InstanceId'], $reservation);
 	}
 
 	/**
@@ -324,7 +316,7 @@ class EC2Provider extends Provider {
 		$ec2 = Ec2Client::factory(array(
 			'key' => $config->get('aws/access_key'),
 			'secret' => $config->get('aws/access_secret'),
-			'region' => $this->settings['region'],
+			'region' => $this->region,
 		));
 
 		if (!$ec2) {

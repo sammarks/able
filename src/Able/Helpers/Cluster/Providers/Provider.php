@@ -8,18 +8,11 @@ use Able\Helpers\Component;
 
 abstract class Provider extends Component {
 
-	protected $identifier = '';
-	protected $node_settings = array();
-
-	public function setIdentifier($identifier)
-	{
-		$this->identifier = $identifier;
-	}
-
-	public function setNodeSettings(array $settings)
-	{
-		$this->node_settings = $settings;
-	}
+	/**
+	 * The cluster.
+	 * @var Cluster|null
+	 */
+	protected $cluster = null;
 
 	public function setSettings(array $settings)
 	{
@@ -31,45 +24,35 @@ abstract class Provider extends Component {
 	 *
 	 * Creates a node based on the provided settings.
 	 */
-	public abstract function createNode();
+	public abstract function createNode($identifier, array $node_settings);
 
 	/**
 	 * Get Metadata
 	 *
 	 * Gets the default provider-specific metadata.
 	 *
+	 * @param string $identifier The identifier for the node.
+	 *
 	 * @return array
 	 */
-	public abstract function getMetadata();
+	public abstract function getMetadata($identifier);
 
 	/**
 	 * Get Nodes
 	 *
-	 * @param Cluster $cluster The cluster to get the nodes for.
-	 *
-	 * @return array An array of nodes for the specified cluster.
+	 * @return array An array of nodes for the loaded cluster.
 	 */
-	public abstract function getNodes(Cluster $cluster);
+	public abstract function getNodes();
 
 	/**
 	 * Inspect Node
 	 *
-	 * @param Cluster $cluster         The cluster to get the node from.
 	 * @param string  $node_identifier A provider-specific identifier for the node.
 	 *
 	 * @return \Able\Helpers\Cluster\Node|bool A node object representing the specified node, or false.
 	 * @throws \Exception
 	 */
-	public abstract function inspectNode(Cluster $cluster, $node_identifier);
-
-	/**
-	 * Find Cluster
-	 *
-	 * @param string $cluster_identifier The identifier for the cluster to search for.
-	 *
-	 * @return array|bool An array of instance IDs if there are nodes in the cluster, false if not.
-	 */
-	public abstract function findCluster($cluster_identifier);
+	public abstract function inspectNode($node_identifier);
 
 	/**
 	 * Get Node Private IP

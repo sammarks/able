@@ -21,9 +21,16 @@ class Cluster {
 	 */
 	protected $nodes = array();
 
-	public function __construct($name)
+	/**
+	 * The configuration for the cluster.
+	 * @var ClusterConfigurationManager|null
+	 */
+	public $config = null;
+
+	public function __construct(ClusterConfigurationManager $config)
 	{
-		$this->name = $name;
+		$this->name = $config->name;
+		$this->config = $config;
 		$this->refreshNodes();
 	}
 
@@ -52,32 +59,6 @@ class Cluster {
 	}
 
 	/**
-	 * Exists
-	 *
-	 * @param string $name The name of the cluster to check.
-	 *
-	 * @return bool Whether or not the cluster exists.
-	 */
-	public static function exists($name)
-	{
-		/** @var Logger $logger */
-		$logger = Logger::getInstance();
-		$logger->log('Checking to see if cluster ' . $name . ' exists.', 'white', BaseCommand::DEBUG_VERBOSE);
-
-		/** @var ProviderFactory $factory */
-		$factory = ProviderFactory::getInstance();
-		foreach ($factory->all() as $provider) {
-			/** @var Provider $provider */
-			$cluster = $provider->findCluster($name);
-			if (!$cluster) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Refresh Nodes
 	 *
 	 * Re-generates the $nodes variable by calling functions on each of the providers.
@@ -88,10 +69,17 @@ class Cluster {
 		$logger = Logger::getInstance();
 		$logger->log('Refreshing nodes for cluster ' . $this->getName() . '.', 'white', BaseCommand::DEBUG_VERBOSE);
 
+		// Get a simple list of all the providers for the cluster.
+		$providers = array();
+		foreach ($this->config->get('nodes') as $node) {
+			$providers[$node['provider']] = array_key_exists($node['provider'], $node) ? $node[$node['provider']] : array();
+		}
+
 		/** @var ProviderFactory $factory */
 		$factory = ProviderFactory::getInstance();
-		foreach ($factory->all() as $provider) {
+		foreach ($providers as $provider => $settings) {
 			/** @var Provider $provider */
+			$provider = $factory->provider($provider, $settings);
 			$nodes = $provider->getNodes($this);
 			if ($nodes && is_array($nodes)) {
 				foreach ($nodes as $node) {

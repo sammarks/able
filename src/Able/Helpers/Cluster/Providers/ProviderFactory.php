@@ -2,6 +2,7 @@
 
 namespace Able\Helpers\Cluster\Providers;
 
+use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\ComponentFactory;
 
 class ProviderFactory extends ComponentFactory {
@@ -26,42 +27,25 @@ class ProviderFactory extends ComponentFactory {
 	 *
 	 * Gets a provider.
 	 *
-	 * @param string $type       The type of provider.
-	 * @param string $identifier The identifier for the node.
-	 * @param array  $settings   An array of settings for the node.
+	 * @param string  $type    The type of provider.
+	 * @param Cluster $cluster The cluster.
 	 *
 	 * @return Provider The loaded provider.
 	 * @throws \Exception
 	 */
-	public function provider($type, $identifier = '', array $settings = array())
+	public function provider($type, Cluster $cluster)
 	{
-		$provider_settings = $settings[$type];
-
-		$component = $this->factory($type, null, $provider_settings);
+		$component = $this->factory($type, null, array());
 		if (!($component instanceof Provider)) {
 			throw new \Exception('The returned item is not an instance of the Provider class.');
 		}
 
-		$component->setIdentifier($identifier);
-		$component->setNodeSettings($settings);
-
-		return $component;
-	}
-
-	/**
-	 * All
-	 *
-	 * @return array An array of all the providers.
-	 */
-	public function all()
-	{
-		$providers = array('EC2');
-		$provider_instances = array();
-		foreach ($providers as $provider) {
-			$provider_instances[] = $this->factory($provider, null, array());
+		// Set the settings of the provider to the provider-specific settings.
+		if (array_key_exists($component->getClassName(), $cluster->config->get())) {
+			$component->setSettings($cluster->config->get($component->getClassName()));
 		}
 
-		return $provider_instances;
+		return $component;
 	}
 
 }
