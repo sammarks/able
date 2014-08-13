@@ -102,6 +102,8 @@ class Drupal7Feature extends Feature {
 			),
 		);
 
+		print_r($settings);
+
 		try {
 			install_drupal($settings);
 		} catch (\Exception $ex) {
