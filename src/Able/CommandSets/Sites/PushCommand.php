@@ -27,8 +27,7 @@ class PushCommand extends SiteCommand {
 		$docker = new Docker($this->getDockerClient());
 		$image_manager = $docker->getImageManager();
 
-
-
+		$current_image = $this->findExistingImage($image_manager);
 		$this->log('PUSH ' . $current_image->getName());
 
 		// Push the image.
