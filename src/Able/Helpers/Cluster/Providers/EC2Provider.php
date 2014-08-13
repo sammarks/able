@@ -66,7 +66,7 @@ class EC2Provider extends Provider {
 			unset($instance_configuration['SecurityGroupIds']);
 			$instance_configuration['NetworkInterfaces'] = array(array(
 				'DeviceIndex' => 0,
-				'SubnetID' => $this->settings['subnet'],
+				'SubnetId' => $this->settings['subnet'],
 				'Description' => 'primary',
 				'Groups' => array($security_group),
 				'DeleteOnTermination' => true,
