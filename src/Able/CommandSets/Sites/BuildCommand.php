@@ -14,7 +14,7 @@ class BuildCommand extends SiteCommand {
 	{
 		$this
 			->setName('site:build')
-			->setDescription('Deploy a Website')
+			->setDescription('Build a Docker container using a website\'s configuration.')
 			->addOption('no-cache', null, InputOption::VALUE_NONE, 'If this is set, the Docker cache will not be used.')
 			->addOption('no-rm', null, InputOption::VALUE_NONE, 'If this is set, the intermediate container will not be removed after the image is created.')
 			->addOption('message', 'm', InputOption::VALUE_REQUIRED, 'The message to append to the tag of the image when deploying.');
