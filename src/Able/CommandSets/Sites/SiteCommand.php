@@ -226,10 +226,9 @@ abstract class SiteCommand extends BaseCommand {
 			}
 		}
 
-		// Generate an image name from the directory name.
-		$directory = realpath($directory);
-		$directory_segments = explode('/', $directory);
-		$image_name = $directory_segments[count($directory_segments) - 1];
+		// Generate an image name from the name of the site.
+		$image_name = str_replace(array(' ', '&', '!', '@', '#', '$', '%', '^', '*', '(', ')'), array('-', '-', ''),
+			strtolower($this->settings['title']));
 
 		// And then append the environment to it.
 		$image_name .= '-' . strtolower($this->settings['environment']);
