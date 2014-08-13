@@ -56,6 +56,8 @@ class Drupal7Feature extends Feature {
 		$this->command->exec('cd ' . $drupal_root);
 		chdir($drupal_root);
 
+		$this->command->log('Installing Drupal', 'white', BaseCommand::DEBUG_VERBOSE);
+
 		// Bootstrap Drupal and create the settings.php.
 		// A lot of this is taken from Drush:commands/core/drupal/site_install.inc
 
