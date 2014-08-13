@@ -13,8 +13,7 @@ class PushCommand extends SiteCommand {
 	{
 		$this
 			->setName('site:push')
-			->setDescription('Pushes the current site\'s Docker container to the specified cluster.')
-			->addArgument('cluster', InputArgument::REQUIRED, 'The name of the cluster to push to.');
+			->setDescription('Pushes the current site\'s Docker container to the Docker registry.')
 
 		parent::configure();
 	}
