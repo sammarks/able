@@ -13,7 +13,7 @@ class PushCommand extends SiteCommand {
 	{
 		$this
 			->setName('site:push')
-			->setDescription('Pushes the current site\'s Docker container to the Docker registry.')
+			->setDescription('Pushes the current site\'s Docker container to the Docker registry.');
 
 		parent::configure();
 	}
