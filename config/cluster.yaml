@@ -74,8 +74,8 @@ cluster-defaults:
                     - name: fleet.service
                       command: start
 
-                fleet:
-                    public-ip: $public_ipv4
+                # fleet:
+                #    public-ip: $public_ipv4
 
     nodes:
 
