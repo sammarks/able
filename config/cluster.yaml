@@ -25,7 +25,7 @@ cluster-defaults:
         EC2:
 
             # The AMI the node will be created from.
-            ami: ami-66be440e # This is the CoreOS Beta AMI
+            ami: ami-04a2766c # This is the CoreOS Stable AMI
 
             # This is the name of the key that will be registered with the node.
             key: keyname
