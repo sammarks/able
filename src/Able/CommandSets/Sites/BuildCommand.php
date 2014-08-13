@@ -13,7 +13,7 @@ class BuildCommand extends SiteCommand {
 	protected function configure()
 	{
 		$this
-			->setName('site:deploy')
+			->setName('site:build')
 			->setDescription('Deploy a Website')
 			->addOption('no-cache', null, InputOption::VALUE_NONE, 'If this is set, the Docker cache will not be used.')
 			->addOption('no-rm', null, InputOption::VALUE_NONE, 'If this is set, the intermediate container will not be removed after the image is created.')
