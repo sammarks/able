@@ -14,6 +14,11 @@ abstract class Provider extends Component {
 	 */
 	protected $cluster = null;
 
+	public function setCluster(Cluster $cluster)
+	{
+		$this->cluster = $cluster;
+	}
+
 	public function setSettings(array $settings)
 	{
 		$this->settings = $settings;

@@ -72,15 +72,15 @@ class Cluster {
 		// Get a simple list of all the providers for the cluster.
 		$providers = array();
 		foreach ($this->config->get('nodes') as $node) {
-			$providers[$node['provider']] = array_key_exists($node['provider'], $node) ? $node[$node['provider']] : array();
+			$providers[$node['provider']] = $node;
 		}
 
 		/** @var ProviderFactory $factory */
 		$factory = ProviderFactory::getInstance();
 		foreach ($providers as $provider => $settings) {
 			/** @var Provider $provider */
-			$provider = $factory->provider($provider, $settings);
-			$nodes = $provider->getNodes($this);
+			$provider = $factory->provider($provider, $this, $settings);
+			$nodes = $provider->getNodes();
 			if ($nodes && is_array($nodes)) {
 				foreach ($nodes as $node) {
 					$this->nodes[] = $node;

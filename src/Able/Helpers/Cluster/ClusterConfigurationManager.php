@@ -24,11 +24,16 @@ class ClusterConfigurationManager extends ConfigurationManager {
 
 	public function setConfiguration(array $configuration = array())
 	{
+		$this->config = $configuration;
+	}
+
+	public function fillDefaults(array $settings = array())
+	{
 		if (!array_key_exists('cluster-defaults', $this->config)) {
 			throw new \Exception('The default cluster configuration could not be found.');
 		}
 
-		$this->config = array_replace_recursive($this->config['cluster-defaults'], $configuration);
+		return array_replace_recursive($this->config['cluster-defaults'], $settings);
 	}
 
 } 

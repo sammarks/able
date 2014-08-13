@@ -17,8 +17,6 @@ class EC2Provider extends Provider {
 	 */
 	public function createNode($identifier, array $node_settings)
 	{
-		parent::createNode($identifier, $node_settings);
-
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 
@@ -147,7 +145,11 @@ class EC2Provider extends Provider {
 				array(
 					'Name' => 'tag:Cluster',
 					'Values' => array($this->cluster->getName()),
-				)
+				),
+				array(
+					'Name' => 'instance-state-name',
+					'Values' => array('pending', 'running', 'shutting-down', 'stopping', 'stopped'),
+				),
 			)
 		));
 		$instances = $result->getPath('Reservations/*/ReservationId');
@@ -182,15 +184,12 @@ class EC2Provider extends Provider {
 		}
 
 		// Get the name of the node.
-		$name = false;
+		$name = '';
 		foreach ($reservation['Tags'] as $tag) {
 			if ($tag['Key'] == 'Name') {
 				$name = $tag['Value'];
 				break;
 			}
-		}
-		if (!$name) {
-			throw new \Exception('The name for the node ' . $node_identifier . ' could not be found.');
 		}
 
 		return new Node($name, $this->cluster, 'EC2', $reservation['InstanceId'], $reservation);
@@ -316,7 +315,7 @@ class EC2Provider extends Provider {
 		$ec2 = Ec2Client::factory(array(
 			'key' => $config->get('aws/access_key'),
 			'secret' => $config->get('aws/access_secret'),
-			'region' => $this->region,
+			'region' => $this->settings['region'],
 		));
 
 		if (!$ec2) {

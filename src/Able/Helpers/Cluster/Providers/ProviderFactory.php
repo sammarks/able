@@ -27,13 +27,14 @@ class ProviderFactory extends ComponentFactory {
 	 *
 	 * Gets a provider.
 	 *
-	 * @param string  $type    The type of provider.
-	 * @param Cluster $cluster The cluster.
+	 * @param string  $type     The type of provider.
+	 * @param Cluster $cluster  The cluster.
+	 * @param array   $settings The provider-specific settings for the current node.
 	 *
 	 * @return Provider The loaded provider.
 	 * @throws \Exception
 	 */
-	public function provider($type, Cluster $cluster)
+	public function provider($type, Cluster $cluster, array $settings = array())
 	{
 		$component = $this->factory($type, null, array());
 		if (!($component instanceof Provider)) {
@@ -41,9 +42,12 @@ class ProviderFactory extends ComponentFactory {
 		}
 
 		// Set the settings of the provider to the provider-specific settings.
-		if (array_key_exists($component->getClassName(), $cluster->config->get())) {
-			$component->setSettings($cluster->config->get($component->getClassName()));
+		if (array_key_exists($component->getClassName(), $settings)) {
+			$component->setSettings($settings[$component->getClassName()]);
 		}
+
+		// Set the cluster.
+		$component->setCluster($cluster);
 
 		return $component;
 	}

@@ -2,7 +2,6 @@
 
 namespace Able\Helpers\Cluster\Operations;
 
-use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\Cluster\Providers\ProviderFactory;
 use Able\Helpers\Logger;
 
@@ -30,18 +29,12 @@ class CreateOperation extends Operation {
 
 		// Create each of the nodes...
 		foreach ($this->cluster->config->get('nodes') as $node_identifier => $node) {
-			$node['full-identifier'] = $this->cluster->getName() . '-' . $node_identifier;
-			$node['cluster'] = $this->cluster->getName();
 			$this->createNode($node_identifier, $node);
 		}
 	}
 
 	protected function createNode($identifier, array $configuration = array())
 	{
-		// Fill in the defaults for the configuration.
-		$defaults = $this->cluster->config->get('defaults');
-		$configuration = array_replace_recursive($defaults, $configuration);
-
 		// Get the provider.
 		$provider_name = $configuration['provider'];
 		if (!array_key_exists($provider_name, $configuration)) {
@@ -50,7 +43,7 @@ class CreateOperation extends Operation {
 
 		/** @var ProviderFactory $provider_factory */
 		$provider_factory = ProviderFactory::getInstance();
-		$provider = $provider_factory->provider($provider_name, $this->cluster);
+		$provider = $provider_factory->provider($provider_name, $this->cluster, $configuration);
 
 		// Generate the default metadata for the node.
 		$metadata = $provider->getMetadata($identifier);
