@@ -2,6 +2,7 @@
 
 namespace Able\Helpers\Cluster\Operations;
 
+use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\Cluster\Providers\ProviderFactory;
 use Able\Helpers\Logger;
 
@@ -18,6 +19,12 @@ class CreateOperation extends Operation {
 		/** @var Logger $logger */
 		$logger = Logger::getInstance();
 		$logger->log('CREATE cluster ' . $this->config->name);
+
+		// Make sure the cluster doesn't already exist.
+		if (Cluster::exists($this->config->name)) {
+			$logger->error('The cluster ' . $this->config->name . ' already exists.', true);
+			return;
+		}
 
 		// Prepare the etcd discovery url.
 		$this->prepareEtcd();

@@ -52,6 +52,32 @@ class Cluster {
 	}
 
 	/**
+	 * Exists
+	 *
+	 * @param string $name The name of the cluster to check.
+	 *
+	 * @return bool Whether or not the cluster exists.
+	 */
+	public static function exists($name)
+	{
+		/** @var Logger $logger */
+		$logger = Logger::getInstance();
+		$logger->log('Checking to see if cluster ' . $name . ' exists.', 'white', BaseCommand::DEBUG_VERBOSE);
+
+		/** @var ProviderFactory $factory */
+		$factory = ProviderFactory::getInstance();
+		foreach ($factory->all() as $provider) {
+			/** @var Provider $provider */
+			$cluster = $provider->findCluster($name);
+			if (!$cluster) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Refresh Nodes
 	 *
 	 * Re-generates the $nodes variable by calling functions on each of the providers.
