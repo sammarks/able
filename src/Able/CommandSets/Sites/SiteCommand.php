@@ -114,11 +114,10 @@ abstract class SiteCommand extends BaseCommand {
 		if (!getenv('DOCKER_HOST')) {
 
 			// Try to get the host from boot2docker.
-			if (($host = $this->exec('boot2docker ip 2>/dev/null',
-					false,
-					false,
-					true)) !== false && is_array($host) && count($host) > 0
-			) {
+			if ($this->exec('boot2docker ip 2>/dev/null', false, true)
+				&& ($host = $this->exec('boot2docker ip 2>/dev/null', false, false, true)) !== false
+				&& is_array($host)
+				&& count($host) > 0) {
 				$host_ip = null;
 				foreach ($host as $potential) {
 					if (!$potential) continue;
