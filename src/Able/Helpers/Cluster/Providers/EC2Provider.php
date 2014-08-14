@@ -97,6 +97,7 @@ class EC2Provider extends Provider {
 				$ec2->waitUntilInstanceRunning(array(
 					'InstanceIds' => $instance_ids,
 				));
+				break; // Break if there were no errors.
 			} catch (\Exception $ex) {
 				$error = true;
 				$logger->log('Failed. Trying again.', 'red', BaseCommand::DEBUG_VERBOSE);
