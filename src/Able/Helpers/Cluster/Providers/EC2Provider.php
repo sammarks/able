@@ -88,17 +88,23 @@ class EC2Provider extends Provider {
 		$instance_ids = $response->getPath('Instances/*/InstanceId');
 
 		$logger->log('Waiting for instance to launch.', 'white', BaseCommand::DEBUG_VERBOSE);
-		$error = true;
 		$tries = 0;
-		while ($error === false && $tries < 3) {
+		$error = false;
+		while ($tries < 10) {
 			try {
 				$tries++;
+				$error = false;
 				$ec2->waitUntilInstanceRunning(array(
 					'InstanceIds' => $instance_ids,
 				));
 			} catch (\Exception $ex) {
+				$error = true;
 				$logger->log('Failed. Trying again.', 'red', BaseCommand::DEBUG_VERBOSE);
 			}
+		}
+
+		if ($tries >= 10 && $error === true) {
+			throw new \Exception('Could not wait for the instance to be created (after 10 tries).');
 		}
 
 		$logger->log('Creating tags for instance.', 'white', BaseCommand::DEBUG_VERBOSE);
