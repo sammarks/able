@@ -6,18 +6,17 @@ use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\Cluster\Node;
 use Able\Helpers\Fleet;
 use Able\Helpers\FleetException;
+use Able\Helpers\ConfigurationManager;
 
 class DeployOperation extends Operation {
 
 	public function deploy(array $settings, $image_name)
 	{
-		$cluster = new Cluster($this->config->name);
-
 		// Select the node to deploy to from the cluster.
-		$this->selectNode($cluster);
+		$this->selectNode($this->cluster);
 
 		// For each node in the cluster...
-		foreach ($cluster->getNodes() as $index => $node) {
+		foreach ($this->cluster->getNodes() as $index => $node) {
 
 			// Generate the unit file.
 			$path = $this->generateUnit($index, $settings, $image_name);
@@ -111,8 +110,9 @@ class DeployOperation extends Operation {
 		$unit[] = '[X-Fleet]';
 		$unit[] = "X-Conflicts={$unit_wildcard_name}";
 
+		$config = ConfigurationManager::getInstance();
 		$unit_contents = implode("\n", $unit);
-		$unit_path = $this->config->get('fleet/unit_storage') . DIRECTORY_SEPARATOR . $unit_filename;
+		$unit_path = $config->get('fleet/unit_storage') . DIRECTORY_SEPARATOR . $unit_filename;
 
 		if (!is_writable($unit_path)) {
 			throw new \Exception('The path ' . $unit_path . ' is not writable.');
