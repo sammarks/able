@@ -22,7 +22,7 @@ class DeployOperation extends Operation {
 			$path = $this->generateUnit($index, $settings, $image_name);
 
 			// Submit the unit file.
-			$this->submitUnit($path, $node);
+			// $this->submitUnit($path, $node); - Don't submit it just yet - we still have some testing to do.
 
 		}
 	}
