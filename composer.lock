@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "45e8a1f415d5b2ad483c03292a0b3f93",
+    "hash": "65e70ffbe0375da9dfb7d4052e30762f",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "2.6.14",
+            "version": "2.6.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6ce450fa314edb9209671a0cd1930de55bd43123"
+                "reference": "4eaf38f0297533d48f013be7e1ffa1cb2c912e2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6ce450fa314edb9209671a0cd1930de55bd43123",
-                "reference": "6ce450fa314edb9209671a0cd1930de55bd43123",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4eaf38f0297533d48f013be7e1ffa1cb2c912e2f",
+                "reference": "4eaf38f0297533d48f013be7e1ffa1cb2c912e2f",
                 "shasum": ""
             },
             "require": {
@@ -72,7 +72,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2014-08-11 22:46:49"
+            "time": "2014-08-14 20:49:47"
         },
         {
             "name": "florianwolters/component-core-stringutils",
@@ -165,16 +165,16 @@
         },
         {
             "name": "florianwolters/component-util-singleton",
-            "version": "v0.3.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/FlorianWolters/PHP-Component-Util-Singleton.git",
-                "reference": "ab39ba531a38c3b76b4babb0035ce840cde7f443"
+                "url": "https://github.com/sammarks/PHP-Component-Util-Singleton.git",
+                "reference": "c4051d25773d0a698556cebccc0f112b5528bc0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FlorianWolters/PHP-Component-Util-Singleton/zipball/ab39ba531a38c3b76b4babb0035ce840cde7f443",
-                "reference": "ab39ba531a38c3b76b4babb0035ce840cde7f443",
+                "url": "https://api.github.com/repos/sammarks/PHP-Component-Util-Singleton/zipball/c4051d25773d0a698556cebccc0f112b5528bc0b",
+                "reference": "c4051d25773d0a698556cebccc0f112b5528bc0b",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +192,6 @@
                     ]
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "LGPL-3.0+"
             ],
@@ -212,7 +211,10 @@
                 "singleton",
                 "utility"
             ],
-            "time": "2013-06-29 12:35:22"
+            "support": {
+                "source": "https://github.com/sammarks/PHP-Component-Util-Singleton/tree/master"
+            },
+            "time": "2014-08-25 19:08:13"
         },
         {
             "name": "guzzle/guzzle",
@@ -777,8 +779,10 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "linkorb/etcd-php": 20,
+        "florianwolters/component-util-singleton": 20,
         "stage1/docker-php": 20
     },
+    "prefer-stable": false,
     "platform": [],
     "platform-dev": []
 }
