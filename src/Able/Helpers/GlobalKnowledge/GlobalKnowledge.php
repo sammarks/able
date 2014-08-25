@@ -2,79 +2,31 @@
 
 namespace Able\Helpers\GlobalKnowledge;
 
-use Able\Helpers\ScopeManager;
-use LinkORB\Component\Etcd\Client;
-use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
+use Able\Helpers\ConfigurationManager;
+use Able\Helpers\GlobalKnowledge\Providers\Provider;
+use Able\Helpers\GlobalKnowledge\Providers\ProviderFactory;
+use FlorianWolters\Component\Util\Singleton\SingletonTrait;
 
-class GlobalKnowledge extends Client {
+class GlobalKnowledge {
 
-	/**
-	 * @var GlobalKnowledge
-	 */
-	protected static $instance = null;
+	use SingletonTrait;
 
 	/**
-	 * Get Instance
-	 *
-	 * Gets the current instance of the GlobalKnowledge class, or creates one if it doesn't exist.
-	 *
-	 * @param string $url The URL used to connect to etcd.
-	 *
-	 * @return GlobalKnowledge
-	 * @throws \Exception
+	 * The global knowledge provider.
+	 * @var Provider
 	 */
-	public static function getInstance($url = 'http://127.0.0.1:4001')
+	protected $provider = null;
+
+	public function construct()
 	{
-		if (ScopeManager::getInstance()->getScope() == ScopeManager::SCOPE_NONE) {
-			throw new \Exception('The Global Knowledge is only available to nodes in the cluster and containers.');
-		}
+		/** @var ConfigurationManager $config */
+		$config = ConfigurationManager::getInstance();
+		$provider = $config->get('global_knowledge/provider');
+		$provider_settings = $config->get('global_knowledge/' . $provider);
 
-		if (!self::$instance) {
-			self::$instance = new self($url);
-
-			// Make sure the server is alive.
-			if (!self::$instance->ping()) {
-				throw new \Exception('There was an error connecting to the etcd server at ' . $url);
-			}
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Ping
-	 *
-	 * Tests to see if the server is alive.
-	 *
-	 * @return bool
-	 */
-	public function ping()
-	{
-		try {
-			$this->get('/');
-			return true;
-		} catch (\Exception $ex) {
-			return false;
-		}
-	}
-
-	/**
-	 * Exists
-	 *
-	 * Checks to see if the specified key exists.
-	 *
-	 * @param string $key The key to check.
-	 *
-	 * @return bool
-	 */
-	public function exists($key)
-	{
-		try {
-			$this->get($key);
-			return true;
-		} catch (KeyNotFoundException $ex) {
-			return false;
-		}
+		/** @var ProviderFactory $provider_factory */
+		$provider_factory = ProviderFactory::getInstance();
+		$this->provider = $provider_factory->factory($provider, null, $provider_settings);
 	}
 
 }

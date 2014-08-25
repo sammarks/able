@@ -136,10 +136,6 @@ server:
     # supported web server.
     web_server: nginx
 
-    # The URL to use when connecting to the global knowledge server. This is the etcd
-    # server that contains any shared configuration options across the node cluster.
-    global_knowledge: http://127.0.0.1:4001
-
     # Where items are located on the server.
     configuration:
         VHost: /etc/nginx/sites-available/default
@@ -148,6 +144,20 @@ server:
         PHP: /etc/php5/fpm/php.ini
         Supervisor: /etc/supervisord.conf
         Nginx: /etc/nginx/nginx.conf
+
+# This section contains connection information used when connecting to the global knowledge
+# server. In order to able to work correctly in most cases, you'll need to have access to
+# the global Knowledge Server.
+global_knowledge:
+
+    # Supported providers: DynamoDB
+    provider: DynamoDB
+
+    # Provider specific settings for DynamoDB.
+    DynamoDB:
+
+        # The DynamoDB table the data is stored in.
+        table: global-knowledge
 
 # This section contains authentication credentials for use when communicating with the
 # AWS API. This is required to create a cluster of servers or manage servers.
