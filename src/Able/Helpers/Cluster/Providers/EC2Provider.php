@@ -306,7 +306,7 @@ class EC2Provider extends Provider {
 	 */
 	protected function getEC2()
 	{
-		Logger::getInstance()->log('Connecting to Amazon', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Connecting to Amazon', 'white', Logger::DEBUG_VERBOSE);
 		$ec2 = Ec2Client::factory(array(
 			'key' => ConfigurationManager::getInstance()->get('aws/access_key'),
 			'secret' => ConfigurationManager::getInstance()->get('aws/access_secret'),

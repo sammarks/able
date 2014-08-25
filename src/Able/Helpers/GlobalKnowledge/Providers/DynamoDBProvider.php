@@ -2,6 +2,8 @@
 
 namespace Able\Helpers\GlobalKnowledge\Providers;
 
+use Able\Helpers\CommandHelpers\Logger;
+use Able\Helpers\ConfigurationManager;
 use Aws\DynamoDb\DynamoDbClient;
 
 class DynamoDBProvider extends Provider {
@@ -17,7 +19,16 @@ class DynamoDBProvider extends Provider {
 	 */
 	public function connect()
 	{
+		Logger::getInstance()->log('Connecting to Amazon DynamoDB.', 'white', Logger::DEBUG_VERBOSE);
+		$this->client = DynamoDbClient::factory(array(
+			'key' => ConfigurationManager::getInstance()->get('aws/access_key'),
+			'secret' => ConfigurationManager::getInstance()->get('aws/access_secret'),
+			'region' => $this->settings['region'],
+		));
 
+		if (!$this->client) {
+			Logger::getInstance()->error('Connection to DynamoDB failed. Check your credentials.', true);
+		}
 	}
 
 	/**

@@ -27,6 +27,11 @@ class GlobalKnowledge {
 		/** @var ProviderFactory $provider_factory */
 		$provider_factory = ProviderFactory::getInstance();
 		$this->provider = $provider_factory->factory($provider, $provider_settings);
+		if (!($this->provider instanceof Provider))
+			throw new \Exception('An invalid provider was specified.');
+
+		// Connect to the provider.
+		$this->provider->connect();
 	}
 
 }
