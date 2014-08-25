@@ -3,7 +3,7 @@
 namespace Able\CommandSets\Sites;
 
 use Able\CommandSets\BaseCommand;
-use Able\Helpers\Logger;
+use Able\Helpers\CommandHelpers\Logger;
 use Docker\AuthConfig;
 use Docker\Http\DockerClient;
 use Docker\Manager\ImageManager;

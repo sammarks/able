@@ -5,7 +5,7 @@ namespace Able\Helpers\Cluster;
 use Able\CommandSets\BaseCommand;
 use Able\Helpers\Cluster\Providers\Provider;
 use Able\Helpers\Cluster\Providers\ProviderFactory;
-use Able\Helpers\Logger;
+use Able\Helpers\CommandHelpers\Logger;
 
 class Cluster {
 

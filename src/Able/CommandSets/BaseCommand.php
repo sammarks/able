@@ -2,8 +2,7 @@
 
 namespace Able\CommandSets;
 
-use Able\Helpers\ConfigurationManager;
-use Able\Helpers\Logger;
+use Able\Helpers\CommandHelpers\Logger;
 use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,36 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class BaseCommand extends Command
 {
 
-	const DEBUG_VERBOSE = 1;
-	const DEBUG_NORMAL = 0;
-
-	/**
-	 * The current input interface.
-	 * @var InputInterface
-	 */
-	public $input = null;
-
-	/**
-	 * The current output interface.
-	 * @var OutputInterface
-	 */
-	public $output = null;
-	public $dialog = null;
-
-	/**
-	 * The configuration manager.
-	 * @var ConfigurationManager
-	 */
-	public $config = null;
-
-	public function __construct()
-	{
-		$this->config = ConfigurationManager::getInstance();
-		parent::__construct();
-	}
-
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$logger = Logger::getInstance();
+
 		$this->input = $input;
 		$this->output = $output;
 		$this->dialog = $this->getHelperSet()->get('dialog');
@@ -56,65 +29,6 @@ abstract class BaseCommand extends Command
 
 		// Initialize the logger.
 		Logger::getInstance($this);
-	}
-
-	/**
-	 * Log
-	 *
-	 * Logs a message to the output.
-	 *
-	 * @param string $message The message to log.
-	 * @param string $color   The color of the message. Defaults to white.
-	 * @param int    $level   The level of the message. Defaults to DEBUG_NORMAL, but can be
-	 *                        DEBUG_VERBOSE.
-	 * @param bool   $newline Whether or not a newline should be appended.
-	 *
-	 * @throws \Exception
-	 */
-	public function log($message, $color = 'white', $level = self::DEBUG_NORMAL, $newline = true)
-	{
-
-		if (!$this->input || !$this->output) {
-			throw new \Exception('You must call parent::execute(...) before calling this function!');
-		}
-
-		if ($this->output->getVerbosity() != OutputInterface::VERBOSITY_QUIET && $level == self::DEBUG_NORMAL) {
-			$this->output->write("<fg={$color}>{$message}</fg={$color}>", $newline);
-			return;
-		}
-
-		if ($this->output->getVerbosity() == OutputInterface::VERBOSITY_VERBOSE && $level == self::DEBUG_VERBOSE) {
-			$this->output->write("<fg={$color}>{$message}</fg={$color}>", $newline);
-			return;
-		}
-
-	}
-
-	/**
-	 * Error
-	 *
-	 * Logs an error to the output.
-	 *
-	 * @param string $message The message to use as the error.
-	 * @param bool   $fatal   Whether or not to halt script execution because of the error.
-	 *
-	 * @throws \Exception
-	 */
-	public function error($message, $fatal = false)
-	{
-
-		if (!$this->input || !$this->output) {
-			throw new \Exception('You must call parent::execute(...) before calling this function!');
-		}
-
-		if ($this->output->getVerbosity() != OutputInterface::VERBOSITY_QUIET) {
-			$this->output->writeln("<fg=red>{$message}</fg=red>");
-		}
-
-		if ($fatal) {
-			exit(1);
-		}
-
 	}
 
 	/**
@@ -158,84 +72,6 @@ abstract class BaseCommand extends Command
 
 		return $output_array;
 
-	}
-
-	/**
-	 * Confirm
-	 *
-	 * Asks the user a simple yes or no question.
-	 *
-	 * @param string $question     The question to ask the user.
-	 * @param bool   $defaultValue The default value.
-	 *
-	 * @return bool The user's response.
-	 */
-	public function confirm($question, $defaultValue = true)
-	{
-		$yes = ($defaultValue) ? 'Y' : 'y';
-		$no = ($defaultValue) ? 'n' : 'N';
-		$yesno = "[{$yes}/{$no}]";
-		if ($this->input->getOption('no-interaction')) {
-			return $defaultValue;
-		}
-		return $this->dialog->askConfirmation($this->output, $question . ' ' . $yesno . ': ', $defaultValue);
-	}
-
-	/**
-	 * Prompt
-	 *
-	 * Asks the user a question.
-	 *
-	 * @param string $question     The question to ask.
-	 * @param bool   $required     Whether or not a response is required.
-	 * @param string $defaultValue The default value when the user chooses not to respond.
-	 * @param bool   $hidden       Whether or not to hide the response.
-	 *
-	 * @return mixed
-	 */
-	public function prompt($question, $required = false, $defaultValue = '', $hidden = false)
-	{
-		if ($required && $this->input->getOption('no-interaction')) {
-			$this->error('Interaction is disabled, but interaction is required.', true);
-			return;
-		}
-		if ($hidden) {
-			$response = $this->dialog->askHiddenResponse($this->output, $question . ' - ');
-		} else {
-			$response = $this->dialog->ask($this->output, $question . ' - ', $defaultValue);
-		}
-		if (!$response && $required) {
-			$this->error('You must supply a value.');
-			return $this->prompt($question, $required, $defaultValue);
-		} else {
-			return $response;
-		}
-	}
-
-	/**
-	 * Prompt With Replacement
-	 *
-	 * Prompts the user with a question and asks for a replacement value if they reject the
-	 * question. For example:
-	 *
-	 * Does the username 'sam' sound okay? [Y/n]: n
-	 * What would you like it to be then?: sammarks
-	 *
-	 * The return value would be 'sammarks'
-	 *
-	 * @param string $question The question to ask the user.
-	 * @param string $value    The value to default to.
-	 * @param bool   $required Whether or not the prompt is required. Is '' accepted?
-	 * @param bool   $hidden   Whether or not to hide the text the user is typing (for passwords).
-	 *
-	 * @return string The replacement value, or the original.
-	 */
-	public function promptWithReplacement($question, $value, $required = false, $hidden = false)
-	{
-		if (!$this->confirm($question)) {
-			return $this->prompt('What would you like it to be then?', $required, $value, $hidden);
-		}
-		return $value;
 	}
 
 	/**
@@ -297,43 +133,6 @@ abstract class BaseCommand extends Command
 			}
 		}
 		return $directory;
-	}
-
-	public static function FileSizeConvert($bytes)
-	{
-		$bytes = floatval($bytes);
-		$arBytes = array(
-			0 => array(
-				"UNIT" => "TB",
-				"VALUE" => pow(1024, 4)
-			),
-			1 => array(
-				"UNIT" => "GB",
-				"VALUE" => pow(1024, 3)
-			),
-			2 => array(
-				"UNIT" => "MB",
-				"VALUE" => pow(1024, 2)
-			),
-			3 => array(
-				"UNIT" => "KB",
-				"VALUE" => 1024
-			),
-			4 => array(
-				"UNIT" => "B",
-				"VALUE" => 1
-			),
-		);
-
-		foreach ($arBytes as $arItem) {
-			if ($bytes >= $arItem["VALUE"]) {
-				$result = $bytes / $arItem["VALUE"];
-				$result = strval(round($result, 2)) . " " . $arItem["UNIT"];
-				break;
-			}
-		}
-
-		return $result;
 	}
 
 	public function strpos_array($haystack, $needles)

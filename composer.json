@@ -3,7 +3,7 @@
 		"symfony/console": "~2.5",
 		"symfony/yaml": "~2.5",
 		"linkorb/etcd-php": "dev-master",
-		"florianwolters/component-util-singleton": "~0.3",
+		"florianwolters/component-util-singleton": "dev-master",
 		"aws/aws-sdk-php": "~2.6",
 		"stage1/docker-php": "dev-image-api"
 	},
@@ -15,6 +15,10 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/sammarks/docker-php.git"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/sammarks/PHP-Component-Util-Singleton.git"
 		}
 	],
 	"autoload": {

@@ -6,7 +6,7 @@ use Able\CommandSets\BaseCommand;
 use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\Cluster\Node;
 use Able\Helpers\ConfigurationManager;
-use Able\Helpers\Logger;
+use Able\Helpers\CommandHelpers\Logger;
 use Aws\Ec2\Ec2Client;
 use Symfony\Component\Yaml\Yaml;
 

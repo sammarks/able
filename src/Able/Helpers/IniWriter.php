@@ -2,6 +2,7 @@
 
 namespace Able\Helpers;
 
+use Able\Helpers\CommandHelpers\Logger;
 use FlorianWolters\Component\Util\Singleton\SingletonTrait;
 
 class IniWriter {
@@ -24,7 +25,7 @@ class IniWriter {
 		if ($this->has_sections) {
 			foreach ($assoc_arr as $key => $elem) {
 				if (!is_array($elem)) {
-					/** @var \Able\Helpers\Logger $logger */
+					/** @var \Able\Helpers\CommandHelpers\Logger $logger */
 					$logger = Logger::getInstance();
 					$logger->error('The element: ' . $elem . ' is invalid and has been skipped.');
 					continue;

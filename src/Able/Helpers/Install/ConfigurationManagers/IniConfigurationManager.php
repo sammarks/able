@@ -4,7 +4,7 @@ namespace Able\Helpers\Install\ConfigurationManagers;
 
 use Able\Helpers\IniWriter;
 use Able\Helpers\Install\Features\Feature;
-use Able\Helpers\Logger;
+use Able\Helpers\CommandHelpers\Logger;
 
 abstract class IniConfigurationManager extends ConfigurationManager {
 

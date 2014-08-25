@@ -3,7 +3,7 @@
 namespace Able\Helpers\Cluster\Operations;
 
 use Able\Helpers\Cluster\Providers\ProviderFactory;
-use Able\Helpers\Logger;
+use Able\Helpers\CommandHelpers\Logger;
 
 class CreateOperation extends Operation {
 
