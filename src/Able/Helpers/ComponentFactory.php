@@ -8,7 +8,7 @@ use FlorianWolters\Component\Util\Singleton\SingletonTrait;
 interface ComponentFactoryInterface {
 
 	static function getInstance();
-	function factory($type, BaseCommand $command, array $settings = array());
+	function factory($type, array $settings = array());
 	function getComponentClass();
 	function getComponentClassSuffix();
 	function getInternalPrefix();
@@ -48,13 +48,13 @@ abstract class ComponentFactory implements ComponentFactoryInterface {
 		return new $accepted_candidate($this);
 	}
 
-	public function factory($type, BaseCommand $command = null, array $settings = array())
+	public function factory($type, array $settings = array())
 	{
 		$component = $this->getComponent($type);
 		if (!($component instanceof ComponentInterface)) {
 			throw new ComponentFactoryException('The ' . $this->getComponentClass() . ' ' . $type . ' is an invalid component.');
 		}
-		$component->initialize($command, $settings);
+		$component->initialize($settings);
 
 		return $component;
 	}

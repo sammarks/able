@@ -65,9 +65,7 @@ class Cluster {
 	 */
 	protected function refreshNodes()
 	{
-		/** @var Logger $logger */
-		$logger = Logger::getInstance();
-		$logger->log('Refreshing nodes for cluster ' . $this->getName() . '.', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Refreshing nodes for cluster ' . $this->getName() . '.', 'white', Logger::DEBUG_VERBOSE);
 
 		// Get a simple list of all the providers for the cluster.
 		$providers = array();

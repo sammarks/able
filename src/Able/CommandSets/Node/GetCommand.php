@@ -2,6 +2,7 @@
 
 namespace Able\CommandSets\Node;
 
+use Able\Helpers\CommandHelpers\Logger;
 use Able\Helpers\GlobalKnowledge\GlobalKnowledge;
 use Able\Helpers\ScopeManager;
 use LinkORB\Component\Etcd\Exception\KeyNotFoundException;
@@ -24,9 +25,9 @@ class GetCommand extends GlobalKnowledgeCommand {
 		parent::execute($input, $output);
 
 		try {
-			$this->log(GlobalKnowledge::getInstance()->get($input->getArgument('key')));
+			Logger::getInstance()->log(GlobalKnowledge::getInstance()->get($input->getArgument('key')));
 		} catch (KeyNotFoundException $ex) {
-			$this->error('The key could not be found.', true);
+			Logger::getInstance()->error('The key could not be found.', true);
 		}
 	}
 

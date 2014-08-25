@@ -2,6 +2,8 @@
 
 namespace Able\CommandSets\Sites;
 
+use Able\Helpers\CommandHelpers\Executer;
+use Able\Helpers\CommandHelpers\Logger;
 use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
 use Able\Helpers\Install\Features\FeatureCollection;
 use Able\Helpers\Install\Features\FeatureFactory;
@@ -26,12 +28,12 @@ class InstallCommand extends SiteCommand {
 	{
 		parent::execute($input, $output);
 
-		$this->log('Installing');
+		Logger::getInstance()->log('Installing');
 
 		// Install the site.
 		$this->install($this->settings);
 
-		$this->log('Complete!', 'green');
+		Logger::getInstance()->log('Complete!', 'green');
 
 	}
 
@@ -41,19 +43,19 @@ class InstallCommand extends SiteCommand {
 		$features = new FeatureCollection();
 
 		// Initialize the feature collection.
-		$features->initialize($this, $settings);
+		$features->initialize($settings);
 
 		// Add the site feature.
-		$features->append(FeatureFactory::getInstance()->factory('Site', $this, $settings));
+		$features->append(FeatureFactory::getInstance()->factory('Site', $settings));
 
 		// Add the environment feature.
-		$features->append(FeatureFactory::getInstance()->factory($settings['environment'], $this, $settings));
+		$features->append(FeatureFactory::getInstance()->factory($settings['environment'], $settings));
 
 		// Add other features from the settings.
 		$this->getFeatures($features, $settings);
 
 		// Handle the configuration for the site.
-		$this->log('Preparing Server Configuration', 'white', self::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Preparing Server Configuration', 'white', Logger::DEBUG_VERBOSE);
 		$this->handleConfigurations($features, $settings);
 
 		// Get the copy destination for the files from the feautres.
@@ -65,7 +67,7 @@ class InstallCommand extends SiteCommand {
 		$features->callHook('preCopy', $directory);
 
 		// Copy the files from the repository docroot to the destination.
-		$this->log('Copying docroot', 'white', self::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Copying docroot', 'white', Logger::DEBUG_VERBOSE);
 		$this->copyToWebroot($settings, $directory);
 
 		// Call the post-copy hook.
@@ -73,7 +75,7 @@ class InstallCommand extends SiteCommand {
 
 		// Restart nginx and php5-fpm.
 		if ($settings['manage_services']) {
-			$this->log('Restarting Services', 'white', self::DEBUG_VERBOSE);
+			Logger::getInstance()->log('Restarting Services', 'white', Logger::DEBUG_VERBOSE);
 			$this->restartServices();
 		}
 
@@ -83,8 +85,8 @@ class InstallCommand extends SiteCommand {
 
 	protected function restartServices()
 	{
-		$this->exec('service nginx restart');
-		$this->exec('service php5-fpm restart');
+		Executer::getInstance()->exec('service nginx restart');
+		Executer::getInstance()->exec('service php5-fpm restart');
 	}
 
 	protected function copyToWebroot(array $settings, $destination)
@@ -102,13 +104,13 @@ class InstallCommand extends SiteCommand {
 			throw new SiteInstallException('The destination directory ' . $docroot . ' does not exist, and an attempt to create the directory failed.');
 		}
 
-		$this->exec("cp -r '$docroot' '$destination'");
+		Executer::getInstance()->exec("cp -r '$docroot' '$destination'");
 	}
 
 	protected function handleConfigurations(FeatureCollection $features, array $settings)
 	{
 		foreach ($settings['configuration'] as $key => $config) {
-			$configuration = ConfigurationManagerFactory::getInstance()->factory($key, $this, $settings);
+			$configuration = ConfigurationManagerFactory::getInstance()->factory($key, $settings);
 			if (!($configuration instanceof ConfigurationManager)) continue;
 			$configuration->setFeatureCollection($features);
 			$configuration->save();
@@ -118,7 +120,7 @@ class InstallCommand extends SiteCommand {
 	protected function getFeatures(FeatureCollection &$features, array $settings)
 	{
 		foreach ($settings['features'] as $feature => $configuration) {
-			$features->append(FeatureFactory::getInstance()->factory($feature, $this, $settings));
+			$features->append(FeatureFactory::getInstance()->factory($feature, $settings));
 		}
 	}
 

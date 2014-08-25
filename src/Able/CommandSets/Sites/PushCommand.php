@@ -2,6 +2,7 @@
 
 namespace Able\CommandSets\Sites;
 
+use Able\Helpers\CommandHelpers\Logger;
 use Docker\Docker;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,13 +28,13 @@ class PushCommand extends SiteCommand {
 		$image_manager = $docker->getImageManager();
 
 		$current_image = $this->findExistingImage($image_manager);
-		$this->log('PUSH ' . $current_image->getName());
+		Logger::getInstance()->log('PUSH ' . $current_image->getName());
 
 		// Push the image.
 		$auth = $this->getDockerAuth();
 		$image_manager->push($current_image, $auth, array($this, 'opCallback'));
 
-		$this->log('Success.', 'green');
+		Logger::getInstance()->log('Success.', 'green');
 	}
 
 } 

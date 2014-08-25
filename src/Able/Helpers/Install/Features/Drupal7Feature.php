@@ -3,6 +3,8 @@
 namespace Able\Helpers\Install\Features;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\CommandHelpers\Executer;
+use Able\Helpers\CommandHelpers\Logger;
 use Able\Helpers\Install\ConfigurationManagers\ConfigurationManager;
 use Able\Helpers\Install\ConfigurationManagers\ConfigurationManagerFactory;
 use Able\Helpers\Install\ConfigurationManagers\Drupal7ConfigurationManager;
@@ -31,12 +33,12 @@ class Drupal7Feature extends Feature {
 			throw new Drupal7FeatureException('The drupal-org.make file does not exist at ' . $makefile_location);
 		}
 
-		$this->command->log('Running drush makefile.', 'white', BaseCommand::DEBUG_VERBOSE);
-		$this->command->exec("drush make --working-copy --prepare-install '$makefile_location' '$drupal_root'");
+		Logger::getInstance()->log('Running drush makefile.', 'white', Logger::DEBUG_VERBOSE);
+		Executer::getInstance()->exec("drush make --working-copy --prepare-install '$makefile_location' '$drupal_root'");
 
-		$this->command->log('Downloading CKEditor', 'white', BaseCommand::DEBUG_VERBOSE);
-		$this->command->exec('wget "http://download.cksource.com/CKEditor%20for%20Drupal/CKEditor%204.0.1%20for%20Drupal/ckeditor_4.0.1_for_drupal_7.zip?drupal-version=on" --output-document=/tmp/ckeditor.zip --no-verbose');
-		$this->command->exec("unzip -q /tmp/ckeditor.zip -d '$drupal_root/sites/all/modules/contrib/'");
+		Logger::getInstance()->log('Downloading CKEditor', 'white', Logger::DEBUG_VERBOSE);
+		Executer::getInstance()->exec('wget "http://download.cksource.com/CKEditor%20for%20Drupal/CKEditor%204.0.1%20for%20Drupal/ckeditor_4.0.1_for_drupal_7.zip?drupal-version=on" --output-document=/tmp/ckeditor.zip --no-verbose');
+		Executer::getInstance()->exec("unzip -q /tmp/ckeditor.zip -d '$drupal_root/sites/all/modules/contrib/'");
 	}
 
 	public function postCopy($directory)
@@ -53,10 +55,10 @@ class Drupal7Feature extends Feature {
 		$profile = $this->configuration['profile'];
 
 		// Change to the Drupal root directory.
-		$this->command->exec('cd ' . $drupal_root);
+		Executer::getInstance()->exec('cd ' . $drupal_root);
 		chdir($drupal_root);
 
-		$this->command->log('Installing Drupal', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Installing Drupal', 'white', Logger::DEBUG_VERBOSE);
 
 		// Bootstrap Drupal and create the settings.php.
 		// A lot of this is taken from Drush:commands/core/drupal/site_install.inc
@@ -107,7 +109,7 @@ class Drupal7Feature extends Feature {
 			if ($ex->getMessage() != install_already_done_error()) {
 				throw $ex;
 			} else {
-				$this->command->log('It appears that Drupal is already installed to the specified database. ' .
+				Logger::getInstance()->log('It appears that Drupal is already installed to the specified database. ' .
 					'If you would like to reinstall it, clear the database.', 'yellow');
 			}
 
@@ -116,21 +118,21 @@ class Drupal7Feature extends Feature {
 		// If the DB didn't exist, enable and disable modules, and then set the defaults.
 		if (!$this->checkIfDBExists()) {
 
-			$this->command->log('Changing Modules', 'white', BaseCommand::DEBUG_VERBOSE);
+			Logger::getInstance()->log('Changing Modules', 'white', Logger::DEBUG_VERBOSE);
 			$this->manageModules($drupal_root);
 
-			$this->command->log('Updating Defaults', 'white', BaseCommand::DEBUG_VERBOSE);
+			Logger::getInstance()->log('Updating Defaults', 'white', Logger::DEBUG_VERBOSE);
 			$this->setDefaults($drupal_root);
 
 		}
 
-		$this->command->log('Preparing Drupal Configuration', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Preparing Drupal Configuration', 'white', Logger::DEBUG_VERBOSE);
 		$this->prepareSettings();
 
-		$this->command->log('Clearing Drupal Caches', 'white', BaseCommand::DEBUG_VERBOSE);
-		$this->command->exec("drush cc --root='$drupal_root' -y all");
+		Logger::getInstance()->log('Clearing Drupal Caches', 'white', Logger::DEBUG_VERBOSE);
+		Executer::getInstance()->exec("drush cc --root='$drupal_root' -y all");
 
-		$this->command->log('Drupal Installed!', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Drupal Installed!', 'white', Logger::DEBUG_VERBOSE);
 	}
 
 	protected function getDatabaseFeature()
@@ -188,8 +190,8 @@ class Drupal7Feature extends Feature {
 		$enable_str = implode(' ', $to_enable);
 		$disable_str = implode(' ', $to_disable);
 
-		$this->command->exec("drush en --root='$drupal_root' $enable_str -y");
-		$this->command->exec("drush dis --root='$drupal_root' $disable_str -y");
+		Executer::getInstance()->exec("drush en --root='$drupal_root' $enable_str -y");
+		Executer::getInstance()->exec("drush dis --root='$drupal_root' $disable_str -y");
 	}
 
 	protected function setDefaults($drupal_root)
@@ -197,15 +199,15 @@ class Drupal7Feature extends Feature {
 		$frontend_theme = $this->configuration['themes']['frontend'];
 		$admin_theme = $this->configuration['themes']['administration'];
 
-		$this->command->exec("drush variable-set --root='$drupal_root' -y admin_theme $admin_theme");
-		$this->command->exec("drush variable-set --root='$drupal_root' -y theme_default $frontend_theme");
+		Executer::getInstance()->exec("drush variable-set --root='$drupal_root' -y admin_theme $admin_theme");
+		Executer::getInstance()->exec("drush variable-set --root='$drupal_root' -y theme_default $frontend_theme");
 	}
 
 	protected function prepareSettings()
 	{
 		// Get the configuraton manager.
 		/** @var Drupal7ConfigurationManager $config_manager */
-		$config_manager = ConfigurationManagerFactory::getInstance()->factory('Drupal7', $this->command, $this->settings);
+		$config_manager = ConfigurationManagerFactory::getInstance()->factory('Drupal7', $this->settings);
 		$config_manager->setFeatureCollection($this->feature_collection);
 		$config_manager->save();
 	}

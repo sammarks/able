@@ -27,7 +27,7 @@ class Create extends ClusterCommand {
 			/** @var OperationFactory $factory */
 			$factory = OperationFactory::getInstance();
 			/** @var CreateOperation $creator */
-			$creator = $factory->operation('Create', $this, $cluster_identifier, $cluster);
+			$creator = $factory->operation('Create', $cluster_identifier, $cluster);
 			$creator->create($cluster_identifier, $cluster);
 		}
 	}

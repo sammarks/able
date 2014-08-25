@@ -25,15 +25,15 @@ class FeatureFactory extends ComponentFactory {
 	/**
 	 * Gets a feature.
 	 *
-	 * @param string      $type     The type of feature.
-	 * @param BaseCommand $command  The command being run.
-	 * @param array       $settings The settings array for the site.
+	 * @param string $type     The type of feature.
+	 * @param array  $settings The settings array for the site.
 	 *
+	 * @internal param \Able\CommandSets\BaseCommand $command The command being run.
 	 * @return Feature
 	 */
-	public function feature($type, BaseCommand $command, array $settings = array())
+	public function feature($type, array $settings = array())
 	{
-		return $this->factory($type, $command, $settings);
+		return $this->factory($type, $settings);
 	}
 
 }

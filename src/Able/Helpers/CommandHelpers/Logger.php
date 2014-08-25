@@ -5,8 +5,6 @@ namespace Able\Helpers\CommandHelpers;
 use Able\CommandSets\BaseCommand;
 use FlorianWolters\Component\Util\Singleton\SingletonTrait;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
 
 class Logger extends CommandHelper {
 

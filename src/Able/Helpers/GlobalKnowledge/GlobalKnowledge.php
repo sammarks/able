@@ -26,7 +26,7 @@ class GlobalKnowledge {
 
 		/** @var ProviderFactory $provider_factory */
 		$provider_factory = ProviderFactory::getInstance();
-		$this->provider = $provider_factory->factory($provider, null, $provider_settings);
+		$this->provider = $provider_factory->factory($provider, $provider_settings);
 	}
 
 }

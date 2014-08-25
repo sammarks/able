@@ -4,6 +4,7 @@ namespace Able\Helpers\Cluster\Operations;
 
 use Able\Helpers\Cluster\Cluster;
 use Able\Helpers\Cluster\Node;
+use Able\Helpers\CommandHelpers\Logger;
 use Able\Helpers\Fleet;
 use Able\Helpers\FleetException;
 use Able\Helpers\ConfigurationManager;
@@ -42,9 +43,9 @@ class DeployOperation extends Operation {
 	protected function verifyFleet()
 	{
 		try {
-			Fleet::getInstance($this->command);
+			Fleet::getInstance();
 		} catch (FleetException $ex) {
-			$this->command->error('There was an error initializing fleet: ' . $ex->getMessage(), true);
+			Logger::getInstance()->error('There was an error initializing fleet: ' . $ex->getMessage(), true);
 		}
 	}
 
@@ -135,7 +136,7 @@ class DeployOperation extends Operation {
 	 */
 	protected function submitUnit($path, Node $node)
 	{
-		$fleet = new Fleet($this->command);
+		$fleet = new Fleet();
 		$fleet->setTunnel($node->getInternalIpAddress());
 		$fleet->submitUnit($path);
 	}

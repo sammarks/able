@@ -3,6 +3,8 @@
 namespace Able\CommandSets\Core;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\CommandHelpers\Logger;
+use Able\Helpers\ConfigurationManager;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,11 +24,11 @@ class ConfigCommand extends BaseCommand {
 	{
 		parent::execute($input, $output);
 		$path = $input->getArgument('name');
-		$value = $this->config->get($path);
+		$value = ConfigurationManager::getInstance()->get($path);
 		if ($value === null) {
-			$this->error('The config value ' . $path . ' does not exist.', true);
+			Logger::getInstance()->error('The config value ' . $path . ' does not exist.', true);
 		}
-		$this->log((($path) ? $path : 'Config') . ': ' . print_r($value, 1));
+		Logger::getInstance()->log((($path) ? $path : 'Config') . ': ' . print_r($value, 1));
 	}
 
 }

@@ -55,7 +55,7 @@ class Node {
 		/** @var ProviderFactory $factory */
 		$factory = ProviderFactory::getInstance();
 
-		$provider = $factory->provider($this->provider, $this->name);
+		$provider = $factory->provider($this->provider, $this->cluster, $this->name);
 		return $provider->getNodePrivateIp($this);
 	}
 

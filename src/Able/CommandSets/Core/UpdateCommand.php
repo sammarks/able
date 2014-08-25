@@ -2,6 +2,8 @@
 
 namespace Able\CommandSets\Core;
 
+use Able\Helpers\CommandHelpers\Executer;
+use Able\Helpers\CommandHelpers\Logger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,12 +25,12 @@ class UpdateCommand extends BaseCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-
 		parent::execute($input, $output);
+		$executer = Executer::getInstance();
 
-		$this->log('Updating scripts core', 'white');
-		$this->exec('cd ' . SCRIPTS_ROOT . ' && git stash', false);
-		$output = $this->exec('cd ' . SCRIPTS_ROOT . ' && git pull', true, false, true);
+		Logger::getInstance()->log('Updating scripts core', 'white');
+		$executer->exec('cd ' . SCRIPTS_ROOT . ' && git stash', false);
+		$output = $executer->exec('cd ' . SCRIPTS_ROOT . ' && git pull', true, false, true);
 		$composer_updated = false;
 		foreach ($output as $line) {
 			if (strpos($line, 'composer.json') !== false || strpos($line, 'composer.lock') !== false) {
@@ -37,17 +39,17 @@ class UpdateCommand extends BaseCommand
 			}
 		}
 		if ($composer_updated) {
-			$succeeded = $this->exec('cd ' . SCRIPTS_ROOT . ' && composer update', false);
+			$succeeded = $executer->exec('cd ' . SCRIPTS_ROOT . ' && composer update', false);
 			if ($succeeded === false) {
-				$this->exec('cd ' . SCRIPTS_ROOT . ' && composer self-update');
-				$this->exec('cd ' . SCRIPTS_ROOT . ' && composer update');
+				$executer->exec('cd ' . SCRIPTS_ROOT . ' && composer self-update');
+				$executer->exec('cd ' . SCRIPTS_ROOT . ' && composer update');
 			}
 		}
 
 		// Update permissions on the able executable.
-		$this->exec('chmod a+x ' . SCRIPTS_ROOT . '/able');
+		$executer->exec('chmod a+x ' . SCRIPTS_ROOT . '/able');
 
-		$this->log('Complete!', 'green');
+		Logger::getInstance()->log('Complete!', 'green');
 
 	}
 

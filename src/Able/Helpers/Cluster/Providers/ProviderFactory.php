@@ -36,7 +36,7 @@ class ProviderFactory extends ComponentFactory {
 	 */
 	public function provider($type, Cluster $cluster, array $settings = array())
 	{
-		$component = $this->factory($type, null, array());
+		$component = $this->factory($type, array());
 		if (!($component instanceof Provider)) {
 			throw new \Exception('The returned item is not an instance of the Provider class.');
 		}

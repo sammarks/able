@@ -8,12 +8,10 @@ use Able\Helpers\Component;
 class FeatureCollection extends \ArrayObject {
 
 	protected $added_features = array();
-	protected $base_command = null;
 	protected $settings = null;
 
-	public function initialize(BaseCommand $base_command, array $settings = array())
+	public function initialize(array $settings = array())
 	{
-		$this->base_command = $base_command;
 		$this->settings = $settings;
 	}
 
@@ -122,7 +120,7 @@ class FeatureCollection extends \ArrayObject {
 				if (!$suggested_feature) {
 					throw new \Exception('Feature dependency ' . $dependency . ' could not be satisfied.');
 				}
-				$this[] = FeatureFactory::getInstance()->factory($suggested_feature, $this->base_command, $this->settings);
+				$this[] = FeatureFactory::getInstance()->factory($suggested_feature, $this->settings);
 			}
 		}
 	}

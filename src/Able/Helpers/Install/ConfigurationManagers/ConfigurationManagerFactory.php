@@ -25,15 +25,15 @@ class ConfigurationManagerFactory extends ComponentFactory {
 	/**
 	 * Gets a configuration manager.
 	 *
-	 * @param string      $type     The type of configuration manager.
-	 * @param BaseCommand $command  The command being run.
-	 * @param array       $settings The settings array for the site.
+	 * @param string $type     The type of configuration manager.
+	 * @param array  $settings The settings array for the site.
 	 *
+	 * @internal param \Able\CommandSets\BaseCommand $command The command being run.
 	 * @return mixed
 	 */
-	public function manager($type, BaseCommand $command, array $settings = array())
+	public function manager($type, array $settings = array())
 	{
-		return $this->factory($type, $command, $settings);
+		return $this->factory($type, $settings);
 	}
 
 }

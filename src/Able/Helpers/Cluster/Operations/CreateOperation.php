@@ -15,9 +15,7 @@ class CreateOperation extends Operation {
 
 	public function create()
 	{
-		/** @var Logger $logger */
-		$logger = Logger::getInstance();
-		$logger->log('CREATE cluster ' . $this->cluster->getName());
+		Logger::getInstance()->log('CREATE cluster ' . $this->cluster->getName());
 
 		// Make sure the cluster doesn't already exist.
 		if ($this->cluster->nodeCount() > 0) {

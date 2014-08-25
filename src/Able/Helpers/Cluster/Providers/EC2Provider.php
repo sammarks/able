@@ -79,7 +79,7 @@ class EC2Provider extends Provider {
 		$response = $ec2->runInstances($instance_configuration);
 
 		if (!is_array($response['Instances'])) {
-			$logger->log(print_r($response, 1), 'white', BaseCommand::DEBUG_VERBOSE);
+			$logger->log(print_r($response, 1), 'white', Logger::DEBUG_VERBOSE);
 			$logger->error('There was an error creating the node ' . $identifier . '.', true);
 			return;
 		}
@@ -87,7 +87,7 @@ class EC2Provider extends Provider {
 		// Tag the instances.
 		$instance_ids = $response->getPath('Instances/*/InstanceId');
 
-		$logger->log('Waiting for instance to launch.', 'white', BaseCommand::DEBUG_VERBOSE);
+		$logger->log('Waiting for instance to launch.', 'white', Logger::DEBUG_VERBOSE);
 		$tries = 0;
 		$error = false;
 		while ($tries < 10) {
@@ -100,7 +100,7 @@ class EC2Provider extends Provider {
 				break; // Break if there were no errors.
 			} catch (\Exception $ex) {
 				$error = true;
-				$logger->log('Failed. Trying again.', 'red', BaseCommand::DEBUG_VERBOSE);
+				$logger->log('Failed. Trying again.', 'red', Logger::DEBUG_VERBOSE);
 			}
 		}
 
@@ -108,7 +108,7 @@ class EC2Provider extends Provider {
 			throw new \Exception('Could not wait for the instance to be created (after 10 tries).');
 		}
 
-		$logger->log('Creating tags for instance.', 'white', BaseCommand::DEBUG_VERBOSE);
+		$logger->log('Creating tags for instance.', 'white', Logger::DEBUG_VERBOSE);
 		foreach ($instance_ids as $id) {
 			$ec2->createTags(array(
 				'Resources' => array($id),
@@ -212,10 +212,7 @@ class EC2Provider extends Provider {
 
 	protected function getSubnet(Ec2Client $ec2, $subnet_id = '')
 	{
-		/** @var Logger $logger */
-		$logger = Logger::getInstance();
-
-		$logger->log('Fetching additional information about subnets.', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Fetching additional information about subnets.', 'white', Logger::DEBUG_VERBOSE);
 		$result = $ec2->describeSubnets(array(
 			'SubnetIds' => array($subnet_id),
 		));
@@ -229,10 +226,7 @@ class EC2Provider extends Provider {
 
 	protected function verifySecurityGroups(Ec2Client $ec2, $vpc_id = false)
 	{
-		/** @var Logger $logger */
-		$logger = Logger::getInstance();
-
-		$logger->log('Checking for Security Groups', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Checking for Security Groups', 'white', Logger::DEBUG_VERBOSE);
 
 		// Prepare the arguments.
 		$arguments = array();
@@ -251,7 +245,7 @@ class EC2Provider extends Provider {
 		$groups = $result->getPath('SecurityGroups/*/GroupName');
 		$group_ids = $result->getPath('SecurityGroups/*/GroupId');
 		if (!in_array('Able-CoreOS', $groups)) {
-			$logger->log('Creating security group.', 'white', BaseCommand::DEBUG_VERBOSE);
+			Logger::getInstance()->log('Creating security group.', 'white', Logger::DEBUG_VERBOSE);
 
 			// Generate the creation arguments.
 			$create_args = array(
@@ -265,7 +259,7 @@ class EC2Provider extends Provider {
 			$result = $ec2->createSecurityGroup($create_args);
 			$id = $result->getPath('GroupId');
 			if (!$id) {
-				$logger->error('There was an error creating the security group.', true);
+				Logger::getInstance()->error('There was an error creating the security group.', true);
 				return false;
 			}
 			$ipPermissions = array(
@@ -312,21 +306,15 @@ class EC2Provider extends Provider {
 	 */
 	protected function getEC2()
 	{
-		/** @var Logger $logger */
-		$logger = Logger::getInstance();
-
-		/** @var ConfigurationManager $config */
-		$config = ConfigurationManager::getInstance();
-
-		$logger->log('Connecting to Amazon', 'white', BaseCommand::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Connecting to Amazon', 'white', BaseCommand::DEBUG_VERBOSE);
 		$ec2 = Ec2Client::factory(array(
-			'key' => $config->get('aws/access_key'),
-			'secret' => $config->get('aws/access_secret'),
+			'key' => ConfigurationManager::getInstance()->get('aws/access_key'),
+			'secret' => ConfigurationManager::getInstance()->get('aws/access_secret'),
 			'region' => $this->settings['region'],
 		));
 
 		if (!$ec2) {
-			$logger->error('Connection to EC2 failed. Check your credentials.', true);
+			Logger::getInstance()->error('Connection to EC2 failed. Check your credentials.', true);
 
 			return false;
 		}

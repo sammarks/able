@@ -45,6 +45,20 @@ class CommandHelper {
 	}
 
 	/**
+	 * Initialize.
+	 *
+	 * @param OutputInterface $output          The output interface to use.
+	 * @param InputInterface  $input           The input interface to use.
+	 * @param QuestionHelper  $question_helper The question helper to use.
+	 */
+	public function initialize(OutputInterface $output, InputInterface $input, QuestionHelper $question_helper)
+	{
+		$this->output = $output;
+		$this->input = $input;
+		$this->question_helper = $question_helper;
+	}
+
+	/**
 	 * Verify Output
 	 *
 	 * @throws \Exception If the output has not been set, an exception is thrown.

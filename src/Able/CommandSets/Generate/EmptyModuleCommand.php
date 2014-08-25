@@ -2,6 +2,8 @@
 
 namespace Able\CommandSets\Generate;
 
+use Able\Helpers\CommandHelpers\Dialog;
+use Able\Helpers\CommandHelpers\Logger;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -47,28 +49,29 @@ class EmptyModuleCommand extends BaseCommand
 	protected function execute(InputInterface $input, OutputInterface $output, $scaffold = 'empty-module')
 	{
 		parent::execute($input, $output);
+		$logger = Logger::getInstance();
 
 		// Prepare the module replacements.
-		$this->log('Preparing');
+		$logger->log('Preparing');
 		$this->prepareModuleReplacements($input);
 
 		// Load the existing scaffold.
-		$this->log('Loading the Scaffold', 'white', self::DEBUG_VERBOSE);
+		$logger->log('Loading the Scaffold', 'white', Logger::DEBUG_VERBOSE);
 		$scaffold = new ScaffoldManager($scaffold);
 
 		// Perform the replacements.
-		$this->log('Performing Replacements', 'white', self::DEBUG_VERBOSE);
+		$logger->log('Performing Replacements', 'white', Logger::DEBUG_VERBOSE);
 		$scaffold->performReplacements($this->moduleReplacements);
 
 		// Get the path.
-		$this->log('Writing to the Filesystem');
+		$logger->log('Writing to the Filesystem');
 		$path = $this->getPath($input);
 		$module_path = $this->createModuleDirectory($path);
 
 		// Save the result to the filesystem.
 		$scaffold->write($module_path);
 
-		$this->log('Complete!', 'green');
+		$logger->log('Complete!', 'green');
 	}
 
 	protected function createModuleDirectory($path)
@@ -122,43 +125,46 @@ class EmptyModuleCommand extends BaseCommand
 	 */
 	protected function prepareModuleReplacements(InputInterface $input)
 	{
-		$this->log('Getting Information');
+		$dialog = Dialog::getInstance();
+		$logger = Logger::getInstance();
+
+		$logger->log('Getting Information');
 
 		$this->moduleReplacements = array();
 
 		// Get the module machine name.
-		$this->log('Getting the module machine name.', 'white', self::DEBUG_VERBOSE);
+		$logger->log('Getting the module machine name.', 'white', Logger::DEBUG_VERBOSE);
 		$machine_name = $input->getArgument('machine-name');
 
 		while (!$this->verifyMachineName($machine_name)) {
-			$this->error('That machine name is invalid. Machine names can only contain alphanumeric characters and ' .
+			$logger->error('That machine name is invalid. Machine names can only contain alphanumeric characters and ' .
 				'underscores.');
-			$machine_name = $this->prompt('What machine name do you want for your module?', true);
+			$machine_name = $dialog->prompt('What machine name do you want for your module?', true);
 		}
 
 		// Get the module human name.
-		$this->log('Getting the human name for the module.', 'white', self::DEBUG_VERBOSE);
+		$logger->log('Getting the human name for the module.', 'white', Logger::DEBUG_VERBOSE);
 		$name = $input->getArgument('name');
 		if ($name == null) {
 			if ($input->getOption('no-interaction')) {
 				$name = $machine_name;
 			} else {
-				$name = $this->prompt('What would you like the human name for your module to be?', true);
+				$name = $dialog->prompt('What would you like the human name for your module to be?', true);
 			}
 		}
 
 		// Get the module description.
-		$this->log('Getting the description for the module.', 'white', self::DEBUG_VERBOSE);
+		$logger->log('Getting the description for the module.', 'white', Logger::DEBUG_VERBOSE);
 		$description = $input->getArgument('description');
 		if ($description == null) {
-			$description = $this->prompt('What would you like the description for your module to be?', false);
+			$description = $dialog->prompt('What would you like the description for your module to be?', false);
 		}
 
 		// Get the module package.
-		$this->log('Getting the package for the module.', 'white', self::DEBUG_VERBOSE);
+		$logger->log('Getting the package for the module.', 'white', Logger::DEBUG_VERBOSE);
 		$package = $input->getArgument('package');
 		if ($package == null) {
-			$package = $this->prompt('What would you like the package for your module to be (typically, this is the ' .
+			$package = $dialog->prompt('What would you like the package for your module to be (typically, this is the ' .
 				'name of the site you\'re working on)?', false);
 		}
 

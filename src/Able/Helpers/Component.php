@@ -7,16 +7,16 @@ use Able\Helpers\ComponentFactory;
 
 interface ComponentInterface {
 
-	public function initialize(BaseCommand $command, array $settings = array());
+	public function initialize(array $settings = array());
 
 }
 
 abstract class Component implements ComponentInterface {
 
 	/**
-	 * @var BaseCommand
+	 * The settings specific to the component.
+	 * @var array
 	 */
-	protected $command = null;
 	protected $settings = array();
 
 	/**
@@ -29,9 +29,8 @@ abstract class Component implements ComponentInterface {
 		$this->factory = $factory;
 	}
 
-	public function initialize(BaseCommand $command = null, array $settings = array())
+	public function initialize(array $settings = array())
 	{
-		$this->command = $command;
 		$this->settings = $settings;
 
 		// Call the post initialize hook, used in some classes.

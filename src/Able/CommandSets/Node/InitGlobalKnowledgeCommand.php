@@ -2,6 +2,8 @@
 
 namespace Able\CommandSets\Node;
 
+use Able\Helpers\CommandHelpers\Logger;
+use Able\Helpers\ConfigurationManager;
 use Able\Helpers\GlobalKnowledge\GlobalKnowledge;
 use Able\Helpers\ScopeManager;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +22,7 @@ class InitGlobalKnowledgeCommand extends GlobalKnowledgeCommand {
 	{
 		parent::execute($input, $output);
 
-		$knowledge = GlobalKnowledge::getInstance($this->config->get('server/global_knowledge'));
+		$knowledge = GlobalKnowledge::getInstance(ConfigurationManager::getInstance()->get('server/global_knowledge'));
 
 		// Create default directories.
 		$this->mkdir($knowledge, '/containers');
@@ -30,7 +32,7 @@ class InitGlobalKnowledgeCommand extends GlobalKnowledgeCommand {
 		$this->key($knowledge, '/config/aws/access_key', 'changeme');
 		$this->key($knowledge, '/config/aws/access_token', 'changeme');
 
-		$this->log('Complete!');
+		Logger::getInstance()->log('Complete!');
 	}
 
 	public function getScope()

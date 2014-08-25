@@ -4,6 +4,7 @@ namespace Able\CommandSets\Sites;
 
 use Able\Helpers\Cluster\Operations\DeployOperation;
 use Able\Helpers\Cluster\Operations\OperationFactory;
+use Able\Helpers\CommandHelpers\Logger;
 use Docker\Docker;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,15 +32,15 @@ class DeployCommand extends SiteCommand {
 
 		$image = $this->findExistingImage($image_manager);
 		$cluster = $input->getArgument('cluster');
-		$this->log('DEPLOY ' . $image->getName() . ' to ' . $cluster);
+		Logger::getInstance()->log('DEPLOY ' . $image->getName() . ' to ' . $cluster);
 
 		/** @var OperationFactory $factory */
 		$factory = OperationFactory::getInstance();
 		/** @var DeployOperation $deployer */
-		$deployer = $factory->operation('Deploy', $this, $cluster);
+		$deployer = $factory->operation('Deploy', $cluster);
 		$deployer->deploy($this->settings, $image->getName());
 
-		$this->log('Success.', 'green');
+		Logger::getInstance()->log('Success.', 'green');
 	}
 
 } 

@@ -2,6 +2,7 @@
 
 namespace Able\CommandSets\Sites;
 
+use Able\Helpers\CommandHelpers\Logger;
 use Docker\Context\Context;
 use Docker\Docker;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,13 +29,13 @@ class BuildCommand extends SiteCommand {
 
 		// Make sure the directory contains a dockerfile.
 		if (!file_exists($this->directory . DIRECTORY_SEPARATOR . 'Dockerfile')) {
-			$this->error('The directory ' . $this->directory . ' does not contain a Dockerfile.', true);
+			Logger::getInstance()->error('The directory ' . $this->directory . ' does not contain a Dockerfile.', true);
 			return;
 		}
 
 		// Instantiate docker.
 		$docker = new Docker($this->getDockerClient());
-		$this->log('BUILD ' . $this->directory . DIRECTORY_SEPARATOR . 'Dockerfile');
+		Logger::getInstance()->log('BUILD ' . $this->directory . DIRECTORY_SEPARATOR . 'Dockerfile');
 
 		// Get the context.
 		$context = new Context($this->directory);
@@ -50,7 +51,7 @@ class BuildCommand extends SiteCommand {
 		$docker->build($context, $image_name, array($this, 'opCallback'),
 			$output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE, !$no_cache, !$no_rm);
 
-		$this->log('Success.', 'green');
+		Logger::getInstance()->log('Success.', 'green');
 	}
 
 }

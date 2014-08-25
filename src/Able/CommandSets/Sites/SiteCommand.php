@@ -3,7 +3,9 @@
 namespace Able\CommandSets\Sites;
 
 use Able\CommandSets\BaseCommand;
+use Able\Helpers\CommandHelpers\Executer;
 use Able\Helpers\CommandHelpers\Logger;
+use Able\Helpers\ConfigurationManager;
 use Docker\AuthConfig;
 use Docker\Http\DockerClient;
 use Docker\Manager\ImageManager;
@@ -31,29 +33,29 @@ abstract class SiteCommand extends BaseCommand {
 	{
 		parent::execute($input, $output);
 
-		$this->log('Preparing');
+		Logger::getInstance()->log('Preparing');
 
 		// Get the directory that houses the repository root.
 		$this->directory = $input->getArgument('directory');
 		$this->directory = rtrim($this->directory, '/') . '/';
 		if (($message = $this->validateRepositoryRoot($this->directory)) !== true) {
-			$this->error('The repository root: ' . $this->directory . ' is invalid because: ' . $message, true);
+			Logger::getInstance()->error('The repository root: ' . $this->directory . ' is invalid because: ' . $message, true);
 		}
 
 		// Prepare the settings array.
 		try {
 			$this->settings = $this->getSettings($this->directory);
 		} catch (MalformedSettingsException $ex) {
-			$this->error('There was an error parsing the settings: ' . $ex->getMessage(), true);
+			Logger::getInstance()->error('There was an error parsing the settings: ' . $ex->getMessage(), true);
 		}
 
 		// Set the registry.
-		$this->registry = $this->config->get('docker/registry');
+		$this->registry = ConfigurationManager::getInstance()->get('docker/registry');
 	}
 
 	protected function getSettings($directory)
 	{
-		$this->log('Parsing ablecore.yaml', 'white', self::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Parsing ablecore.yaml', 'white', Logger::DEBUG_VERBOSE);
 
 		$settings_file = $directory . 'config/ablecore.yaml';
 
@@ -68,7 +70,7 @@ abstract class SiteCommand extends BaseCommand {
 		$settings['repository_root'] = $directory;
 
 		// Merge those settings on top of the defaults.
-		$defaults = $this->config->get('site');
+		$defaults = ConfigurationManager::getInstance()->get('site');
 		$settings = array_replace_recursive($defaults, $settings);
 
 		// Validate the settings.
@@ -94,7 +96,7 @@ abstract class SiteCommand extends BaseCommand {
 
 	protected function validateRepositoryRoot($directory)
 	{
-		$this->log('Validating the repository root.', 'white', self::DEBUG_VERBOSE);
+		Logger::getInstance()->log('Validating the repository root.', 'white', Logger::DEBUG_VERBOSE);
 
 		// Make sure the repository root is actually a directory.
 		if (!is_dir($directory)) return 'Not a directory.';
@@ -114,8 +116,8 @@ abstract class SiteCommand extends BaseCommand {
 		if (!getenv('DOCKER_HOST')) {
 
 			// Try to get the host from boot2docker.
-			if ($this->exec('boot2docker ip 2>/dev/null', false, true)
-				&& ($host = $this->exec('boot2docker ip 2>/dev/null', false, false, true)) !== false
+			if (Executer::getInstance()->exec('boot2docker ip 2>/dev/null', false, true)
+				&& ($host = Executer::getInstance()->exec('boot2docker ip 2>/dev/null', false, false, true)) !== false
 				&& is_array($host)
 				&& count($host) > 0) {
 				$host_ip = null;
@@ -127,14 +129,14 @@ abstract class SiteCommand extends BaseCommand {
 					}
 				}
 				if (!$host_ip) {
-					$this->error('A host IP could not be found for Docker.', true);
+					Logger::getInstance()->error('A host IP could not be found for Docker.', true);
 
 					return null;
 				}
 
 				return new DockerClient(array(), 'tcp://' . $host_ip . ':2375');
 			} else {
-				return new DockerClient(array(), $this->config->get('docker/connection'));
+				return new DockerClient(array(), ConfigurationManager::getInstance()->get('docker/connection'));
 			}
 
 		} else {
@@ -145,7 +147,7 @@ abstract class SiteCommand extends BaseCommand {
 	protected function getDockerAuth()
 	{
 		$registry_key = ($this->registry) ? $this->registry : 'default';
-		$credentials = $this->config->get('docker/auth/' . $registry_key);
+		$credentials = ConfigurationManager::getInstance()->get('docker/auth/' . $registry_key);
 		if (!is_array($credentials)) {
 			throw new \Exception('The provided Docker credentials for the registry: ' . $registry_key . ' are invalid.');
 		}
@@ -206,15 +208,14 @@ abstract class SiteCommand extends BaseCommand {
 		return $bytes;
 	}
 
-	protected function getImageName($directory)
+	protected function getImageName()
 	{
 		$supplied_name = $this->input->getOption('name');
 		if ($supplied_name) {
 			if (strpos($supplied_name, '/') !== false) {
 				$segments = explode('/', $supplied_name);
 				if (count($segments) !== 2) {
-					$this->error($supplied_name . ' is an invalid image name.', true);
-
+					Logger::getInstance()->error($supplied_name . ' is an invalid image name.', true);
 					return '';
 				}
 				$this->registry = $segments[0];
@@ -239,7 +240,7 @@ abstract class SiteCommand extends BaseCommand {
 	{
 		$message = $this->input->getOption('message');
 		if ($message && preg_match('/[^A-Za-z0-9._]/', $message)) {
-			$this->error('Message "' . $message . '" contains invalid characters. Only upper or lowercase alphanumeric characters, underscores and periods are allowed.',
+			Logger::getInstance()->error('Message "' . $message . '" contains invalid characters. Only upper or lowercase alphanumeric characters, underscores and periods are allowed.',
 				true);
 
 			return '';
@@ -279,7 +280,7 @@ abstract class SiteCommand extends BaseCommand {
 			}
 		}
 		if ($current_image === false) {
-			$this->error('An image with the name ' . $image_repository . ' could not be found. This probably means ' .
+			Logger::getInstance()->error('An image with the name ' . $image_repository . ' could not be found. This probably means ' .
 				'something went wrong.',
 				true);
 
